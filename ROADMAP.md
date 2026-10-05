@@ -4,7 +4,7 @@
 
 **Hoy:** 23 de septiembre de 2026. Quedan 26 días.
 
-Este documento resume qué hay que entregar, qué aprendimos del diagnóstico del dataset, la estrategia técnica, quién hace qué y en qué orden. El detalle de cada tarea vive en los [issues](https://github.com/alan-pv/AgroCebada_Hackaton/issues). El contexto agronómico y la revisión de literatura están en [AgroCebada_investigacion_previa.md](AgroCebada_investigacion_previa.md).
+Este documento resume qué hay que entregar, qué aprendimos del diagnóstico del dataset, la estrategia técnica, quién hace qué y en qué orden. El detalle de cada tarea vive en los [issues](https://github.com/alan-pv/AgroCebada_Hackaton/issues). **El documento de contexto del equipo es [AgroCebada_contexto.pdf](AgroCebada_contexto.pdf)**: reúne el reto, el cultivo, los datos, el tipo de problema, las observaciones preliminares, las hipótesis y la regla de decisión. Donde haya conflicto, manda ese documento.
 
 ---
 
@@ -14,7 +14,7 @@ Este documento resume qué hay que entregar, qué aprendimos del diagnóstico de
 
 | Entregable | Detalle | Issue |
 |---|---|---|
-| Predicciones | Rendimiento (t/ha) de las 59 parcelas de PREDICCION. **El formato no está en las bases: confirmarlo en la plataforma.** | [#14](https://github.com/alan-pv/AgroCebada_Hackaton/issues/14) |
+| Predicciones | Rendimiento (t/ha) de las 59 parcelas de PREDICCION. Además de cargarlas en la plataforma, se envían a innovacion@fira.gob.mx en un CSV llamado `nombre_del_equipo_prediccion.csv` y van como tabla en los anexos. | [#14](https://github.com/alan-pv/AgroCebada_Hackaton/issues/14) |
 | Reporte técnico | Estructura y extensión fijas (tabla abajo), en PDF | [#15](https://github.com/alan-pv/AgroCebada_Hackaton/issues/15) |
 | App funcional | Web, dashboard u otra interfaz que **ejecute el modelo** y permita consultar resultados de forma interactiva, con link para el jurado | [#3](https://github.com/alan-pv/AgroCebada_Hackaton/issues/3), [#12](https://github.com/alan-pv/AgroCebada_Hackaton/issues/12) |
 | Código fuente | App y modelo, con documentación para ejecutarlos | [#13](https://github.com/alan-pv/AgroCebada_Hackaton/issues/13), [#14](https://github.com/alan-pv/AgroCebada_Hackaton/issues/14) |
@@ -33,7 +33,7 @@ Este documento resume qué hay que entregar, qué aprendimos del diagnóstico de
 | Uso de la ciencia de datos en la inclusión financiera del sector agro | 300 |
 | Conclusiones | 400 |
 | Bibliografía | — |
-| Anexos: actividades y aportaciones de cada integrante | máx. 2 cuartillas |
+| Anexos: actividades y aportaciones de cada integrante, uso de IA y tabla de las 59 predicciones | máx. 4 cuartillas (aclarado en la sesión de preguntas; las bases decían 2) |
 
 ### Cómo se evalúa
 
@@ -68,16 +68,20 @@ python scripts/diagnostico_inicial.py
 
 Varios hallazgos **corrigen supuestos de la investigación previa**. Donde haya conflicto, manda esta sección.
 
+> **Actualización 4 oct.** La primera revisión de los datos ([AgroCebada_contexto.pdf](AgroCebada_contexto.pdf), Sección VI) agrega observaciones preliminares que deben comprobarse de forma independiente (Tabla VIII) antes de apoyar decisiones. Las cifras de modelo de esta sección se recalcularán con el esquema de validación oficial ([#2](https://github.com/alan-pv/AgroCebada_Hackaton/issues/2)).
+
 ### 2.1 Etiquetas
 
 - **El rendimiento es más alto de lo esperado.** Media 3.96 t/ha, desviación 0.85, rango 2.0–5.6. La investigación previa suponía 1.5–3.5 t/ha con base en promedios estatales del SIAP.
 - **El estado explica mucho.** Puebla promedia 4.48 t/ha (71 parcelas), Hidalgo 3.76 (36) y Tlaxcala 2.98 (31).
-- **Las etiquetas de Tlaxcala están redondeadas.** El 100 % de sus rendimientos son múltiplos de 0.5, contra el 36 % en Hidalgo y el 1 % en Puebla. Probablemente cada estado midió de forma distinta. Solo el redondeo impone ~0.14 t/ha de error irreducible en esas parcelas.
+- **Los rendimientos los declaró cada productor, sin validación oficial**, todos en t/ha y de temporal (confirmado en la sesión de preguntas).
+- **Las etiquetas parecen venir de dos regímenes de medición, separados por municipio y no por estado** (observación preliminar). Régimen A (Chignahuapan, Almoloya, Cuautepec de Hinojosa, Tepeapulco): rendimientos con dos decimales, media 4.49 t/ha. Régimen B (Singuilucan, Emiliano Zapata, Apan, Calpulalpan, Nanacamilpa): redondeados a 0.5 o 0.1, media 3.05 t/ha. Hidalgo tiene municipios de los dos tipos. Solo el redondeo impone ~0.14 t/ha de error irreducible en el régimen B. Ver hipótesis H1 y H2 del documento de contexto, [#19](https://github.com/alan-pv/AgroCebada_Hackaton/issues/19) y [#21](https://github.com/alan-pv/AgroCebada_Hackaton/issues/21).
+- **Las parcelas pequeñas tienen los rendimientos más extremos** (observación preliminar): cuatro de los cinco valores de 5.4 t/ha o más son parcelas de menos de 1.5 ha. Ver H2 y H4, [#20](https://github.com/alan-pv/AgroCebada_Hackaton/issues/20).
 - El campo `Cultivo` del shapefile dice "Cebada" en Tlaxcala y "CEBADA" en los demás, lo que refuerza la hipótesis de fuentes distintas.
 
 ### 2.2 La partición es aleatoria, no espacial
 
-- La distancia mediana al vecino de entrenamiento más cercano es **0.38 km** para entrenamiento y **0.36 km** para predicción. Las 59 parcelas a predecir están intercaladas con las de entrenamiento.
+- La distancia mediana al vecino de entrenamiento más cercano es **0.38 km** para entrenamiento y **0.36 km** para predicción. Las 59 parcelas a predecir están intercaladas con las de entrenamiento. En la sesión de preguntas, los organizadores confirmaron que la partición fue al azar y estratificada para que cada zona quedara representada.
 - Todo cae en **9 municipios** de un área de ~42 × 50 km. Chignahuapan concentra 100 parcelas.
 - **Consecuencia:** el rendimiento de los vecinos es un predictor legítimo y fuerte, siempre que se calcule dentro de cada fold. La validación cruzada aleatoria imita bien la partición oficial. La espacial sirve para medir cuánto depende el modelo de los vecinos.
 
@@ -101,7 +105,10 @@ Baselines con leave-one-out sobre las 138 parcelas de entrenamiento:
 - **Cobertura suficiente.** Sentinel-2 deja una mediana de 25 observaciones útiles por parcela entre mayo y octubre de 2025, con huecos máximos de 20–28 días entre junio y septiembre. Planet aporta ~243 fechas por parcela en 2025.
 - **Hay picos espurios** que desplazan el "máximo" de NDVI a inicios de mayo en varias parcelas de Tlaxcala. Hace falta despiking.
 - **El PRO sí trae señal red-edge.** El LAI de Planet es `5.405·NDRE − 0.114`, calculado con la banda b7 red-edge. Se puede recuperar el NDRE exacto. La investigación previa decía lo contrario.
-- **El LAI de Sentinel-2 es redundante:** es una función de SAVI.
+- **El PRO cubre todo 2025** (311 fechas, de enero a diciembre). Si el rango de fechas se calcula comparando el texto `DD/MM/AAAA`, sale por error el 31/08/2025 como máximo.
+- **El LAI de Sentinel-2 es redundante:** es una función de SAVI y da valores negativos sobre suelo desnudo, lo cual no es un error.
+- **Varios índices del Básico son transformaciones de otro** según las ecuaciones oficiales (`DATASET_RETO_AGRO_2026/Ecuaciones_indices_AgroCebada_FIRA_2026.pdf`): STI/NDTI, MSI/NDWI, EMSI/ENDWI, DSWI3/NDSVI y DSWI2/MCRC. Conviene conservar uno de cada pareja (documento de contexto, Tabla IV).
+- **El VI6T de Landsat combina la banda verde con la temperatura de superficie**; en la práctica mide temperatura.
 - Planet mide NDVI sistemáticamente más alto que Sentinel-2. No se deben mezclar sin armonizar.
 - El NDVI máximo de 2025 casi no correlaciona con el rendimiento dentro de cada estado. La señal está en la fenología alineada, la heterogeneidad y la historia de la parcela, no en el verdor bruto.
 
@@ -117,6 +124,8 @@ Baselines con leave-one-out sobre las 138 parcelas de entrenamiento:
 | 2024 | 876 |
 | 2025 | 813 |
 
+- **En 2025 lo distintivo fue cuándo llovió:** mayo–junio y septiembre–octubre muy lluviosos, julio–agosto normales y Tmax más fresca que en 2023–2024 (documento de contexto, Tabla VII).
+- **El clima entregado es mensual.** Las ventanas relativas a la floración requieren datos diarios.
 - **La topografía entregada es de 120 m**, no de 15 m. Una parcela mediana de 5 ha cubre ~3 píxeles. El CEM de 15 m de INEGI es candidato a dato externo.
 - CRS: parcelas y clima en EPSG:4326, topografía en EPSG:6372.
 
@@ -138,7 +147,7 @@ datos crudos ─► limpieza de series (nubes, despiking, suavizado) ─► tabl
 
 Decisiones clave:
 
-1. **Validación antes que modelos.** Dos esquemas con particiones fijas para todos. El A (aleatorio repetido 5×10) elige modelo. El B (grupos espaciales) se reporta al lado. Todo preprocesamiento va dentro del fold.
+1. **Validación antes que modelos.** Dos esquemas con particiones fijas para todos. El A (aleatorio repetido 5×10) elige modelo. El B (grupos espaciales) se reporta al lado. Todo preprocesamiento va dentro del fold. Una mejora se acepta solo con la regla de decisión del documento de contexto (Sección X): gana en al menos 7 de cada 10 particiones y pasa la prueba de permutación.
 2. **Features por bloques**, para poder responder las preguntas guía con ablaciones:
    - contexto espacial: estado, municipio y rezago kNN del rendimiento;
    - fenología 2025 por sensor, alineada al pico de verdor de cada parcela;
@@ -281,7 +290,7 @@ Documentación:
 
 - [ ] Las 3 preguntas guía están respondidas con evidencia.
 - [ ] El reporte respeta los límites de palabras por sección.
-- [ ] Los anexos incluyen las contribuciones de cada integrante y el uso de IA con prompts.
+- [ ] Los anexos (máx. 4 cuartillas) incluyen las contribuciones de cada integrante, el uso de IA con prompts y la tabla de las 59 predicciones.
 - [ ] Los datos externos están documentados.
 - [ ] El código se ejecuta desde cero siguiendo el README.
 
@@ -290,6 +299,7 @@ App y entrega:
 - [ ] La app abre desde el link público en una ventana de incógnito y ejecuta el modelo.
 - [ ] El video dura menos de 5 minutos.
 - [ ] Todo está cargado en la plataforma el 18 de octubre, con captura de la confirmación.
+- [ ] El CSV `nombre_del_equipo_prediccion.csv` se envió a innovacion@fira.gob.mx, con enlaces breves al código si se desea.
 
 ---
 
@@ -297,11 +307,14 @@ App y entrega:
 
 | Riesgo o pregunta | Mitigación | Dueño |
 |---|---|---|
-| Las bases no especifican el formato de las predicciones | Revisar la plataforma y, si no aparece, escribir al comité esta semana | @alan-pv |
-| La sesión de dudas del 18 de septiembre ya pasó | Buscar en la plataforma si publicaron minuta o preguntas frecuentes | @alan-pv |
-| Los anexos tienen máximo 2 cuartillas pero deben incluir los prompts | Resumen en el anexo y registro completo enlazado al repo | @EmmanuelRamiro23 |
+| ~~Las bases no especifican el formato de las predicciones~~ | Resuelto: CSV por correo a innovacion@fira.gob.mx (`nombre_del_equipo_prediccion.csv`). Las columnas no se especificaron | @alan-pv |
+| ~~La sesión de dudas del 18 de septiembre ya pasó~~ | Resuelto: transcripción y correo de seguimiento revisados; las precisiones están en el documento de contexto | @alan-pv |
+| Los anexos (4 cuartillas) deben incluir los prompts y la tabla de 59 predicciones | Resumen de prompts en el anexo y registro completo enlazado al repo | @EmmanuelRamiro23 |
 | El repo es privado y el jurado necesita el link de la app | Verificar el hosting en la primera semana | @EmmanuelRamiro23 |
-| Las etiquetas redondeadas limitan la precisión alcanzable | Reportarlo como limitación y medir el RMSE por estado | @alan-pv |
+| Las etiquetas parecen venir de dos regímenes de medición y tienen ruido | Comprobar H1 y H2 ([#19](https://github.com/alan-pv/AgroCebada_Hackaton/issues/19)) y reportar el error por régimen | @alan-pv |
+| No se sabe cómo se midió el rendimiento en cada municipio | Consultar al comité ([#21](https://github.com/alan-pv/AgroCebada_Hackaton/issues/21)) | @alan-pv |
+| Las observaciones preliminares no están verificadas | Verificación independiente de la Tabla VIII del documento de contexto ([#24](https://github.com/alan-pv/AgroCebada_Hackaton/issues/24)) | @lm-vicente-j |
+| Con 138 parcelas, las mejoras pequeñas pueden ser azar | Regla de decisión fija antes de probar | @alan-pv |
 | Sobreajuste con 138 filas | Límite de ~15–30 features, regularización y validación con particiones fijas | @alan-pv |
 | Los datos externos consumen demasiado tiempo | Máximo 3 días. Se integran solo si mejoran la validación | @lm-vicente-j |
 | Retraso en features bloquea el modelo | `parcelas.parquet` el día 1 para que el modelo arranque con baselines | @lm-vicente-j |
