@@ -1,0 +1,29 @@
+\section{Supuestos que cambian}\label{sec:supuestos}
+Antes de revisar los datos, el equipo hizo una revisión de literatura y de estadística oficial. Algunos supuestos de
+esa revisión no coinciden con lo que muestran los archivos (Tabla~\ref{tab:supuestos}).
+
+\begin{table*}[!t]
+\caption{Supuestos iniciales y lo que muestran los archivos}\label{tab:supuestos}
+\centering\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.6cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{5.2cm}@{}}
+\toprule
+Supuesto inicial & Lo que muestran los archivos & Consecuencia \\
+\midrule
+Rendimiento esperado de 1.5 a 3.5~t/ha, según promedios estatales & La media es 3.96~t/ha y el rango va de 2.0 a 5.6 &
+  Las parcelas no representan el promedio de su municipio \\
+Un promedio municipal oficial serviría como referencia & El SIAP de 2025 va en sentido contrario a las etiquetas &
+  El SIAP sirve sólo como contexto \\
+Planet no trae información de borde rojo & Su LAI se calcula con el borde rojo y de él se recupera el NDRE &
+  Hay NDRE sin datos externos \\
+Planet cubre sólo parte de 2025 & Cubre de enero a diciembre & Se pueden medir la senescencia y la cosecha \\
+Topografía de 15 metros & Es de 120 metros & El relieve fino requiere otra fuente \\
+2024 fue un año seco & En la zona, 2024 llovió tanto como 2025 & Comparar 2025 con años previos no da anomalías extremas \\
+Mucha nubosidad en la temporada de 2025 & 2025 tuvo más observaciones limpias que los años previos &
+  Reconstruir las series es un problema moderado \\
+La validación cruzada debe separar por zonas & La división oficial se hizo al azar & La validación cruzada debe separar al azar \\
+Se puede medir el clima alrededor de la floración & El clima entregado es mensual & Hace falta clima diario \\
+El redondeo de etiquetas depende del estado & Depende del municipio, y Hidalgo tiene de los dos tipos &
+  El régimen reemplaza al estado como agrupación \\
+\bottomrule
+\end{tabularx}
+\end{table*}

@@ -1,0 +1,34 @@
+\section{Tipo de problema}\label{sec:problema}
+
+\subsection{Interpolación, no pronóstico}
+Las parcelas de entrenamiento y de predicción son del mismo año y de la misma región. El reto no pide pronosticar,
+sino estimar el rendimiento de parcelas vecinas a otras que ya conocemos. Eso permite usar toda la temporada de 2025,
+incluida la cosecha, y el historial de 2022 a 2024 de cada parcela, que también existe para las de predicción.
+
+Las parcelas de predicción están mezcladas con las de entrenamiento. En la mitad de los casos, la parcela de
+entrenamiento más cercana está a menos de 400 metros. La división entre ambos conjuntos parece haberse hecho al azar.
+
+\subsection{Conceptos que usamos}
+\textbf{Raíz del error cuadrático medio (RMSE).} Es la métrica principal. Mide cuántas t/ha se equivoca la predicción en
+promedio y castiga más los errores grandes. Equivocarse por una tonelada pesa cuatro veces más que equivocarse por
+media.
+
+\textbf{Validación cruzada.} Como no conocemos los 59 rendimientos ocultos, separamos una parte de las 138 parcelas,
+entrenamos con el resto y medimos el error con las separadas. Repetimos esto con otras particiones. Como la división
+oficial se hizo al azar, nuestras particiones también deben ser al azar. Separar por zonas mediría otra cosa y
+penalizaría información que sí se puede usar~\cite{wadoux2021}.
+
+\textbf{Ruido de etiqueta.} Es el error que ya trae el rendimiento entregado, por ejemplo por redondeos, errores de
+báscula o estimaciones del productor. Ningún modelo puede predecirlo, así que pone un piso al error.
+
+\textbf{Prueba de permutación.} Sirve para saber si un grupo de variables aporta información. Se revuelven sus valores
+entre parcelas, lo que rompe su relación con el rendimiento, y se vuelve a medir el error. Si el modelo sale igual
+con los valores revueltos, esas variables no aportaban nada~\cite{ojala2010}.
+
+\subsection{Pocos datos}
+Con 138 parcelas, cualquier medición del error tiene un margen de azar grande. Con alrededor de cien casos, la
+incertidumbre de la validación cruzada ronda el 10\% del error, y la forma habitual de calcularla la
+subestima~\cite{varoquaux2018}. Lo mismo pasa con la calificación oficial, que usa sólo 59 parcelas. Por eso una
+mejora de una o dos centésimas puede ser azar. Además, si se prueban muchas ideas y se elige la que mejor sale en la
+misma validación, el modelo elegido parece mejor de lo que es~\cite{cawley2010}. Esto obliga a usar pocas variables,
+modelos sencillos y una regla de decisión fija (Sección~\ref{sec:decision}).
