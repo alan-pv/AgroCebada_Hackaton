@@ -1,0 +1,10 @@
+escenario,variables,n_vars,rmse_A,rmse_A_std,victorias_vs_sin_variables,dif_vs_sin_variables
+regimen_presente,sin lluvia,0,0.4842,0.0087,,
+regimen_presente,solo total (cuánto),2,0.4659,0.0072,5.0,-0.0183
+regimen_presente,solo bimestres (cuándo),6,0.479,0.0059,4.0,-0.0052
+regimen_presente,total y bimestres,8,0.4807,0.0065,4.0,-0.0035
+regimen_presente,todo el clima,17,0.4883,0.0056,2.0,0.0041
+regimen_ausente,solo total (cuánto),2,0.5674,0.0068,,
+regimen_ausente,solo bimestres (cuándo),6,0.5177,0.0057,,
+regimen_ausente,total y bimestres,8,0.5151,0.0055,,
+regimen_ausente,todo el clima,17,0.5259,0.008,,

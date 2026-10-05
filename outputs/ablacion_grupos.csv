@@ -1,0 +1,107 @@
+grupo,importancia_media,p05,p95,rmse_sin_grupo,victorias_con_grupo,n_rep,escenario,rmse_completo,tipo
+NDDI,0.01168,0.00927,0.01473,0.47871,5,5,regimen_presente_satelite,0.46703,indice
+VI6T,0.00678,0.00214,0.00972,0.4738,5,5,regimen_presente_satelite,0.46703,indice
+MSAVI,0.00608,0.00219,0.0096,0.4731,5,5,regimen_presente_satelite,0.46703,indice
+FAPAR,0.00586,0.00201,0.01018,0.47289,5,5,regimen_presente_satelite,0.46703,indice
+DSWI5,0.00564,0.00128,0.00869,0.47266,5,5,regimen_presente_satelite,0.46703,indice
+EVI,0.00511,0.00113,0.00858,0.47214,5,5,regimen_presente_satelite,0.46703,indice
+NDWI,0.00511,0.00018,0.00922,0.47214,4,5,regimen_presente_satelite,0.46703,indice
+DSWI4,0.00482,0.00017,0.00871,0.47185,4,5,regimen_presente_satelite,0.46703,indice
+SAVI,0.0045,0.00088,0.00746,0.47152,5,5,regimen_presente_satelite,0.46703,indice
+NDSVI,0.00447,0.00081,0.00698,0.4715,5,5,regimen_presente_satelite,0.46703,indice
+NDTI,0.00431,0.00248,0.00668,0.47134,5,5,regimen_presente_satelite,0.46703,indice
+CRC,0.00387,0.00045,0.00666,0.4709,4,5,regimen_presente_satelite,0.46703,indice
+MCRC,0.00375,-0.00042,0.00602,0.47078,4,5,regimen_presente_satelite,0.46703,indice
+Fenología (fechas),0.00368,-0.00095,0.00709,0.4707,4,5,regimen_presente_satelite,0.46703,indice
+NDRE,0.00305,0.00011,0.00435,0.47007,4,5,regimen_presente_satelite,0.46703,indice
+NDVI,-0.00135,-0.00642,0.00312,0.46567,2,5,regimen_presente_satelite,0.46703,indice
+Lluvia total (cuánto),-0.00323,-0.00576,-0.00179,0.48502,0,5,regimen_presente_clima,0.48826,clima
+Tmax,-0.00474,-0.00585,-0.00355,0.48351,0,5,regimen_presente_clima,0.48826,clima
+Tmin,-0.00515,-0.00776,-0.00306,0.4831,0,5,regimen_presente_clima,0.48826,clima
+Amplitud térmica,-0.00544,-0.0079,-0.00367,0.48281,0,5,regimen_presente_clima,0.48826,clima
+Lluvia por bimestre (cuándo),-0.00578,-0.00926,-0.00086,0.48248,0,5,regimen_presente_clima,0.48826,clima
+Grados-día,-0.00652,-0.00853,-0.00465,0.48174,0,5,regimen_presente_clima,0.48826,clima
+Lluvia,-0.01228,-0.0169,-0.00739,0.47597,0,5,regimen_presente_clima,0.48826,clima
+sat25_fen,0.01265,0.00622,0.01707,0.48699,5,5,regimen_presente_completo,0.47434,bloque
+Grados-día,0.00659,0.00375,0.00985,0.48093,5,5,regimen_presente_completo,0.47434,clima
+MCRC,0.00647,0.00416,0.00872,0.48081,5,5,regimen_presente_completo,0.47434,indice
+NDSVI,0.00646,0.00423,0.00853,0.4808,5,5,regimen_presente_completo,0.47434,indice
+NDTI,0.00641,0.00425,0.00994,0.48075,5,5,regimen_presente_completo,0.47434,indice
+Amplitud térmica,0.00628,0.00338,0.00957,0.48062,5,5,regimen_presente_completo,0.47434,clima
+CRC,0.00584,0.00291,0.00856,0.48018,5,5,regimen_presente_completo,0.47434,indice
+EVI,0.00379,-0.00106,0.00876,0.47813,4,5,regimen_presente_completo,0.47434,indice
+NDDI,0.00264,-0.00185,0.00749,0.47698,4,5,regimen_presente_completo,0.47434,indice
+lab,0.0016,-0.00222,0.00457,0.47594,3,5,regimen_presente_completo,0.47434,bloque
+tsup,0.00059,-0.00232,0.00538,0.47493,2,5,regimen_presente_completo,0.47434,bloque
+VI6T,0.00059,-0.00232,0.00538,0.47493,2,5,regimen_presente_completo,0.47434,indice
+Lluvia por bimestre (cuándo),1e-05,-0.0055,0.00468,0.47435,3,5,regimen_presente_completo,0.47434,clima
+Lluvia total (cuánto),-0.00016,-0.00239,0.0033,0.47418,2,5,regimen_presente_completo,0.47434,clima
+FAPAR,-0.00038,-0.00441,0.00511,0.47396,2,5,regimen_presente_completo,0.47434,indice
+Tmax,-0.00057,-0.00675,0.00582,0.47377,2,5,regimen_presente_completo,0.47434,clima
+Tmin,-0.00057,-0.00261,0.00159,0.47376,2,5,regimen_presente_completo,0.47434,clima
+topo,-0.00088,-0.00854,0.00528,0.47346,3,5,regimen_presente_completo,0.47434,bloque
+MSAVI,-0.00093,-0.00395,0.00498,0.47341,1,5,regimen_presente_completo,0.47434,indice
+Fenología (fechas),-0.00094,-0.00458,0.00479,0.4734,1,5,regimen_presente_completo,0.47434,indice
+NDRE,-0.00096,-0.00367,0.00342,0.47338,2,5,regimen_presente_completo,0.47434,indice
+DSWI5,-0.00121,-0.0052,0.00565,0.47312,2,5,regimen_presente_completo,0.47434,indice
+SAVI,-0.00139,-0.0069,0.00605,0.47295,2,5,regimen_presente_completo,0.47434,indice
+het,-0.00149,-0.00385,0.00047,0.47285,2,5,regimen_presente_completo,0.47434,bloque
+NDWI,-0.00152,-0.00594,0.00572,0.47282,1,5,regimen_presente_completo,0.47434,indice
+DSWI4,-0.00156,-0.00552,0.00488,0.47278,2,5,regimen_presente_completo,0.47434,indice
+Lluvia,-0.00544,-0.01066,0.00322,0.4689,1,5,regimen_presente_completo,0.47434,clima
+hist,-0.00624,-0.01348,-0.00121,0.4681,0,5,regimen_presente_completo,0.47434,bloque
+clima,-0.00776,-0.01249,-0.00054,0.46658,1,5,regimen_presente_completo,0.47434,bloque
+NDVI,-0.00827,-0.01046,-0.00619,0.46607,0,5,regimen_presente_completo,0.47434,indice
+NDVI,0.02551,0.01768,0.02989,0.72102,5,5,regimen_ausente_satelite,0.69551,indice
+FAPAR,0.00355,0.00069,0.00832,0.69906,5,5,regimen_ausente_satelite,0.69551,indice
+NDDI,0.00347,0.00055,0.00618,0.69898,5,5,regimen_ausente_satelite,0.69551,indice
+MSAVI,0.0028,-0.00178,0.00796,0.69831,3,5,regimen_ausente_satelite,0.69551,indice
+DSWI5,0.00246,-0.00053,0.00702,0.69796,3,5,regimen_ausente_satelite,0.69551,indice
+EVI,0.00223,-0.0048,0.00814,0.69774,4,5,regimen_ausente_satelite,0.69551,indice
+VI6T,0.00214,-0.00344,0.01105,0.69764,2,5,regimen_ausente_satelite,0.69551,indice
+SAVI,0.002,-0.00155,0.00668,0.69751,3,5,regimen_ausente_satelite,0.69551,indice
+NDWI,0.0015,-0.00119,0.00509,0.69701,3,5,regimen_ausente_satelite,0.69551,indice
+CRC,0.0014,-0.0021,0.00426,0.6969,3,5,regimen_ausente_satelite,0.69551,indice
+DSWI4,0.00136,-0.0011,0.0051,0.69686,3,5,regimen_ausente_satelite,0.69551,indice
+NDSVI,-0.0001,-0.00467,0.00288,0.6954,3,5,regimen_ausente_satelite,0.69551,indice
+MCRC,-0.00088,-0.00338,0.00073,0.69462,2,5,regimen_ausente_satelite,0.69551,indice
+Fenología (fechas),-0.00093,-0.00676,0.00675,0.69458,2,5,regimen_ausente_satelite,0.69551,indice
+NDTI,-0.00169,-0.00721,0.00339,0.69382,2,5,regimen_ausente_satelite,0.69551,indice
+NDRE,-0.00374,-0.00925,0.0026,0.69176,2,5,regimen_ausente_satelite,0.69551,indice
+Lluvia,0.03311,0.02787,0.03777,0.55904,5,5,regimen_ausente_clima,0.52593,clima
+Lluvia por bimestre (cuándo),0.01561,0.00932,0.01977,0.54154,5,5,regimen_ausente_clima,0.52593,clima
+Amplitud térmica,0.00018,-0.00087,0.00153,0.52611,3,5,regimen_ausente_clima,0.52593,clima
+Tmax,-0.0004,-0.00185,0.0017,0.52553,2,5,regimen_ausente_clima,0.52593,clima
+Grados-día,-0.00072,-0.00217,0.0004,0.52521,1,5,regimen_ausente_clima,0.52593,clima
+Lluvia total (cuánto),-0.00288,-0.00523,-0.00149,0.52304,0,5,regimen_ausente_clima,0.52593,clima
+Tmin,-0.00566,-0.00914,-0.00299,0.52027,0,5,regimen_ausente_clima,0.52593,clima
+clima,0.1456,0.13707,0.15704,0.6693,5,5,regimen_ausente_completo,0.5237,bloque
+Lluvia,0.03844,0.03115,0.04283,0.56214,5,5,regimen_ausente_completo,0.5237,clima
+Lluvia por bimestre (cuándo),0.02683,0.02241,0.03024,0.55053,5,5,regimen_ausente_completo,0.5237,clima
+sat25_fen,0.00337,-0.00033,0.01061,0.52707,4,5,regimen_ausente_completo,0.5237,bloque
+topo,0.00326,-0.00173,0.00666,0.52696,4,5,regimen_ausente_completo,0.5237,bloque
+NDDI,0.00072,-0.00376,0.00458,0.52442,3,5,regimen_ausente_completo,0.5237,indice
+EVI,0.00035,-0.00022,0.00092,0.52405,3,5,regimen_ausente_completo,0.5237,indice
+FAPAR,-0.00093,-0.00633,0.00274,0.52277,2,5,regimen_ausente_completo,0.5237,indice
+DSWI4,-0.00106,-0.00417,0.00211,0.52264,2,5,regimen_ausente_completo,0.5237,indice
+MSAVI,-0.00122,-0.0055,0.00236,0.52248,3,5,regimen_ausente_completo,0.5237,indice
+SAVI,-0.00131,-0.00524,0.0014,0.52239,3,5,regimen_ausente_completo,0.5237,indice
+DSWI5,-0.00158,-0.00454,0.00158,0.52212,2,5,regimen_ausente_completo,0.5237,indice
+Tmax,-0.00158,-0.00336,0.00076,0.52212,1,5,regimen_ausente_completo,0.5237,clima
+NDWI,-0.00161,-0.00481,0.00172,0.52208,2,5,regimen_ausente_completo,0.5237,indice
+lab,-0.0017,-0.00489,0.00231,0.52199,2,5,regimen_ausente_completo,0.5237,bloque
+NDTI,-0.00209,-0.00882,0.00473,0.52161,2,5,regimen_ausente_completo,0.5237,indice
+NDSVI,-0.0024,-0.007,0.00413,0.5213,1,5,regimen_ausente_completo,0.5237,indice
+VI6T,-0.00247,-0.00458,0.00031,0.52122,1,5,regimen_ausente_completo,0.5237,indice
+tsup,-0.00247,-0.00458,0.00031,0.52122,1,5,regimen_ausente_completo,0.5237,bloque
+Fenología (fechas),-0.00251,-0.00386,-0.00017,0.52118,1,5,regimen_ausente_completo,0.5237,indice
+MCRC,-0.00253,-0.00709,0.00386,0.52117,1,5,regimen_ausente_completo,0.5237,indice
+hist,-0.00274,-0.00723,0.00124,0.52095,2,5,regimen_ausente_completo,0.5237,bloque
+CRC,-0.00277,-0.00708,0.00344,0.52093,1,5,regimen_ausente_completo,0.5237,indice
+Grados-día,-0.00315,-0.00661,0.00203,0.52055,1,5,regimen_ausente_completo,0.5237,clima
+Amplitud térmica,-0.00336,-0.00638,0.00101,0.52034,1,5,regimen_ausente_completo,0.5237,clima
+Lluvia total (cuánto),-0.00381,-0.0075,0.00046,0.51989,1,5,regimen_ausente_completo,0.5237,clima
+het,-0.00439,-0.00705,-0.00243,0.51931,0,5,regimen_ausente_completo,0.5237,bloque
+NDRE,-0.00499,-0.00799,-0.00203,0.5187,0,5,regimen_ausente_completo,0.5237,indice
+Tmin,-0.00531,-0.01018,-0.00176,0.51839,0,5,regimen_ausente_completo,0.5237,clima
+NDVI,-0.00751,-0.01002,-0.00551,0.51618,0,5,regimen_ausente_completo,0.5237,indice
