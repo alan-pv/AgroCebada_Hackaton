@@ -2,6 +2,16 @@
 
 **Objetivo del documento:** entender a qué se enfrenta el equipo antes de escribir una sola línea de código: qué determina el rendimiento de cebada en el Altiplano central mexicano, qué se ha hecho en el mundo para predecirlo con percepción remota, qué tipo de problema estadístico es realmente el que entregó FIRA, y qué ruta metodológica tiene mayor probabilidad de funcionar.
 
+> **Nota (4 oct 2026).** Este documento se escribió antes de analizar los datos. Varios supuestos no se sostienen; la lista completa y la evidencia están en [docs/problema_del_dataset.md §7](docs/problema_del_dataset.md#7-supuestos-de-la-investigación-previa-que-los-datos-contradicen). Los principales:
+>
+> - El rendimiento no está en 1.5–3.5 t/ha: la media es 3.96 y el rango 2.0–5.6. Las parcelas no siguen los promedios del SIAP, que no sirve como prior municipal (§1.5, §6).
+> - Las etiquetas vienen de dos regímenes de medición que se separan por municipio. Esa variable sola deja un RMSE de 0.49.
+> - La partición oficial es aleatoria, no espacial: la validación aleatoria es la principal (§3.1, §4.8).
+> - El PRO sí tiene red-edge (el LAI de Planet es función del NDRE) y cubre todo 2025 (§2.3).
+> - La topografía entregada es de 120 m, no de 15 m (§3.4, §4.4 F).
+> - Localmente 2024 fue tan lluvioso como 2025, y 2025 tuvo más observaciones limpias que los años previos (§1.6). Lo distintivo de 2025 fue la lluvia en siembra (mayo–junio) y en cosecha (septiembre–octubre).
+> - El clima entregado es mensual: las ventanas fenológicas de §1.3 requieren datos diarios.
+
 ---
 
 ## 0. Corrección de encuadre (importante)

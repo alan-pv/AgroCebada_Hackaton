@@ -4,7 +4,7 @@
 
 **Hoy:** 23 de septiembre de 2026. Quedan 26 días.
 
-Este documento resume qué hay que entregar, qué aprendimos del diagnóstico del dataset, la estrategia técnica, quién hace qué y en qué orden. El detalle de cada tarea vive en los [issues](https://github.com/alan-pv/AgroCebada_Hackaton/issues). El contexto agronómico y la revisión de literatura están en [AgroCebada_investigacion_previa.md](AgroCebada_investigacion_previa.md).
+Este documento resume qué hay que entregar, qué aprendimos del diagnóstico del dataset, la estrategia técnica, quién hace qué y en qué orden. El detalle de cada tarea vive en los [issues](https://github.com/alan-pv/AgroCebada_Hackaton/issues). El contexto agronómico y la revisión de literatura están en [AgroCebada_investigacion_previa.md](AgroCebada_investigacion_previa.md). El análisis de la estructura, el ruido y el tamaño del dataset está en [docs/problema_del_dataset.md](docs/problema_del_dataset.md).
 
 ---
 
@@ -68,11 +68,14 @@ python scripts/diagnostico_inicial.py
 
 Varios hallazgos **corrigen supuestos de la investigación previa**. Donde haya conflicto, manda esta sección.
 
+> **Actualización 4 oct.** El análisis de [docs/problema_del_dataset.md](docs/problema_del_dataset.md) (reproducible con `python scripts/diagnostico_etiquetas.py`) corrige y amplía esta sección: las etiquetas tienen dos regímenes de medición por municipio, el baseline a superar es 0.490 y la validación debe usar una regla de decisión estricta. Donde haya conflicto, manda ese documento.
+
 ### 2.1 Etiquetas
 
 - **El rendimiento es más alto de lo esperado.** Media 3.96 t/ha, desviación 0.85, rango 2.0–5.6. La investigación previa suponía 1.5–3.5 t/ha con base en promedios estatales del SIAP.
 - **El estado explica mucho.** Puebla promedia 4.48 t/ha (71 parcelas), Hidalgo 3.76 (36) y Tlaxcala 2.98 (31).
-- **Las etiquetas de Tlaxcala están redondeadas.** El 100 % de sus rendimientos son múltiplos de 0.5, contra el 36 % en Hidalgo y el 1 % en Puebla. Probablemente cada estado midió de forma distinta. Solo el redondeo impone ~0.14 t/ha de error irreducible en esas parcelas.
+- **Las etiquetas tienen dos regímenes de medición, y el corte es por municipio, no por estado.** Régimen A (Chignahuapan, Almoloya, Cuautepec de Hinojosa, Tepeapulco): dos decimales, media 4.49 t/ha. Régimen B (Singuilucan, Emiliano Zapata, Apan, Calpulalpan, Nanacamilpa): redondeado a 0.5 o 0.1, media 3.05 t/ha. El régimen explica el 67.5 % de la varianza, contra el 50 % del estado. Solo el redondeo impone ~0.14 t/ha de error irreducible en el régimen B. Ver [#19](https://github.com/alan-pv/AgroCebada_Hackaton/issues/19) y [#21](https://github.com/alan-pv/AgroCebada_Hackaton/issues/21).
+- **Las 5 parcelas más atípicas concentran el 42 % del error**, y las parcelas pequeñas reportan los rendimientos más extremos. Ver [#20](https://github.com/alan-pv/AgroCebada_Hackaton/issues/20).
 - El campo `Cultivo` del shapefile dice "Cebada" en Tlaxcala y "CEBADA" en los demás, lo que refuerza la hipótesis de fuentes distintas.
 
 ### 2.2 La partición es aleatoria, no espacial
@@ -92,8 +95,9 @@ Baselines con leave-one-out sobre las 138 parcelas de entrenamiento:
 | Media por municipio | 0.51 |
 | Promedio de los 3 vecinos más cercanos | 0.51 |
 | Promedio de los 10 vecinos más cercanos | 0.50 |
+| **Media por régimen de medición** (CV 5×10) | **0.49** |
 
-**Un modelo que no baje de ~0.50 no aporta nada sobre la geografía.** Nuestra meta interna es **RMSE < 0.45** en validación aleatoria repetida.
+**El piso a superar es la media por régimen (0.490).** La meta interna sigue siendo **RMSE < 0.45** en validación aleatoria repetida, pero con dos advertencias: el mismo modelo, calificado en distintos sorteos de 59 parcelas, obtiene RMSE de 0.37 a 0.58 por pura suerte, y el piso de ruido no se conoce con precisión (probablemente entre ~0.30 y 0.49). Por eso cada mejora se acepta solo con la regla de decisión de [#2](https://github.com/alan-pv/AgroCebada_Hackaton/issues/2).
 
 ### 2.4 Satélite
 
@@ -101,6 +105,8 @@ Baselines con leave-one-out sobre las 138 parcelas de entrenamiento:
 - **Cobertura suficiente.** Sentinel-2 deja una mediana de 25 observaciones útiles por parcela entre mayo y octubre de 2025, con huecos máximos de 20–28 días entre junio y septiembre. Planet aporta ~243 fechas por parcela en 2025.
 - **Hay picos espurios** que desplazan el "máximo" de NDVI a inicios de mayo en varias parcelas de Tlaxcala. Hace falta despiking.
 - **El PRO sí trae señal red-edge.** El LAI de Planet es `5.405·NDRE − 0.114`, calculado con la banda b7 red-edge. Se puede recuperar el NDRE exacto. La investigación previa decía lo contrario.
+- **El PRO cubre todo 2025** (311 fechas, de enero a diciembre), incluidas senescencia y cosecha. Calcular el rango de fechas comparando el texto `DD/MM/AAAA` da por error el 31/08/2025 como máximo.
+- **El satélite aporta información por encima del régimen**, comprobado con prueba de permutación (p ≈ 0.03), aunque con features de primera versión la ganancia es pequeña (0.490 → 0.486).
 - **El LAI de Sentinel-2 es redundante:** es una función de SAVI.
 - Planet mide NDVI sistemáticamente más alto que Sentinel-2. No se deben mezclar sin armonizar.
 - El NDVI máximo de 2025 casi no correlaciona con el rendimiento dentro de cada estado. La señal está en la fenología alineada, la heterogeneidad y la historia de la parcela, no en el verdor bruto.
@@ -117,6 +123,8 @@ Baselines con leave-one-out sobre las 138 parcelas de entrenamiento:
 | 2024 | 876 |
 | 2025 | 813 |
 
+- **En 2025 lo distintivo fue cuándo llovió:** mayo–junio (384 mm) y septiembre–octubre (286 mm) muy lluviosos, julio–agosto normales y Tmax más fresca (23.6 °C de mayo a septiembre). Dentro de cada régimen la lluvia casi no se relaciona con el rendimiento (|r| ≤ 0.16).
+- **El clima entregado es mensual.** Las ventanas relativas a la antesis requieren CHIRPS y CHIRTS diarios.
 - **La topografía entregada es de 120 m**, no de 15 m. Una parcela mediana de 5 ha cubre ~3 píxeles. El CEM de 15 m de INEGI es candidato a dato externo.
 - CRS: parcelas y clima en EPSG:4326, topografía en EPSG:6372.
 
@@ -138,18 +146,19 @@ datos crudos ─► limpieza de series (nubes, despiking, suavizado) ─► tabl
 
 Decisiones clave:
 
-1. **Validación antes que modelos.** Dos esquemas con particiones fijas para todos. El A (aleatorio repetido 5×10) elige modelo. El B (grupos espaciales) se reporta al lado. Todo preprocesamiento va dentro del fold.
-2. **Features por bloques**, para poder responder las preguntas guía con ablaciones:
-   - contexto espacial: estado, municipio y rezago kNN del rendimiento;
+1. **Validación antes que modelos.** Dos esquemas con particiones fijas para todos. El A (aleatorio repetido 5×10, balanceado por régimen) elige modelo. El B (grupos espaciales) se reporta al lado. Todo preprocesamiento va dentro del fold. Una mejora se acepta solo si gana en al menos 70 % de las mismas particiones y supera la prueba de permutación.
+2. **El régimen de medición es la variable base.** Toda feature se evalúa por encima de él y los resultados se reportan por régimen.
+3. **Features por bloques**, para poder responder las preguntas guía con ablaciones:
+   - contexto espacial: régimen de medición, municipio y rezago kNN del rendimiento;
    - fenología 2025 por sensor, alineada al pico de verdor de cada parcela;
    - historia 2022–2024 de la parcela;
    - heterogeneidad intra-parcela;
    - labranza y residuos antes de la siembra;
    - clima en ventanas fenológicas;
    - topografía.
-3. **Pocas features y modelos regularizados.** Con 138 filas: Ridge/ElasticNet, PLS, RandomForest, LightGBM poco profundo, Gaussian Process y TabPFN. Nada de deep learning.
-4. **Ensemble por promedio** de 3–4 modelos diversos, con intervalos conformal p10–p90. La incertidumbre es lo que le sirve a FIRA para decidir crédito.
-5. **La app cuenta una historia de crédito:** probabilidad de rendimiento bajo un umbral e ingreso esperado por parcela. Así se conecta con el criterio de inclusión financiera.
+4. **Pocas features y modelos regularizados.** Con 138 filas: Ridge/ElasticNet, PLS, RandomForest, LightGBM poco profundo, Gaussian Process y TabPFN. Nada de deep learning.
+5. **Ensemble por promedio** de 3–4 modelos diversos, con intervalos conformal p10–p90. La incertidumbre es lo que le sirve a FIRA para decidir crédito.
+6. **La app cuenta una historia de crédito:** probabilidad de rendimiento bajo un umbral e ingreso esperado por parcela. Así se conecta con el criterio de inclusión financiera.
 
 ---
 
@@ -301,7 +310,10 @@ App y entrega:
 | La sesión de dudas del 18 de septiembre ya pasó | Buscar en la plataforma si publicaron minuta o preguntas frecuentes | @alan-pv |
 | Los anexos tienen máximo 2 cuartillas pero deben incluir los prompts | Resumen en el anexo y registro completo enlazado al repo | @EmmanuelRamiro23 |
 | El repo es privado y el jurado necesita el link de la app | Verificar el hosting en la primera semana | @EmmanuelRamiro23 |
-| Las etiquetas redondeadas limitan la precisión alcanzable | Reportarlo como limitación y medir el RMSE por estado | @alan-pv |
-| Sobreajuste con 138 filas | Límite de ~15–30 features, regularización y validación con particiones fijas | @alan-pv |
+| Las etiquetas vienen de dos regímenes de medición y tienen ruido | Régimen como variable base, pérdida robusta y ponderación por área ([#19](https://github.com/alan-pv/AgroCebada_Hackaton/issues/19)); reportar RMSE por régimen | @alan-pv |
+| No se sabe cómo se midió el rendimiento en cada municipio | Consultar al comité ([#21](https://github.com/alan-pv/AgroCebada_Hackaton/issues/21)) | @alan-pv |
+| Las 5 parcelas más atípicas concentran el 42 % del error | Revisión visual y Sentinel-1 para acame y cosecha ([#20](https://github.com/alan-pv/AgroCebada_Hackaton/issues/20)) | @lm-vicente-j |
+| El puntaje oficial sobre 59 parcelas varía ±0.1 t/ha por suerte | No prometer cifras exactas; elegir con la regla de decisión, no por mejoras de 0.01–0.02 | @alan-pv |
+| Sobreajuste con 138 filas, o elegir entre muchas ideas por suerte | Límite de ~15–30 features, regularización, particiones fijas, comparación emparejada y prueba de permutación | @alan-pv |
 | Los datos externos consumen demasiado tiempo | Máximo 3 días. Se integran solo si mejoran la validación | @lm-vicente-j |
 | Retraso en features bloquea el modelo | `parcelas.parquet` el día 1 para que el modelo arranque con baselines | @lm-vicente-j |
