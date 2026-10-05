@@ -11,3 +11,6 @@ data/processed/series_*.parquet
 /main.tex
 /logo_*.png
 /Reto_AgroCebada_transcripcion.txt
+
+# Worktrees y configuración local de herramientas
+/.claude/
