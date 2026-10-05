@@ -3,8 +3,8 @@
 Reproduce las cifras de la sección "Hallazgos del diagnóstico inicial" de ROADMAP.md.
 
 Uso (desde la raíz del repo):
-    pip install pandas numpy pyshp rasterio
-    python scripts/diagnostico_inicial.py
+    uv pip install pyshp   # pyshp no es dependencia del proyecto
+    uv run python scripts/diagnostico_inicial.py
 
 No escribe nada en el repo: descomprime los ZIP en un directorio temporal.
 """
