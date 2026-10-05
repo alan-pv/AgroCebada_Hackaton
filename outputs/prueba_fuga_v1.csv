@@ -1,0 +1,9 @@
+,0
+rmse_modelo_y_permutado_media,0.8573931801225599
+rmse_modelo_y_permutado_min,0.8223472478613286
+rmse_media_global_y_permutado_media,0.855220750054148
+rmse_media_global_y_permutado_min,0.8514546263677779
+dif_media,0.00217243006841214
+dif_min,-0.030170493477958082
+rmse_media_global_y_real,0.8502373684224458
+n,20.0
