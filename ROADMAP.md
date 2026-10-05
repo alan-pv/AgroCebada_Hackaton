@@ -4,7 +4,7 @@
 
 **Hoy:** 23 de septiembre de 2026. Quedan 26 días.
 
-Este documento resume qué hay que entregar, qué aprendimos del diagnóstico del dataset, la estrategia técnica, quién hace qué y en qué orden. El detalle de cada tarea vive en los [issues](https://github.com/alan-pv/AgroCebada_Hackaton/issues). El contexto agronómico y la revisión de literatura están en [AgroCebada_investigacion_previa.md](AgroCebada_investigacion_previa.md). **El documento de contexto del equipo es [docs/reporte_dataset/main.pdf](docs/reporte_dataset/main.pdf)**: reúne el reto, el cultivo, los datos, el tipo de problema, las observaciones preliminares, las hipótesis y la regla de decisión. Donde haya conflicto, manda ese documento.
+Este documento resume qué hay que entregar, qué aprendimos del diagnóstico del dataset, la estrategia técnica, quién hace qué y en qué orden. El detalle de cada tarea vive en los [issues](https://github.com/alan-pv/AgroCebada_Hackaton/issues). **El documento de contexto del equipo es [AgroCebada_contexto.pdf](AgroCebada_contexto.pdf)**: reúne el reto, el cultivo, los datos, el tipo de problema, las observaciones preliminares, las hipótesis y la regla de decisión. Donde haya conflicto, manda ese documento.
 
 ---
 
@@ -68,7 +68,7 @@ python scripts/diagnostico_inicial.py
 
 Varios hallazgos **corrigen supuestos de la investigación previa**. Donde haya conflicto, manda esta sección.
 
-> **Actualización 4 oct.** La [primera revisión de los datos](docs/reporte_dataset/main.pdf) (Sección VI) agrega observaciones preliminares que deben comprobarse de forma independiente (Tabla VII) antes de apoyar decisiones. Las cifras de modelo de esta sección se recalcularán con el esquema de validación oficial ([#2](https://github.com/alan-pv/AgroCebada_Hackaton/issues/2)).
+> **Actualización 4 oct.** La primera revisión de los datos ([AgroCebada_contexto.pdf](AgroCebada_contexto.pdf), Sección VI) agrega observaciones preliminares que deben comprobarse de forma independiente (Tabla VII) antes de apoyar decisiones. Las cifras de modelo de esta sección se recalcularán con el esquema de validación oficial ([#2](https://github.com/alan-pv/AgroCebada_Hackaton/issues/2)).
 
 ### 2.1 Etiquetas
 
