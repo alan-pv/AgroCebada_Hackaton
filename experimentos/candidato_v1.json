@@ -1,0 +1,23 @@
+{
+  "nombre": "alg_gp_mejor",
+  "modelo": "gp",
+  "columnas": [],
+  "args": {
+    "contexto": [
+      "regimen"
+    ],
+    "residuos": false,
+    "rezago": {
+      "k": 10,
+      "radio_m": 400.0,
+      "mismo_regimen": true,
+      "solo_valor": true
+    },
+    "params": {}
+  },
+  "aceptado_por_regla": true,
+  "peso_muestras": null,
+  "rmse_A": 0.4582,
+  "rmse_B": 0.4888,
+  "referencia_media_regimen_A": 0.4889
+}
