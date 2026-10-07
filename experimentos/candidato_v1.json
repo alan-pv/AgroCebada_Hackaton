@@ -1,12 +1,7 @@
 {
-  "nombre": "alg_pls_2_mejor",
-  "modelo": "pls",
-  "columnas": [
-    "het_planet_ndvi_std_media",
-    "het_planet_ndvi_cv",
-    "het_s2_ndvi_std_media",
-    "het_s2_ndvi_cv"
-  ],
+  "nombre": "alg_gp_mejor",
+  "modelo": "gp",
+  "columnas": [],
   "args": {
     "contexto": [
       "regimen"
@@ -18,14 +13,11 @@
       "mismo_regimen": true,
       "solo_valor": true
     },
-    "seleccion_k": null,
-    "params": {
-      "n_components": 2
-    }
+    "params": {}
   },
   "aceptado_por_regla": true,
   "peso_muestras": null,
-  "rmse_A": 0.4502,
-  "rmse_B": 0.4914,
+  "rmse_A": 0.4582,
+  "rmse_B": 0.4888,
   "referencia_media_regimen_A": 0.4889
 }
