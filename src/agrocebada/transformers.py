@@ -107,7 +107,8 @@ class RezagoEspacial(BaseEstimator, TransformerMixin):
     Parámetros
       k: número máximo de vecinos.
       radio_m: si se da, solo cuentan los vecinos a esa distancia o menos. Si una parcela no
-        tiene ninguno, recibe la media del régimen del fold de entrenamiento.
+        tiene ninguno, recibe la media del régimen del fold de entrenamiento (en
+        `fit_transform`, sin su propia etiqueta).
       mismo_regimen: restringe los vecinos al régimen de la parcela (columna `regimen`).
       potencia: peso = 1 / distancia ** potencia.
 
@@ -151,7 +152,18 @@ class RezagoEspacial(BaseEstimator, TransformerMixin):
             reza = (w * yk).sum(1) / sw
         sin = sw == 0
         if sin.any():
-            relleno = np.array([self.media_reg_.get(r, self.media_global_) for r in rq])
+            if excluir_propia:
+                # Media del régimen sin la propia etiqueta, para no filtrarla en el relleno
+                relleno = np.empty(len(rq))
+                for i, r in enumerate(rq):
+                    m = self.reg_ == r
+                    m[i] = False
+                    if not m.any():
+                        m = np.ones(len(self.y_), dtype=bool)
+                        m[i] = False
+                    relleno[i] = self.y_[m].mean() if m.any() else self.media_global_
+            else:
+                relleno = np.array([self.media_reg_.get(r, self.media_global_) for r in rq])
             reza = np.where(sin, relleno, reza)
         n = valido.sum(1)
         dmin = np.where(n > 0, np.where(valido, dk, np.inf).min(1), np.nan)
