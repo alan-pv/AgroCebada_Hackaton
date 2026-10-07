@@ -95,6 +95,18 @@ def columnas_permutar(s):
     return cols
 
 
+def columnas_nuevas(s, base):
+    """Columnas que la prueba de permutación revuelve: solo las que `s` agrega a `base`.
+
+    Si `s` no agrega columnas (cambia el algoritmo o el enfoque), no hay bloque nuevo que
+    revolver y se revuelven todas las del modelo. En ese caso la prueba solo confirma que el
+    modelo usa información además del régimen, y lo que decide es la comparación emparejada.
+    """
+    previas = set(columnas_permutar(base["spec"])) if base.get("spec") else set()
+    nuevas = [c for c in columnas_permutar(s) if c not in previas]
+    return nuevas or columnas_permutar(s)
+
+
 # ------------------------------------------------------------------ evaluación
 
 def permutacion(mod, X, y, columnas, sw=None, dentro_de="regimen"):
@@ -119,7 +131,7 @@ def probar(nombre, bloque, s, base, X, y, perm_cols=None, sw=None, notas="", con
     comp = cv.comparacion_emparejada(res["A"], base["res"]["A"])
     perm = None
     if comp["aceptada"]:
-        cols = perm_cols if perm_cols is not None else columnas_permutar(s)
+        cols = perm_cols if perm_cols is not None else columnas_nuevas(s, base)
         perm = permutacion(mod, X, y, cols, sw)
     dec = {"aceptada": bool(comp["aceptada"] and perm is not None and perm["p"] <= 0.05),
            "victorias": comp["victorias"], "diferencia_media": comp["diferencia_media"],
