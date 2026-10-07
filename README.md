@@ -21,6 +21,7 @@ uv sync --extra tabpfn     # además tabpfn
 ```bash
 uv run python -m agrocebada.parcelas   # genera data/processed/parcelas.parquet y .gpkg
 uv run python -m agrocebada.validar    # comprueba IDs, duplicados, rangos y fechas del dataset
+uv run python -m agrocebada.build_features   # series, variables satelitales, clima, topografía y features.parquet (~2 min)
 uv run pytest                          # pruebas
 uv run python scripts/diagnostico_inicial.py   # reproduce las cifras del ROADMAP (requiere pyshp)
 ```

@@ -3,6 +3,7 @@
 Uso:
     uv run python -m agrocebada.parcelas
 """
+import geopandas as gpd
 import numpy as np
 
 from .config import CRS_GEO, CRS_METRICO, PROCESSED, REGIMEN_POR_MUNICIPIO
@@ -55,7 +56,10 @@ def main():
     PROCESSED.mkdir(parents=True, exist_ok=True)
     geo, df = construir()
     df.to_parquet(PROCESSED / "parcelas.parquet", index=False)
-    geo.to_file(PROCESSED / "parcelas.gpkg", driver="GPKG")
+    # El GPKG cambia de bytes en cada escritura; solo se reescribe si cambió el contenido
+    ruta_gpkg = PROCESSED / "parcelas.gpkg"
+    if not ruta_gpkg.exists() or not gpd.read_file(ruta_gpkg)[geo.columns].equals(geo):
+        geo.to_file(ruta_gpkg, driver="GPKG")
     print(f"{len(df)} parcelas -> {PROCESSED / 'parcelas.parquet'} y parcelas.gpkg")
 
 
