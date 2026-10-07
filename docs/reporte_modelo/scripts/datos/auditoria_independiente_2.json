@@ -1,0 +1,41 @@
+{
+  "sin_regimen": {
+    "media_municipio": 0.5133916929302641,
+    "media_regimen": 0.4931528192322608,
+    "municipio_mas_rezago_sin_regimen": 0.4850535158272047
+  },
+  "intervalos": {
+    "cobertura": {
+      "A": {
+        "desplazamiento": [
+          -0.5099999999999998,
+          0.5700000000000003
+        ],
+        "cobertura_oof_independiente": 0.8160919540229885,
+        "n": 87
+      },
+      "B": {
+        "desplazamiento": [
+          -0.5499999999999998,
+          0.48
+        ],
+        "cobertura_oof_independiente": 0.7647058823529411,
+        "n": 51
+      }
+    }
+  },
+  "particiones_del_proyecto": {
+    "gp": [
+      0.4582319877400013,
+      0.01765642780295832
+    ],
+    "media_regimen": [
+      0.48894038160891207,
+      0.0025462659050954723
+    ],
+    "lineal": [
+      0.47240501830282994,
+      0.012637176638303304
+    ]
+  }
+}

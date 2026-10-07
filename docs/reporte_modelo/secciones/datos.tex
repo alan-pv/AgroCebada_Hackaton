@@ -1,0 +1,25 @@
+\section{Datos y el hallazgo de los regímenes}\label{sec:datos}
+
+Hay 197 parcelas en nueve municipios, 138 de entrenamiento y 59 de predicción. FIRA hizo la partición al azar y
+estratificada por zona, así que cada municipio con parcelas por predecir también tiene parcelas de entrenamiento. De
+las series de tiempo construimos 91 variables por parcela, como el máximo del NDVI en 2025, la fenología, la historia
+de 2022 a 2024, la heterogeneidad dentro de la parcela, el clima y la topografía. Ninguna usa el rendimiento.
+
+\textbf{Dos formas de reportar el rendimiento.} Al revisar las etiquetas vimos que se dividen por municipio en dos
+formatos (Fig.~\ref{fig:regimenes}). En cuatro municipios el rendimiento viene con dos decimales y promedia
+4.49\,t/ha. Lo llamamos régimen A. En los otros cinco todos los valores son múltiplos de 0.1 o de 0.5 y promedian
+3.05\,t/ha. Lo llamamos régimen B. Asignamos el régimen por el formato de la etiqueta y no por su valor. Creemos que
+cada régimen corresponde a una forma distinta de levantar el dato, porque FIRA confirmó que el rendimiento lo declara
+el productor sin validación oficial.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{f1_regimenes}
+\caption{Rendimiento declarado de las 138 parcelas de entrenamiento por municipio, con el número de parcelas entre
+paréntesis. Las líneas punteadas son la media de cada régimen.}
+\label{fig:regimenes}
+\end{figure}
+
+Este hallazgo cambia el problema. La diferencia entre las medias de los regímenes, de 1.4\,t/ha, es casi tres veces la
+desviación estándar dentro de cada uno (0.53\,t/ha en A y 0.40 en B). Además, el redondeo del régimen B agrega por sí solo un error de unas 0.14\,t/ha que
+ningún modelo puede predecir. Por eso el régimen es la primera pieza del modelo.

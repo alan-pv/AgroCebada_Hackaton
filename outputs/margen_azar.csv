@@ -1,0 +1,2 @@
+n_parcelas,sorteos,rmse_media,rmse_desv,p05,mediana,p95,rmse_completo
+59,5000,0.4553,0.0526,0.369,0.4554,0.5409,0.4585

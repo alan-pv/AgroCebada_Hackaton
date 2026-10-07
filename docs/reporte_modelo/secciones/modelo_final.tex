@@ -1,0 +1,67 @@
+\section{Modelo final}\label{sec:final}
+
+\subsection{Arquitectura}
+El modelo recibe tres entradas por parcela, el régimen codificado en dos columnas indicadoras (A o B) y el rezago
+espacial estandarizado. Un proceso gaussiano~\cite{rasmussen2006} predice el rendimiento suponiendo que parcelas con
+entradas parecidas tienen rendimientos parecidos. Qué tan parecidas lo define la covarianza
+\begin{equation}
+k(\mathbf{x},\mathbf{x}') = \sigma_f^2 \exp\!\left(-\frac{\lVert\mathbf{x}-\mathbf{x}'\rVert^2}{2\lambda^2}\right) +
+\sigma_n^2\,\delta_{\mathbf{x}\mathbf{x}'} ,
+\label{eq:kernel}
+\end{equation}
+donde $\lambda$ es la distancia a la que dos parcelas dejan de parecerse, $\sigma_f^2$ la variación que explica el
+modelo y $\sigma_n^2$ el ruido que no explica. Los tres se ajustan con las 138 parcelas maximizando la verosimilitud.
+Quedan $\sigma_f^2=0.77$, $\lambda=1.57$ y $\sigma_n^2=0.26$, en unidades del rendimiento estandarizado. Es decir, el
+modelo atribuye cerca de una cuarta parte de la variación a ruido.
+
+\subsection{Error de predicción}
+En el esquema A el modelo obtiene un RMSE de 0.458\,t/ha, un error absoluto medio de 0.312 y un $R^2$ de 0.71. Mejora a
+la media por régimen en los dos regímenes, de 0.535 a 0.494 en el A y de 0.398 a 0.389 en el B. En el esquema B empata
+con ella (0.489), como se espera, porque sin vecinos cercanos el rezago se convierte en la media del régimen.
+
+La Fig.~\ref{fig:obspred} muestra la limitación principal. Las predicciones forman dos franjas, una por régimen, y
+dentro de cada una varían poco. Su desviación es cerca de 0.4 veces la de las etiquetas. El modelo acierta el nivel del
+régimen y corrige con los vecinos, pero las parcelas con rendimientos extremos, como las de 5.5\,t/ha en
+Chignahuapan, quedan cerca de la media. No forzamos más dispersión, porque sin información que la respalde subiría el
+error.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\columnwidth]{f6_observado_predicho}
+\caption{Rendimiento declarado contra predicción fuera de fold, promedio de las 10 repeticiones. La línea punteada es
+la predicción perfecta.}
+\label{fig:obspred}
+\end{figure}
+
+\subsection{Intervalos de predicción}
+Para FIRA, que evalúa crédito, importa también cuánto puede fallar cada predicción. Cada parcela recibe un intervalo
+del percentil 10 al 90 calculado con predicción conformal~\cite{vovk2005}. Guardamos los errores del modelo en
+parcelas que no vio, por separado en cada régimen, y sumamos sus percentiles 10 y 90 a la predicción. Separamos por
+régimen porque los errores del B son menores. Con los mismos errores estimamos la probabilidad de que el rendimiento
+quede por debajo de 2.5\,t/ha.
+
+Para medir si el intervalo cumple, usamos validación anidada, en la que la parcela evaluada no participa ni en el
+ajuste ni en la calibración (Fig.~\ref{fig:cobertura}). La cobertura total es 0.83, cerca de la meta de 0.80, con un
+ancho medio de 1.13\,t/ha. Las parcelas más chicas quedan algo menos cubiertas (0.77), probablemente porque su
+rendimiento declarado es más ruidoso.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{f10_cobertura}
+\caption{Fracción de parcelas cuyo rendimiento cae dentro de su intervalo p10 a p90, por régimen y por cuartil de
+área. La meta es 0.80.}
+\label{fig:cobertura}
+\end{figure}
+
+\subsection{Predicciones de las 59 parcelas}
+Las 37 parcelas del régimen A tienen una predicción media de 4.49\,t/ha (de 3.72 a 4.58) y las 22 del B de 3.06\,t/ha
+(de 2.75 a 3.66), igual que las medias de entrenamiento (Fig.~\ref{fig:mapa}). Ninguna sale del rango observado en
+su régimen. La probabilidad de quedar bajo 2.5\,t/ha supera 0.10 en 18 parcelas, todas del régimen B.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\columnwidth]{f12_mapa}
+\caption{Rendimiento observado en las parcelas de entrenamiento (cuadros) y predicho en las 59 parcelas (círculos con
+borde), con la misma escala de color. Los grupos en tonos oscuros, al oeste, son del régimen B.}
+\label{fig:mapa}
+\end{figure}

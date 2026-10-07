@@ -1,0 +1,32 @@
+\section{Introducción}\label{sec:intro}
+
+El reto AgroCebada de FIRA 2026 pide estimar el rendimiento de cebada de temporal, en toneladas por hectárea (t/ha),
+de 59 parcelas de Hidalgo, Puebla y Tlaxcala. Para entrenar tenemos 138 parcelas del mismo ciclo de 2025 con su
+rendimiento declarado, imágenes de Sentinel-2 y de Planet, clima y topografía. El jurado califica primero el error de
+las 59 predicciones con la raíz del error cuadrático medio (RMSE), que se mide en t/ha y castiga más los errores
+grandes.
+
+Este reporte explica cómo construimos el modelo y por qué tomamos cada decisión. La Fig.~\ref{fig:flujo} resume el
+proceso. Partimos de un hallazgo en las etiquetas (Sección~\ref{sec:datos}), fijamos cómo íbamos a evaluar cada idea
+(Sección~\ref{sec:evaluacion}) y agregamos piezas una por una, conservando solo las que mejoraban la validación
+(Sección~\ref{sec:construccion}). Después describimos el modelo final (Sección~\ref{sec:final}), qué tan confiable es
+su error (Sección~\ref{sec:confiabilidad}) y qué aportan los índices satelitales (Sección~\ref{sec:indices}).
+
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[node distance=0.45cm, every node/.style={font=\footnotesize, align=center},
+  caja/.style={draw=black!60, rounded corners=2pt, minimum height=1.05cm, text width=2.35cm, fill=black!3},
+  clave/.style={caja, draw=blue!60!black, fill=blue!6}, flecha/.style={-{Stealth[length=2mm]}, black!60}]
+\node[caja] (d) {Datos\\138 + 59 parcelas\\satélite, clima, suelo};
+\node[caja, right=of d] (v) {91 variables\\por parcela};
+\node[clave, right=of v] (r) {Régimen de la\\etiqueta (A o B)};
+\node[clave, right=of r] (z) {Rezago espacial\\vecinos a 400\,m};
+\node[clave, right=of z] (g) {Proceso\\gaussiano};
+\node[caja, right=of g] (s) {Predicción\\e intervalo\\p10 a p90};
+\draw[flecha] (d) -- (v); \draw[flecha] (v) -- (r); \draw[flecha] (r) -- (z); \draw[flecha] (z) -- (g); \draw[flecha] (g) -- (s);
+\node[below=0.25cm of v, text width=2.6cm, font=\scriptsize, text=black!60] {probadas, sin mejora\\(Sección~\ref{sec:bloques})};
+\end{tikzpicture}
+\caption{Arquitectura del modelo. En azul, las piezas que usa el modelo final. Las 91 variables satelitales, de clima
+y de topografía se probaron una por bloque y ninguna mejoró la validación.}
+\label{fig:flujo}
+\end{figure*}

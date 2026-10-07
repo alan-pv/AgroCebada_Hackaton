@@ -1,0 +1,4 @@
+*.aux
+*.log
+*.out
+scripts/__pycache__/

@@ -1,0 +1,135 @@
+{
+  "replica": {
+    "gp": [
+      0.4668697065070598,
+      0.017949170290478895
+    ],
+    "media_regimen": [
+      0.4931528192322608,
+      0.0036492687815037075
+    ],
+    "media_global": [
+      0.8515748603799628,
+      0.0013201284372718848
+    ],
+    "lineal_mismas_entradas": [
+      0.47361389152024846,
+      0.013039587497994635
+    ],
+    "solo_rezago_lineal": [
+      0.46573146831202406,
+      0.019550722627887367
+    ],
+    "r2_gp": 0.6965381930082739,
+    "victorias_gp_vs_media_regimen": 8,
+    "victorias_gp_vs_lineal": 8,
+    "rmse_gp_regA": 0.5004840113824812,
+    "rmse_mr_regA": 0.5404498605159209,
+    "rmse_gp_regB": 0.40274763264558455,
+    "rmse_mr_regB": 0.39973873075719907
+  },
+  "t_corregida_gp_vs_media_regimen": {
+    "dif_media": -0.024124178473414293,
+    "t": -1.0342296628509238,
+    "p": 0.30610631575685804,
+    "ic95": [
+      -0.07099902012379107,
+      0.022750663176962487
+    ],
+    "folds_ganados": 31,
+    "folds": 50
+  },
+  "t_corregida_gp_vs_lineal": {
+    "dif_media": -0.005719069083419973,
+    "t": -0.412515575089251,
+    "p": 0.6817609361193706,
+    "ic95": [
+      -0.03357959194243109,
+      0.022141453775591142
+    ],
+    "folds_ganados": 28,
+    "folds": 50
+  },
+  "semillas": [
+    [
+      11,
+      0.4523728907948803,
+      0.48971094033384943
+    ],
+    [
+      222,
+      0.4604977257711568,
+      0.4958384140522737
+    ],
+    [
+      3333,
+      0.4676864471368696,
+      0.49486269687287043
+    ],
+    [
+      44444,
+      0.4569897053108225,
+      0.4898286023968107
+    ],
+    [
+      555555,
+      0.461218318772015,
+      0.4928592615919645
+    ]
+  ],
+  "permutacion_global": {
+    "gp_media": 0.866812508731814,
+    "gp_min": 0.8430458324161563,
+    "media_global": 0.8554943347718517,
+    "gp_mejor_que_media_en": 3,
+    "n": 20
+  },
+  "permutacion_dentro_regimen": {
+    "gp_media": 0.4999781056987995,
+    "gp_min": 0.4848449634818015,
+    "media_regimen": 0.49079031064491296,
+    "gp_mejor_que_media_en": 2,
+    "n": 20,
+    "rmse_real_gp": 0.4668697065070598
+  },
+  "vecinos_entrenamiento": {
+    "sin_vecino_400m": 66,
+    "mediana_vecinos": 1.0
+  },
+  "vecino_mas_cercano": {
+    "con_vecino_400m": 72,
+    "misma_etiqueta_exacta": 16,
+    "dif_abs_mediana_400m": 0.22999999999999954,
+    "dif_abs_mediana_lejos": 0.4099999999999999,
+    "corr_y_rezago_dentro_regimen": {
+      "A": 0.43362788638666155,
+      "B": 0.3864408607687566
+    }
+  },
+  "representatividad": {
+    "59_frac_con_vecino_400m": 0.6101694915254238,
+    "cv_frac_con_vecino_400m": 0.4579710144927536,
+    "59_dist_mediana_m": 349.27668067737267,
+    "cv_dist_mediana_m": 413.84045547910785,
+    "59_vecinos_medios": 0.864406779661017,
+    "cv_vecinos_medios": 0.6550724637681159,
+    "ks_p_distancias": 0.041822972662561846,
+    "municipios_59_sin_entrenamiento": []
+  },
+  "entrega": {
+    "n": 59,
+    "ids_iguales": true,
+    "dif_max": 0.04194530833341048,
+    "dif_media": 0.006653674492914137
+  },
+  "anidada": {
+    "rmse_externo": 0.4898372717157322,
+    "elegidos": {
+      "media_regimen {}": 6,
+      "gp {'radio': 400.0, 'mismo': True}": 6,
+      "lineal {'radio': 400.0, 'mismo': True}": 2,
+      "gp {'radio': 800.0, 'mismo': True}": 1
+    },
+    "n_configs": 12
+  }
+}
