@@ -1,0 +1,110 @@
+% Reporte del modelo AgroCebada. Formato IEEEtran con portada propia.
+% Compilar desde docs/reporte_modelo (dos veces, para las referencias cruzadas):
+%   xelatex -interaction=nonstopmode main.tex && xelatex -interaction=nonstopmode main.tex
+% IEEEtran.cls, algorithmicx.sty y algpseudocode.sty van en esta carpeta porque no vienen en el TeX Live instalado.
+\documentclass[conference,letterpaper]{IEEEtran}
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Termes}
+\usepackage{polyglossia}
+\setdefaultlanguage{spanish}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage[caption=false,font=footnotesize]{subfig}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue!50!black}
+\graphicspath{{figuras/}}
+
+% Pseudocódigo en español.
+\floatname{algorithm}{Algoritmo}
+\algrenewcommand\algorithmicfunction{\textbf{función}}
+\algrenewcommand\algorithmicprocedure{\textbf{procedimiento}}
+\algrenewcommand\algorithmicif{\textbf{si}}
+\algrenewcommand\algorithmicthen{\textbf{entonces}}
+\algrenewcommand\algorithmicelse{\textbf{si no}}
+\algrenewcommand\algorithmicfor{\textbf{para cada}}
+\algrenewcommand\algorithmicdo{\textbf{hacer}}
+\algrenewcommand\algorithmicloop{\textbf{repetir}}
+\algrenewcommand\algorithmicreturn{\textbf{devolver}}
+\algrenewcommand\alglinenumber[1]{\footnotesize #1}
+\algrenewcommand{\algorithmiccomment}[1]{\hfill{\footnotesize\textit{// #1}}}
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+% ---------------------------------------------------------------- datos de la portada
+\newcommand{\universidad}{Benemérita Universidad Autónoma de Puebla}
+\newcommand{\facultad}{Facultad de Ciencias de la Computación}
+\newcommand{\carrera}{Reto AgroCebada FIRA 2026}
+\newcommand{\materia}{Reporte técnico del modelo}
+\newcommand{\integranteA}{José Alán Pomares Valdés}
+\newcommand{\integranteB}{Luis Emmanuel Ramiro Luna}
+\newcommand{\integranteC}{Vicente Josimar López Martinez}
+\newcommand{\correo}{pv202351433@alm.buap.mx}
+\newcommand{\asesor}{Ivan Olmos Pineda}
+\newcommand{\fecha}{7 de octubre de 2026}
+
+% Encabezado de la portada. Si existen figuras/logo_buap.png y figuras/logo_fcc.png se usan, si no queda un recuadro.
+\newcommand{\logo}[2]{%
+  \IfFileExists{figuras/#1}{\includegraphics[height=2.4cm]{#1}}%
+  {\fbox{\parbox[c][2.2cm][c]{2.2cm}{\centering\footnotesize\textcolor{gray}{#2}}}}}
+
+\begin{document}
+
+% ---------------------------------------------------------------- portada
+\begin{titlepage}
+  \centering
+  \begin{tabular}{@{}m{2.6cm}@{}m{\dimexpr\textwidth-5.2cm}@{}m{2.6cm}@{}}
+    \logo{logo_buap.png}{Logo BUAP} &
+    \centering{\Large\bfseries \universidad}\\[4pt]{\large \facultad} &
+    \hfill\logo{logo_fcc.png}{Logo FCC}
+  \end{tabular}\par
+  \vspace{4pt}\rule{\textwidth}{1.2pt}\par
+  \vspace{1.2cm}
+  {\large \carrera}\par\vspace{4pt}
+  {\large \materia}\par
+  \vspace{3cm}
+  {\Huge\bfseries Rendimiento de cebada de temporal\\[6pt] con régimen de etiquetas\\[6pt] y rezago espacial}\par
+  \vspace{0.8cm}
+  {\Large Procedimiento, arquitectura y evaluación del modelo}\par
+  \vfill
+  \begin{tabular}{@{}r@{\hspace{1em}}l@{}}
+    \textbf{Integrantes} & \integranteA \\
+                         & \integranteB \\
+                         & \integranteC \\[4pt]
+    \textbf{Asesor}      & \asesor \\[4pt]
+    \textbf{Contacto}    & \href{mailto:\correo}{\correo} \\
+  \end{tabular}\par
+  \vspace{1.5cm}
+  {\large Puebla, Pue., \fecha}\par
+\end{titlepage}
+
+\noindent\textbf{\textit{Resumen.}} \bfseries Estimamos el rendimiento de cebada de temporal de 59 parcelas con un
+proceso gaussiano que usa dos datos de cada parcela, el régimen de su etiqueta y el rendimiento de sus vecinas del
+mismo régimen. Las etiquetas se dividen por municipio en dos formatos con medias de 4.49 y 3.05\,t/ha, y conocer el
+formato explica la mayor parte de lo que se puede explicar. Construimos el modelo paso a paso. Cada idea entró solo si
+mejoraba la validación cruzada de forma consistente y pasaba una prueba de permutación. Así quedaron fuera las
+variables satelitales, climáticas y topográficas, que no mejoraron la predicción una vez conocidos el régimen y los
+vecinos. El modelo obtiene un RMSE de 0.458\,t/ha en validación cruzada, contra 0.489 de la media por régimen. Como el
+modelo se eligió entre muchas variantes, estimamos con validación anidada un RMSE esperado de 0.46 a 0.49\,t/ha.\par\mdseries
+
+\smallskip
+\noindent\textbf{\textit{Palabras clave.}} \bfseries rendimiento de cebada, régimen de etiquetas, rezago espacial,
+proceso gaussiano, validación cruzada, predicción conformal.\par\mdseries
+
+\input{secciones/introduccion}
+\input{secciones/datos}
+\input{secciones/evaluacion}
+\input{secciones/construccion}
+\input{secciones/modelo_final}
+\input{secciones/confiabilidad}
+\input{secciones/indices}
+\input{secciones/conclusiones}
+
+\input{secciones/referencias}
+\end{document}

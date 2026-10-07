@@ -1,0 +1,13 @@
+\section{Conclusiones}\label{sec:conclusiones}
+
+El modelo final es deliberadamente simple. Usa el régimen de la etiqueta, que explica la mayor parte del error que se
+puede reducir, y el rendimiento de los vecinos del mismo régimen a 400\,m, combinados con un proceso gaussiano. Cada
+pieza entró porque mejoró la validación de forma consistente y pasó una prueba de permutación, y cada pieza que se
+quedó fuera, como las variables satelitales y climáticas o los modelos de árboles, lo hizo porque no mejoró. El
+modelo obtiene 0.458\,t/ha en validación cruzada, y estimamos un RMSE de 0.46 a 0.49\,t/ha en las 59 parcelas, con un
+margen adicional por el tamaño de la muestra de calificación.
+
+La lección principal es que en este reto el límite no lo pone el algoritmo sino las etiquetas. Con dos formas de
+reportar y rendimientos declarados, la mejora sobre la media por régimen es pequeña y cualquier variable adicional
+compite contra el ruido. Mejores datos de campo, como el rendimiento medido o la fecha de siembra, ayudarían más que
+un modelo más complejo.

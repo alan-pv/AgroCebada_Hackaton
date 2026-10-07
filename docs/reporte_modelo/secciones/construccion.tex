@@ -1,0 +1,92 @@
+\section{Construcción del modelo}\label{sec:construccion}
+
+Agregamos las piezas en orden, de la más sencilla a la más compleja. Cada pieza tuvo que ganarle a la mejor versión
+aceptada hasta ese momento.
+
+\subsection{Punto de partida, la media por régimen}
+El modelo más simple predice para cada parcela la media de su grupo. La Fig.~\ref{fig:bases} compara varios grupos.
+La media por régimen es la mejor en ambos esquemas, con 0.489\,t/ha. La media por municipio se le acerca en el
+esquema A (0.510), pero en el esquema B sube a 0.955 porque, al dejar zonas fuera, muchos municipios se quedan sin
+parcelas de entrenamiento. El régimen no tiene ese problema, porque se conoce para cualquier parcela. Por eso es la
+base de todo lo demás.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{f2_bases}
+\caption{RMSE de modelos sencillos. El número es el esquema A. La media por régimen es la única que no empeora cuando
+se dejan zonas completas fuera (esquema B).}
+\label{fig:bases}
+\end{figure}
+
+\subsection{Rezago espacial, lo que dicen los vecinos}
+Dentro de un régimen el rendimiento todavía varía, y parcelas cercanas tienden a parecerse~\cite{tobler1970}, porque
+comparten suelo, clima, manejo y a veces productor. Para aprovecharlo calculamos el \emph{rezago espacial}, el
+promedio del rendimiento de las parcelas de entrenamiento cercanas, ponderado por el inverso de la distancia,
+\begin{equation}
+\ell_i = \frac{\sum_{j\in\mathcal{N}_i} y_j / d_{ij}}{\sum_{j\in\mathcal{N}_i} 1 / d_{ij}},
+\label{eq:rezago}
+\end{equation}
+donde $\mathcal{N}_i$ son hasta 10 vecinos del mismo régimen a menos de un radio $r$, $y_j$ su rendimiento y $d_{ij}$
+la distancia en metros. Si una parcela no tiene vecinos, $\ell_i$ es la media de su régimen. Al calcularlo para una
+parcela de entrenamiento la excluimos a ella misma, tanto de los vecinos como de esa media, para que su etiqueta no
+entre en su propia variable.
+
+\textbf{Elección del radio.} El radio equilibra dos efectos (Fig.~\ref{fig:radio}). Con un radio chico casi ninguna
+parcela tiene vecinos, solo el 25\,\% a 250\,m, y el rezago no aporta. Con un radio grande todas los tienen, pero el
+promedio mezcla parcelas que ya no se parecen y el error sube por encima de la media por régimen. A 400\,m la mitad
+de las parcelas tiene vecino y el error es el más bajo.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{f3_radio}
+\caption{RMSE del modelo con régimen y rezago según el radio de búsqueda de vecinos. El texto indica qué fracción de
+parcelas tiene al menos un vecino del mismo régimen.}
+\label{fig:radio}
+\end{figure}
+
+\textbf{Otras dos decisiones.} Limitamos los vecinos al mismo régimen porque sus etiquetas se miden distinto. Como los
+dos regímenes están en zonas separadas, a 400\,m el resultado es idéntico con o sin esa restricción, y la conservamos
+como protección. Además, el modelo ve solo el valor del rezago y no el número de vecinos ni la distancia al más
+cercano. Esas dos columnas extra agregaban ruido, y quitarlas bajó el RMSE de 0.478 a 0.470. Con ese cambio el
+rezago ganó en 9 de 10 repeticiones y pasó la prueba de permutación ($p=0.02$). Fue la primera mejora aceptada.
+
+\subsection{Variables satelitales, de clima y de topografía}\label{sec:bloques}
+Sobre el modelo con régimen y rezago probamos cada bloque de variables por separado (Fig.~\ref{fig:bloques}). Ninguno
+cumplió la regla. El que más se acercó fue la heterogeneidad del NDVI dentro de la parcela, que ganó en 7 de 10
+repeticiones por 0.002\,t/ha, pero al revolver sus valores el modelo predijo igual ($p=0.63$). Juntar todos los
+bloques satelitales empeoró el error a 0.498, porque con 138 parcelas el modelo empieza a aprender ruido. El clima
+viene en celdas de unos 5\,km, así que solo distingue zonas, y eso ya lo hacen el régimen y los vecinos. También
+empeoró el esquema B hasta 0.540. Por estas razones el modelo final no usa estas variables.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{f4_bloques}
+\caption{RMSE al agregar cada bloque al modelo con régimen y rezago (línea punteada). Ninguno mejora de forma que
+pase la regla de decisión.}
+\label{fig:bloques}
+\end{figure}
+
+\subsection{Algoritmo}
+Con las entradas fijas, régimen y rezago, comparamos algoritmos (Fig.~\ref{fig:algoritmos}). Los modelos de árboles,
+bosque aleatorio y LightGBM, quedan peor que la media por régimen. Con solo tres entradas y 138 parcelas sus cortes
+escalonados no tienen dónde apoyarse. Los modelos lineales, ridge, elastic net y PLS, quedan alrededor de 0.470. El
+proceso gaussiano logra el menor error, 0.458, y gana al ridge en 9 de 10 repeticiones.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{f5_algoritmos}
+\caption{RMSE de cada algoritmo con régimen y rezago. En gris, las alternativas. Las dos filas debajo del proceso
+gaussiano (PG) son variantes que lo combinan con otras ideas.}
+\label{fig:algoritmos}
+\end{figure}
+
+Elegimos el proceso gaussiano por tres razones además de su error. Primero, puede ajustar una relación suave y no
+lineal entre el rezago y el rendimiento, mientras que un modelo lineal supone que cada t/ha de los vecinos pesa
+igual en todo el rango. Segundo, tiene
+pocos parámetros, que se ajustan con las propias parcelas, así que se sobreajusta poco con muestras chicas. Tercero,
+su término de ruido absorbe parte del ruido de las etiquetas declaradas.
+
+\textbf{Ideas que no mejoraron al proceso gaussiano.} Promediarlo con un ridge (0.460) no ayudó, porque ambos usan la
+misma información. Tratar la etiqueta del régimen B como un intervalo de $\pm0.25$\,t/ha para reflejar el redondeo
+tampoco (0.459). Ponderar las parcelas por su área o usar una pérdida robusta de Huber mejoró menos de 0.004\,t/ha a
+un ridge, sin superar al proceso gaussiano.

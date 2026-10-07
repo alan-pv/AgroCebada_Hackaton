@@ -1,0 +1,23 @@
+\section{Cómo evaluamos cada decisión}\label{sec:evaluacion}
+
+Con 138 parcelas cualquier comparación es ruidosa, así que antes de probar ideas fijamos cómo íbamos a decidir.
+
+\textbf{Error fuera de muestra.} Todas las cifras de RMSE se calculan sobre parcelas que el modelo no vio al
+entrenar. Usamos validación cruzada, que reparte las parcelas en 5 grupos (\emph{folds}), entrena con 4 y predice el
+quinto, hasta predecir todas. Todo lo que usa el rendimiento, como el rezago espacial, se recalcula dentro de cada
+fold para que la parcela evaluada nunca influya en su propia predicción.
+
+\textbf{Dos esquemas.} El esquema A sortea los folds al azar, estratificados por municipio, y repite el sorteo 10
+veces. Imita la partición oficial y es el que decide. El esquema B deja fuera zonas completas, uniendo las parcelas a
+menos de 2\,km~\cite{roberts2017}. Mide qué tanto depende un modelo de tener vecinos en el entrenamiento.
+
+\textbf{Regla de decisión.} Una idea se acepta si baja el RMSE en al menos 7 de las 10 repeticiones del esquema A y si
+pasa una prueba de permutación~\cite{ojala2010}. En esa prueba revolvemos al azar las variables nuevas, dentro de cada
+régimen, y repetimos la validación 50 veces. Si el modelo con las variables revueltas predice igual de bien, la
+mejora no viene de esas variables y la idea se rechaza. Exigimos $p\le0.05$.
+
+\textbf{Controles del resultado final.} Elegir el mejor entre muchos modelos con las mismas particiones infla su
+resultado~\cite{cawley2010}. Por eso al final medimos el error esperado con validación anidada~\cite{varma2006},
+comparamos modelos con una prueba $t$ corregida por el traslape entre repeticiones~\cite{nadeau2003} y revisamos que
+no hubiera fuga de información revolviendo las etiquetas~\cite{kaufman2012}. Estos controles están en la
+Sección~\ref{sec:confiabilidad}.
