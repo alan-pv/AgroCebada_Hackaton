@@ -1,25 +1,25 @@
 agrupacion,grupo,n,rmse,mae,sesgo
-estado,Hidalgo,36,0.3136,0.2216,-0.0487
-estado,Puebla,71,0.5299,0.3561,0.0049
-estado,Tlaxcala,31,0.366,0.2795,0.0641
-municipio,Almoloya,10,0.1873,0.1449,-0.028
-municipio,Apan,1,0.0021,0.0021,-0.0021
-municipio,Calpulalpan,30,0.3583,0.2705,0.0479
-municipio,Chignahuapan,71,0.5299,0.3561,0.0049
-municipio,Cuautepec de Hinojosa,5,0.1758,0.1532,-0.061
-municipio,Emiliano Zapata,3,0.2852,0.2189,-0.2189
-municipio,Nanacamilpa de Mariano Arista,1,0.5481,0.5481,0.5481
-municipio,Singuilucan,16,0.417,0.3136,-0.0373
-municipio,Tepeapulco,1,0.0862,0.0862,0.0862
-regimen,A,87,0.4848,0.3171,-0.0017
-regimen,B,51,0.3752,0.2812,0.0143
-area_cuartil,Q1 menor,35,0.5575,0.3791,-0.0554
-area_cuartil,Q2,34,0.3269,0.2328,-0.1073
-area_cuartil,Q3,34,0.481,0.3532,0.1379
-area_cuartil,Q4 mayor,35,0.3873,0.2496,0.0423
-calidad_s2_tercil,alta,46,0.453,0.2819,0.0367
-calidad_s2_tercil,baja,46,0.3902,0.2884,-0.0483
-calidad_s2_tercil,media,46,0.4931,0.3412,0.0242
-calidad_planet_tercil,alta,46,0.5226,0.3337,0.0543
-calidad_planet_tercil,baja,46,0.4207,0.2983,-0.0868
-calidad_planet_tercil,media,46,0.388,0.2795,0.0451
+estado,Hidalgo,36,0.3281,0.2295,-0.0418
+estado,Puebla,71,0.5347,0.3577,0.0058
+estado,Tlaxcala,31,0.3671,0.2821,0.0637
+municipio,Almoloya,10,0.1842,0.1382,-0.0223
+municipio,Apan,1,0.0028,0.0028,0.0028
+municipio,Calpulalpan,30,0.3594,0.2732,0.0475
+municipio,Chignahuapan,71,0.5347,0.3577,0.0058
+municipio,Cuautepec de Hinojosa,5,0.1679,0.1448,-0.0651
+municipio,Emiliano Zapata,3,0.2965,0.2485,-0.2485
+municipio,Nanacamilpa de Mariano Arista,1,0.55,0.55,0.55
+municipio,Singuilucan,16,0.4419,0.3324,-0.0189
+municipio,Tepeapulco,1,0.089,0.089,0.089
+regimen,A,87,0.4888,0.3172,-0.0006
+regimen,B,51,0.3852,0.2904,0.0182
+area_cuartil,Q1 menor,35,0.5576,0.3755,-0.0553
+area_cuartil,Q2,34,0.33,0.2364,-0.1136
+area_cuartil,Q3,34,0.4843,0.3556,0.144
+area_cuartil,Q4 mayor,35,0.4069,0.261,0.0508
+calidad_s2_tercil,alta,46,0.4615,0.2902,0.0416
+calidad_s2_tercil,baja,46,0.3944,0.2891,-0.0461
+calidad_s2_tercil,media,46,0.4979,0.3426,0.0235
+calidad_planet_tercil,alta,46,0.5282,0.3384,0.0524
+calidad_planet_tercil,baja,46,0.4256,0.2994,-0.0847
+calidad_planet_tercil,media,46,0.3954,0.2842,0.0514

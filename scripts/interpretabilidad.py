@@ -142,7 +142,7 @@ def cuanto_cuando(X, y, cols_cl, rep):
 # ----------------------------------------------------------------------- SHAP
 
 def calcular_shap(Xall, X, y, cols_all, nmax_kernel=None):
-    """SHAP del modelo de análisis (régimen presente) y del candidato GP, para las 197 parcelas."""
+    """SHAP del modelo de análisis (régimen presente) y del candidato, para las 197 parcelas."""
     import shap
 
     ids_ent = X.index
@@ -159,7 +159,7 @@ def calcular_shap(Xall, X, y, cols_all, nmax_kernel=None):
     t["modelo"] = "analisis_rf"
     t["base_value"] = base
     out.append(t)
-    # Candidato GP
+    # Candidato
     cfg = modelos.configuracion_candidato()
     g = modelos.desde_config(cfg).fit(X, y)
     ng = I.nombres_variables(g, cfg["columnas"])
@@ -170,14 +170,14 @@ def calcular_shap(Xall, X, y, cols_all, nmax_kernel=None):
     exg = shap.KernelExplainer(fn, bg)
     svg = exg.shap_values(Zg, nsamples=2 ** len(ng), silent=True)
     tg = pd.DataFrame(svg, index=Xall.index, columns=ng)
-    tg["modelo"] = "candidato_gp"
+    tg["modelo"] = "candidato"
     tg["base_value"] = float(np.ravel(exg.expected_value)[0])
     out.append(tg)
     # Comprobación de aditividad
     pred = reg.predict(Z)
     print(f"  SHAP RF: máx |base + suma - predicción| = {np.abs(base + sv.sum(1) - pred).max():.2e}")
     predg = fn(Zg)
-    print(f"  SHAP GP: máx |base + suma - predicción| = "
+    print(f"  SHAP candidato: máx |base + suma - predicción| = "
           f"{np.abs(tg['base_value'].to_numpy() + svg.sum(1) - predg).max():.2e}")
     return out, nombres, Z
 

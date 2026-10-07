@@ -50,7 +50,7 @@ def cargar():
 def miembros(hh):
     """Configuraciones (formato de modelos.desde_config) de los miembros candidatos."""
     return {
-        "gp": modelos.configuracion_candidato(),
+        "cand": modelos.configuracion_candidato(),
         "ridge_rezago": {"modelo": "ridge", "columnas": [],
                          "args": {"contexto": ["regimen"], "residuos": False, "rezago": REZAGO}},
         "rf_hist_het": {"modelo": "rf", "columnas": hh,
@@ -64,11 +64,11 @@ def miembros(hh):
 
 
 ENSAMBLES = {
-    "ens_gp_ridge": ["gp", "ridge_rezago"],
-    "ens_gp_rf": ["gp", "rf_hist_het"],
-    "ens_gp_ridge_rf": ["gp", "ridge_rezago", "rf_hist_het"],
-    "ens_gp_ridge_rf_residuos": ["gp", "ridge_rezago", "rf_hist_het", "residuos_ridge"],
-    "ens_gp_lgbm_residuos": ["gp", "lgbm_hist_het", "residuos_ridge"],
+    "ens_cand_ridge": ["cand", "ridge_rezago"],
+    "ens_cand_rf": ["cand", "rf_hist_het"],
+    "ens_cand_ridge_rf": ["cand", "ridge_rezago", "rf_hist_het"],
+    "ens_cand_ridge_rf_residuos": ["cand", "ridge_rezago", "rf_hist_het", "residuos_ridge"],
+    "ens_cand_lgbm_residuos": ["cand", "lgbm_hist_het", "residuos_ridge"],
 }
 
 
@@ -99,12 +99,12 @@ def fila_tabla(nombre, miembros_txt, r, victorias="", p="", aceptada=""):
 
 def evaluar_ensambles(X, y, mi, hh):
     base = cv.evaluate(modelos.candidato(), X, y, "AB")
-    filas = [fila_tabla("candidato_v1 (gp)", "gp", base, aceptada="base")]
+    filas = [fila_tabla(f"candidato_v1 ({mi['cand']['modelo']})", "cand", base, aceptada="base")]
     resultados = {"candidato_v1": base}
     cfgs = {"candidato_v1": modelos.configuracion_candidato()}
     perm_cols = hh + ["x_m", "y_m"]
     for n, c in mi.items():  # miembros sueltos, solo informativos
-        if n == "gp":
+        if n == "cand":
             continue
         r = cv.evaluate(modelos.desde_config(c), X, y, "AB")
         registrar(r, n, "v2_ensemble", c["columnas"] or ["(solo regimen y rezago)"], c["modelo"],
@@ -121,7 +121,7 @@ def evaluar_ensambles(X, y, mi, hh):
             dec = cv.regla_decision(r["A"], base["A"], mod, X, y, perm_cols, N_PERM, REP_PERM)
         resultados[nombre], cfgs[nombre] = r, cfg
         registrar(r, nombre, "v2_ensemble", perm_cols, "promedio", decision=dec,
-                  notas=f"base=alg_gp_mejor; promedio simple de {'+'.join(nombres)}; "
+                  notas=f"base={mi['cand']['nombre']}; promedio simple de {'+'.join(nombres)}; "
                         f"diferencia media {comp['diferencia_media']:+.4f}"
                         + ("" if comp["aceptada"] else "; permutacion no corrida"))
         filas.append(fila_tabla(nombre, "+".join(nombres), r, dec["victorias"],
