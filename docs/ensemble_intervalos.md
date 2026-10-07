@@ -6,11 +6,11 @@ Este documento reúne dos pruebas. La primera busca si promediar modelos distint
 
 Un ensemble es un promedio de las predicciones de varios modelos. Aquí usamos promedio simple, con el mismo peso para cada miembro, y no entrenamos ningún meta-modelo. Si los pesos se eligieran mirando la misma validación cruzada, el resultado quedaría inflado por sesgo de selección. Por eso no probamos pesos.
 
-Los miembros son cuatro modelos con enfoques distintos. Todos ven el régimen de etiquetas y el rezago espacial a 400 m del mismo régimen.
+Los miembros son el candidato y cuatro modelos con enfoques distintos. Todos ven el régimen de etiquetas y el rezago espacial a 400 m del mismo régimen. Las cifras de este documento ya usan el rezago corregido, cuyo relleno para parcelas sin vecinos no incluye la propia etiqueta.
 
 | Miembro | Descripción |
 |---|---|
-| gp | Proceso gaussiano, el candidato de la versión 1 |
+| cand | PLS de 2 componentes con régimen, rezago y 4 variables de heterogeneidad, el candidato de la versión 1 |
 | ridge_rezago | Regresión ridge solo con régimen y rezago |
 | rf_hist_het | Bosque aleatorio de profundidad 3 con 9 variables históricas y de heterogeneidad (`hist_` y `het_`) |
 | lgbm_hist_het | LightGBM poco profundo con las mismas 9 variables |
@@ -20,18 +20,18 @@ Cada ensemble se compara con el candidato de la versión 1 con la regla de decis
 
 | Modelo | RMSE A | RMSE B | RMSE A, régimen A | RMSE A, régimen B | Victorias | Aceptada |
 |---|---|---|---|---|---|---|
-| Candidato v1 (gp) | 0.4525 | 0.4889 | 0.491 | 0.379 | base | base |
-| ridge_rezago (miembro) | 0.4633 | 0.4952 | 0.506 | 0.380 |  |  |
-| rf_hist_het (miembro) | 0.4795 | 0.4851 | 0.515 | 0.412 |  |  |
-| lgbm_hist_het (miembro) | 0.4916 | 0.4834 | 0.539 | 0.398 |  |  |
-| residuos_ridge (miembro) | 0.4791 | 0.4827 | 0.528 | 0.382 |  |  |
-| gp + ridge_rezago | 0.4549 | 0.4912 | 0.495 | 0.378 | 2 | no |
-| gp + rf | 0.4610 | 0.4834 | 0.499 | 0.389 | 1 | no |
-| gp + ridge_rezago + rf | 0.4590 | 0.4858 | 0.498 | 0.384 | 1 | no |
-| gp + ridge_rezago + rf + residuos_ridge | 0.4618 | 0.4840 | 0.503 | 0.381 | 1 | no |
-| gp + lgbm + residuos_ridge | 0.4659 | 0.4816 | 0.510 | 0.378 | 1 | no |
+| Candidato v1 (PLS) | 0.4502 | 0.4914 | 0.491 | 0.370 | base | base |
+| ridge_rezago (miembro) | 0.4696 | 0.4952 | 0.514 | 0.382 |  |  |
+| rf_hist_het (miembro) | 0.4883 | 0.4857 | 0.524 | 0.420 |  |  |
+| lgbm_hist_het (miembro) | 0.4946 | 0.4838 | 0.543 | 0.399 |  |  |
+| residuos_ridge (miembro) | 0.4853 | 0.4827 | 0.536 | 0.383 |  |  |
+| cand + ridge_rezago | 0.4558 | 0.4925 | 0.497 | 0.374 | 1 | no |
+| cand + rf | 0.4580 | 0.4843 | 0.495 | 0.386 | 0 | no |
+| cand + ridge_rezago + rf | 0.4594 | 0.4866 | 0.499 | 0.382 | 0 | no |
+| cand + ridge_rezago + rf + residuos_ridge | 0.4638 | 0.4847 | 0.506 | 0.380 | 0 | no |
+| cand + lgbm + residuos_ridge | 0.4644 | 0.4831 | 0.510 | 0.375 | 0 | no |
 
-Ningún ensemble gana al candidato en el esquema A. El mejor, gp + ridge_rezago, queda 0.0024 t/ha por encima y gana en 2 de 10 repeticiones. Los ensembles con modelos de árboles sí bajan el error del esquema B, que pasa de 0.489 a entre 0.482 y 0.486, pero esa diferencia es de 0.003 a 0.007 t/ha y el esquema B no decide. Los miembros con variables satelitales y de historia son peores que el proceso gaussiano por sí solos, y promediarlos con él arrastra el resultado hacia arriba. Esto coincide con lo que vimos en la versión 1, donde esos bloques no pasaron la regla.
+Ningún ensemble gana al candidato en el esquema A. El mejor, cand + ridge_rezago, queda 0.0056 t/ha por encima y gana en 1 de 10 repeticiones. Los ensembles con modelos de árboles sí bajan el error del esquema B, que pasa de 0.491 a entre 0.483 y 0.487, pero esa diferencia es de 0.004 a 0.008 t/ha y el esquema B no decide. Los miembros con variables satelitales y de historia son peores que el candidato por sí solos, y promediarlos con él arrastra el resultado hacia arriba.
 
 Decisión. El candidato de la versión 1 se queda como modelo de la versión 2. La configuración del candidato de la versión 2 guarda esa misma configuración y deja lista la estructura para un ensemble si una versión futura pasa la regla.
 
@@ -64,37 +64,39 @@ Cobertura y ancho medio de p10 a p90 en t/ha. La meta de cobertura es 0.80.
 
 | Variante | Cobertura global | Ancho global | Cobertura régimen A | Cobertura régimen B | Ancho régimen A | Ancho régimen B |
 |---|---|---|---|---|---|---|
-| global | 0.828 | 1.050 | 0.791 | 0.890 | 1.050 | 1.050 |
-| regimen | 0.829 | 1.122 | 0.798 | 0.882 | 1.162 | 1.054 |
-| regimen_tamano | 0.839 | 1.234 | 0.814 | 0.882 | 1.335 | 1.064 |
-| regimen_escala | 0.825 | 1.130 | 0.802 | 0.863 | 1.161 | 1.076 |
-| cvmas_global | 0.854 | 1.070 | 0.798 | 0.949 | 1.086 | 1.043 |
-| cvmas_regimen | 0.855 | 1.126 | 0.802 | 0.945 | 1.181 | 1.033 |
+| global | 0.826 | 1.063 | 0.791 | 0.886 | 1.063 | 1.063 |
+| regimen | 0.843 | 1.157 | 0.816 | 0.890 | 1.219 | 1.052 |
+| regimen_tamano | 0.851 | 1.254 | 0.821 | 0.902 | 1.363 | 1.069 |
+| regimen_escala | 0.835 | 1.156 | 0.818 | 0.863 | 1.202 | 1.077 |
+| cvmas_global | 0.816 | 1.093 | 0.805 | 0.835 | 1.111 | 1.061 |
+| cvmas_regimen | 0.835 | 1.160 | 0.823 | 0.855 | 1.232 | 1.038 |
 
 Cobertura y ancho por cuartil de área. Los cuartiles son Q1 de 0.4 a 2.3 ha, Q2 de 2.3 a 4.9 ha, Q3 de 4.9 a 8.1 ha y Q4 de 8.3 a 64.3 ha.
 
 | Variante | Cob. Q1 | Cob. Q2 | Cob. Q3 | Cob. Q4 | Ancho Q1 | Ancho Q2 | Ancho Q3 | Ancho Q4 |
 |---|---|---|---|---|---|---|---|---|
-| global | 0.760 | 0.847 | 0.794 | 0.909 | 1.047 | 1.050 | 1.053 | 1.050 |
-| regimen | 0.777 | 0.829 | 0.794 | 0.914 | 1.138 | 1.119 | 1.099 | 1.132 |
-| regimen_tamano | 0.766 | 0.912 | 0.782 | 0.897 | 1.324 | 1.303 | 1.117 | 1.193 |
-| regimen_escala | 0.800 | 0.865 | 0.788 | 0.846 | 1.260 | 1.168 | 1.063 | 1.027 |
-| cvmas_global | 0.766 | 0.865 | 0.835 | 0.949 | 1.074 | 1.063 | 1.052 | 1.092 |
-| cvmas_regimen | 0.783 | 0.871 | 0.824 | 0.943 | 1.147 | 1.118 | 1.081 | 1.157 |
+| global | 0.754 | 0.865 | 0.788 | 0.897 | 1.060 | 1.065 | 1.065 | 1.062 |
+| regimen | 0.789 | 0.865 | 0.806 | 0.914 | 1.176 | 1.163 | 1.119 | 1.169 |
+| regimen_tamano | 0.789 | 0.894 | 0.806 | 0.914 | 1.366 | 1.325 | 1.123 | 1.201 |
+| regimen_escala | 0.800 | 0.888 | 0.771 | 0.880 | 1.304 | 1.203 | 1.075 | 1.042 |
+| cvmas_global | 0.749 | 0.859 | 0.765 | 0.891 | 1.087 | 1.093 | 1.070 | 1.121 |
+| cvmas_regimen | 0.783 | 0.871 | 0.782 | 0.903 | 1.174 | 1.159 | 1.109 | 1.198 |
 
 ### Lectura
 
-La cobertura global queda entre 0.825 y 0.855, algo por encima de 0.80. Las colas de los residuos son pesadas por las parcelas atípicas del régimen A. Los cuantiles con corrección de n + 1 también son conservadores. En el régimen A la cobertura es 0.80, que es la meta. En el régimen B es 0.88, o sea el intervalo es más ancho de lo necesario. El régimen B tiene residuos más chicos, con desviación de 0.38 t/ha contra 0.49 en A. El Mondrian por régimen reparte mejor el ancho que el intervalo global, con 1.16 t/ha en A y 1.05 en B.
+La cobertura global queda entre 0.816 y 0.851, algo por encima de 0.80. Las colas de los residuos son pesadas por las parcelas atípicas del régimen A, y los cuantiles con corrección de n + 1 son conservadores. Con el Mondrian por régimen la cobertura es 0.82 en el régimen A y 0.89 en el B, o sea el intervalo de B es más ancho de lo necesario.
 
-Las parcelas chicas sí quedan peor cubiertas. En el primer cuartil de área la cobertura es 0.78 con Mondrian por régimen, contra 0.91 en el cuarto cuartil. Es decir, el intervalo es corto para las parcelas chicas y largo para las grandes. Partir cada régimen por tamaño no lo arregla. Con la separación en mediana, el primer cuartil queda en 0.77 y el segundo sube a 0.91, porque la mediana parte el grupo a la mitad y deja pocos residuos en cada lado. Escalar los residuos por el área sí mueve la cobertura donde corresponde. Sube el primer cuartil a 0.80 y baja el cuarto de 0.91 a 0.85, con ancho de 1.26 t/ha en las parcelas más chicas y 1.03 en las más grandes. A cambio, la cobertura del régimen B baja a 0.86. La desviación máxima de la cobertura por régimen respecto a 0.80 es 0.082 con el Mondrian por régimen y 0.063 con la escala, una diferencia menor al umbral de 0.02 que fijamos de antemano para cambiar de método. Con 138 parcelas, la diferencia de 0.02 en cobertura de un cuartil equivale a menos de 1 parcela por repetición, así que no la tratamos como una diferencia firme.
+Las parcelas chicas quedan peor cubiertas. En el primer cuartil de área la cobertura es 0.79 con Mondrian por régimen, contra 0.91 en el cuarto cuartil. Partir cada régimen por tamaño no lo arregla. Escalar los residuos por el área sí mueve la cobertura donde corresponde. Sube el primer cuartil a 0.80 y baja el cuarto a 0.88, con ancho de 1.30 t/ha en las parcelas más chicas y 1.04 en las más grandes. También acerca el régimen B a la meta, de 0.89 a 0.86.
 
-El CV+ cubre algo más que el conformal con residuos guardados, con 0.854 contra 0.829 de forma global, y con ancho parecido. En el régimen A queda en 0.80, igual que los demás. Su ventaja es teórica, pues requiere conservar un modelo por fold. Para producción es más simple guardar los residuos, y la cobertura medida con ese método es la que reportamos.
+Antes de ver los resultados fijamos un criterio. Se usa el Mondrian por régimen salvo que otra variante con residuos guardados reduzca en más de 0.02 la desviación máxima de la cobertura por régimen respecto a 0.80. Con el Mondrian por régimen esa desviación es 0.090, en el régimen B. Con la escala por área es 0.063. La diferencia, 0.027, supera el umbral. Con 138 parcelas una diferencia así equivale a pocas parcelas por repetición, así que no la tratamos como una diferencia firme, pero aplicamos el criterio tal como se fijó.
 
-Método elegido. Conformal con residuos guardados y Mondrian por régimen. Es el más simple de los que quedan cerca de la meta en ambos regímenes. La escala por área queda documentada como alternativa si FIRA prioriza que las parcelas chicas no queden subcubiertas.
+El CV+ cubre parecido al conformal con residuos guardados, con 0.816 y 0.835 de forma global. Su ventaja es teórica, pues requiere conservar un modelo por fold. Para producción es más simple guardar los residuos.
+
+Método elegido. Conformal con residuos guardados, Mondrian por régimen y residuos escalados por una función del área. Antes de corregir el rezago el criterio elegía el Mondrian por régimen sin escala, porque la diferencia era menor al umbral.
 
 ### Probabilidad de rendimiento bajo un umbral
 
-Para una parcela con predicción p y régimen g, la probabilidad de que el rendimiento quede por debajo de un umbral u es la fracción de residuos de calibración del régimen g que cumplen p + r < u. El umbral por defecto es 2.5 t/ha. La probabilidad crece con el umbral y baja cuando sube la predicción. En las 59 parcelas a predecir el promedio es 0.003 para el régimen A y 0.161 para el B. Esto se debe a que la media del régimen B es 3.0 t/ha y sus residuos llegan a -1.1.
+Para una parcela con predicción p y régimen g, la probabilidad de que el rendimiento quede por debajo de un umbral u es la fracción de residuos de calibración del régimen g que cumplen p + r < u. El umbral por defecto es 2.5 t/ha. La probabilidad crece con el umbral y baja cuando sube la predicción. En las 59 parcelas a predecir el promedio es 0.004 para el régimen A y 0.133 para el B. Supera 0.10 en 17 parcelas, todas del régimen B. Esto se debe a que la media del régimen B es 3.0 t/ha y sus residuos llegan a -1.1.
 
 ## Controles de sanidad de las 59 parcelas
 
@@ -102,13 +104,13 @@ Entrenamos el modelo elegido con las 138 parcelas y predijimos las 59 de predicc
 
 | Régimen | Media observada | Media predicha | Desviación observada | Desviación predicha | Razón pred/obs | Razón fuera de fold/obs |
 |---|---|---|---|---|---|---|
-| A | 4.489 | 4.487 | 0.533 | 0.222 | 0.417 | 0.294 |
-| B | 3.045 | 3.055 | 0.396 | 0.174 | 0.440 | 0.240 |
-| Todas | 3.955 | 3.953 | 0.851 | 0.728 | 0.855 | 0.828 |
+| A | 4.489 | 4.506 | 0.533 | 0.227 | 0.426 | 0.419 |
+| B | 3.045 | 3.035 | 0.396 | 0.144 | 0.363 | 0.261 |
+| Todas | 3.955 | 3.957 | 0.851 | 0.744 | 0.874 | 0.844 |
 
-El rango predicho en A es de 3.71 a 4.60 t/ha y en B de 2.71 a 3.69 t/ha. Ninguna predicción sale del rango observado en entrenamiento (2.0 a 5.6 t/ha) ni del rango de su régimen (2.15 a 5.59 en A y 2.0 a 3.7 en B). Las medias predichas coinciden con las observadas por régimen.
+El rango predicho en A es de 3.82 a 4.92 t/ha y en B de 2.65 a 3.48 t/ha. Ninguna predicción sale del rango observado en entrenamiento (2.0 a 5.6 t/ha) ni del rango de su régimen (2.15 a 5.59 en A y 2.0 a 3.7 en B). Las medias predichas coinciden con las observadas por régimen.
 
-Hay encogimiento fuerte dentro de cada régimen. La desviación de las predicciones es 0.42 de la observada en A y 0.44 en B, y con todas las parcelas juntas es 0.86 porque la diferencia entre regímenes se conserva. En la validación cruzada la razón es todavía menor, 0.29 en A y 0.24 en B. Esto es esperable. Dentro de cada régimen el modelo explica poco de la variación y casi todo el poder viene del nivel del régimen. No lo corregimos. Una corrección artificial ampliaría la dispersión sin información que la respalde y subiría el error.
+Hay encogimiento fuerte dentro de cada régimen. La desviación de las predicciones es 0.43 de la observada en A y 0.36 en B, y con todas las parcelas juntas es 0.87 porque la diferencia entre regímenes se conserva. En la validación cruzada la razón es 0.42 en A y 0.26 en B. Esto es esperable. Dentro de cada régimen el modelo explica poco de la variación y casi todo el poder viene del nivel del régimen. No lo corregimos. Una corrección artificial ampliaría la dispersión sin información que la respalde y subiría el error.
 
 ## Para usar los intervalos
 
