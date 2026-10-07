@@ -5,15 +5,15 @@ sin_nulos,falla,ok,0.0,celdas vacías en la entrega
 sin_duplicados,falla,ok,0.0,IDs repetidos
 rango_plausible,falla,ok,0.0,predicciones fuera de 2.0 a 5.6 t/ha
 rango_regimen_A,falla,ok,0.0,fuera de 2.15 a 5.59 t/ha observado en entrenamiento
-media_regimen_A,falla,ok,-0.0003,media predicha 4.489 contra 4.489 de entrenamiento (tolerancia 0.25)
+media_regimen_A,falla,ok,-0.0036,media predicha 4.485 contra 4.489 de entrenamiento (tolerancia 0.25)
 rango_regimen_B,falla,ok,0.0,fuera de 2.00 a 3.70 t/ha observado en entrenamiento
-media_regimen_B,falla,ok,0.0104,media predicha 3.055 contra 3.045 de entrenamiento (tolerancia 0.25)
+media_regimen_B,falla,ok,0.0099,media predicha 3.055 contra 3.045 de entrenamiento (tolerancia 0.25)
 p10_pred_p90,falla,ok,0.0,filas con p10 <= pred <= p90 violado
-razon_desviaciones_A,reporte,informativo,0.417,desviación predicha 0.222 entre observada 0.533
-distribucion_A,reporte,informativo,0.344,"estadístico KS contra el entrenamiento, cuantiles 10/50/90 predichos 4.45/4.54/4.59 contra 4.02/4.52/5.03"
-razon_desviaciones_B,reporte,informativo,0.442,desviación predicha 0.175 entre observada 0.396
-distribucion_B,reporte,informativo,0.426,"estadístico KS contra el entrenamiento, cuantiles 10/50/90 predichos 2.98/3.02/3.24 contra 2.50/3.00/3.50"
-razon_desviaciones_todas,reporte,informativo,0.856,desviación predicha 0.728 entre observada 0.851
-distribucion_todas,reporte,informativo,0.214,"estadístico KS contra el entrenamiento, cuantiles 10/50/90 predichos 3.02/4.54/4.59 contra 2.89/4.34/4.84"
-coherencia_espacial,reporte,informativo,0.975,correlación con la media de vecinos del mismo régimen a 400 m (hay vecinos en 36 de 59 parcelas)
-sesgo_rezago_entrenamiento,reporte,informativo,0.2649,RMSE de las 138 con el modelo final 0.265 contra 0.447 fuera de fold
+razon_desviaciones_A,reporte,informativo,0.408,desviación predicha 0.217 entre observada 0.533
+distribucion_A,reporte,informativo,0.344,"estadístico KS contra el entrenamiento, cuantiles 10/50/90 predichos 4.46/4.54/4.58 contra 4.02/4.52/5.03"
+razon_desviaciones_B,reporte,informativo,0.416,desviación predicha 0.165 entre observada 0.396
+distribucion_B,reporte,informativo,0.426,"estadístico KS contra el entrenamiento, cuantiles 10/50/90 predichos 2.98/3.02/3.23 contra 2.50/3.00/3.50"
+razon_desviaciones_todas,reporte,informativo,0.852,desviación predicha 0.725 entre observada 0.851
+distribucion_todas,reporte,informativo,0.214,"estadístico KS contra el entrenamiento, cuantiles 10/50/90 predichos 3.02/4.54/4.57 contra 2.89/4.34/4.84"
+coherencia_espacial,reporte,informativo,0.972,correlación con la media de vecinos del mismo régimen a 400 m (hay vecinos en 36 de 59 parcelas)
+sesgo_rezago_entrenamiento,reporte,informativo,0.2781,RMSE de las 138 con el modelo final 0.278 contra 0.453 fuera de fold
