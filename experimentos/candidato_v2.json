@@ -1,0 +1,34 @@
+{
+  "nombre": "candidato_v1",
+  "modelo": "gp",
+  "columnas": [],
+  "args": {
+    "contexto": [
+      "regimen"
+    ],
+    "residuos": false,
+    "rezago": {
+      "k": 10,
+      "radio_m": 400.0,
+      "mismo_regimen": true,
+      "solo_valor": true
+    },
+    "params": {}
+  },
+  "aceptado_por_regla": true,
+  "peso_muestras": null,
+  "rmse_A": 0.4582,
+  "rmse_B": 0.4888,
+  "referencia_media_regimen_A": 0.4889,
+  "referencia_candidato_v1_A": 0.4582,
+  "intervalo": {
+    "metodo": "regimen",
+    "nivel": 0.8,
+    "agrupar": "regimen",
+    "tamano": "ninguno",
+    "min_grupo": 20,
+    "umbral": 2.5,
+    "calibracion": "experimentos/calibracion_v2.parquet",
+    "cobertura_global_anidada": 0.8261
+  }
+}
