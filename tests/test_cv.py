@@ -65,7 +65,11 @@ def test_rezago_excluye_a_si_misma():
     r = RezagoEspacial(k=1).fit_transform(X, y)
     assert r[:, 0] == pytest.approx([3.0, 1.0, 3.0])
     r2 = RezagoEspacial(k=1, radio_m=500).fit_transform(X, y)
-    assert r2[2, 0] == pytest.approx(np.mean(y)) and r2[2, 1] == 0  # sin vecinos, media del régimen
+    # sin vecinos, media del régimen sin su propia etiqueta
+    assert r2[2, 0] == pytest.approx(np.mean([1.0, 3.0])) and r2[2, 1] == 0
+    # en transform (parcelas nuevas) el relleno sí es la media completa del régimen
+    nueva = pd.DataFrame({"x_m": [9000.0], "y_m": 0.0, "regimen": ["A"]})
+    assert RezagoEspacial(k=1, radio_m=500).fit(X, y).transform(nueva)[0, 0] == pytest.approx(np.mean(y))
 
 
 def test_sin_fuga_con_y_permutado(datos):
