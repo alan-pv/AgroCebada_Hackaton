@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+.pytest_cache/
+data/interim/*
+!data/interim/.gitkeep
+data/processed/series_*.parquet
+
+# Archivos sueltos de la raíz que no se versionan
+/DATASET_RETO_AGRO_2026.zip
+/main.tex
+/logo_*.png
+/Reto_AgroCebada_transcripcion.txt
+
+# Worktrees y configuración local de herramientas
+/.claude/
