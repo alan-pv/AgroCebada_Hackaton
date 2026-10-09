@@ -1,0 +1,94 @@
+% Reporte del análisis de los regímenes de etiquetas. Mismo formato que docs/reporte_modelo.
+% Compilar desde docs/reporte_regimenes (dos veces, para las referencias cruzadas):
+%   xelatex -interaction=nonstopmode main.tex && xelatex -interaction=nonstopmode main.tex
+% Las figuras y las cifras salen de scripts/figuras.py (ver el encabezado de ese archivo).
+\documentclass[conference,letterpaper]{IEEEtran}
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Termes}
+\usepackage{polyglossia}
+\setdefaultlanguage{spanish}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue!50!black}
+\graphicspath{{figuras/}}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\si}{\textcolor{green!45!black}{sí}}
+\newcommand{\no}{\textcolor{red!70!black}{no}}
+
+% ---------------------------------------------------------------- datos de la portada
+\newcommand{\universidad}{Benemérita Universidad Autónoma de Puebla}
+\newcommand{\facultad}{Facultad de Ciencias de la Computación}
+\newcommand{\carrera}{Reto AgroCebada FIRA 2026}
+\newcommand{\materia}{Reporte de análisis de las etiquetas}
+\newcommand{\integranteA}{José Alán Pomares Valdés}
+\newcommand{\integranteB}{Luis Emmanuel Ramiro Luna}
+\newcommand{\integranteC}{Vicente Josimar López Martinez}
+\newcommand{\correo}{pv202351433@alm.buap.mx}
+\newcommand{\asesor}{Ivan Olmos Pineda}
+\newcommand{\fecha}{9 de octubre de 2026}
+
+\newcommand{\logo}[2]{%
+  \IfFileExists{figuras/#1}{\includegraphics[height=2.4cm]{#1}}%
+  {\fbox{\parbox[c][2.2cm][c]{2.2cm}{\centering\footnotesize\textcolor{gray}{#2}}}}}
+
+\begin{document}
+
+% ---------------------------------------------------------------- portada
+\begin{titlepage}
+  \centering
+  \begin{tabular}{@{}m{2.6cm}@{}m{\dimexpr\textwidth-5.2cm}@{}m{2.6cm}@{}}
+    \logo{logo_buap.png}{Logo BUAP} &
+    \centering{\Large\bfseries \universidad}\\[4pt]{\large \facultad} &
+    \hfill\logo{logo_fcc.png}{Logo FCC}
+  \end{tabular}\par
+  \vspace{4pt}\rule{\textwidth}{1.2pt}\par
+  \vspace{1.2cm}
+  {\large \carrera}\par\vspace{4pt}
+  {\large \materia}\par
+  \vspace{3cm}
+  {\Huge\bfseries ¿Qué separa a los dos\\[6pt] regímenes de rendimiento?}\par
+  \vspace{0.8cm}
+  {\Large Descarte de causas ambientales y contraste\\[4pt] con las cifras oficiales del SIAP}\par
+  \vfill
+  \begin{tabular}{@{}r@{\hspace{1em}}l@{}}
+    \textbf{Integrantes} & \integranteA \\
+                         & \integranteB \\
+                         & \integranteC \\[4pt]
+    \textbf{Asesor}      & \asesor \\[4pt]
+    \textbf{Contacto}    & \href{mailto:\correo}{\correo} \\
+  \end{tabular}\par
+  \vspace{1.5cm}
+  {\large Puebla, Pue., \fecha}\par
+\end{titlepage}
+
+\noindent\textbf{\textit{Resumen.}} \bfseries Las etiquetas del reto se dividen por municipio en dos regímenes. En el
+A, los rendimientos tienen dos decimales y promedian 4.49\,t/ha; en el B, están redondeados y promedian 3.05\,t/ha.
+Para que el modelo sirviera en zonas sin parcelas buscamos una variable del lugar que explicara esa brecha de
+1.44\,t/ha. Probamos el clima, la altitud, la fenología observada por satélite, el suelo de INEGI y la distancia al
+Popocatépetl, y ninguna la explica: dentro de cada régimen no cambian el rendimiento, y parcelas vecinas con el mismo
+suelo y el mismo clima difieren 1.5\,t/ha si su municipio es de distinto régimen. Las cifras oficiales del SIAP de
+2023 a 2025 tampoco muestran la brecha: los municipios de ambos regímenes promedian 2.5\,t/ha. Concluimos que la
+diferencia está ligada a cómo se obtuvo la etiqueta en cada municipio, ya sea por la forma de medir o por el grupo de
+productores muestreado, y no a una característica de la zona.\par\mdseries
+
+\smallskip
+\noindent\textbf{\textit{Palabras clave.}} \bfseries régimen de etiquetas, generalización espacial, cebada de temporal,
+SIAP, edafología, fenología.\par\mdseries
+
+\input{secciones/introduccion}
+\input{secciones/datos}
+\input{secciones/generalizacion}
+\input{secciones/descarte}
+\input{secciones/siap}
+\input{secciones/discusion}
+\input{secciones/conclusiones}
+
+\input{secciones/referencias}
+\end{document}

@@ -1,0 +1,29 @@
+identifier:
+
+title: Conjunto de datos vectoriales de la carta Edafológica escala 1:250 000 serie I
+
+description: Este producto ha sido concebido para atender demandas de información con referencia geográfica acerca del recurso suelo: características morfológicas, propiedades físicas y químicas, limitantes más severas al uso y manejo, tales como: profundidad somera, pedregosidad, salinidad, textura fina y gruesa de los 30 cm superficiales, etc. El diseño conceptual con el que se genera la información, la hace apropiada para manejarse en Sistemas de Información Geográfica o en Sistemas de Cartografía Asistida por Computadora, para aplicarse en el desarrollo de proyectos de cobertura regional en diversos campos en los que la información sobre la posición y distribución de los fenómenos geográficos es esencial. La información geográfica digital de la serie de Conjuntos de la Carta Edafológica 1: 250 000 Serie l, contiene datos estructurados en forma vectorial y codificados de acuerdo con la Tabla de Códigos con que se acompaña cada Conjunto de Datos. La tabla de códigos relaciona cada uno de ellos con la caracterización que se ha hecho en el Diccionario de Datos Edafológicos 1: 250 000 de los diferentes objetos geográficos contenidos.
+
+modified: 
+
+publisher: Instituto Nacional de Estadística y Geografía, INEGI
+
+mbox: atencion.usuarios@inegi.org.mx
+
+license: Términos de Libre Uso de la Información del INEGI 
+http://www.inegi.org.mx/terminos/terminos_info.aspx
+
+datadictionary:
+
+keyword: entidades, cuerpos, aguas, localidades, puntos, verificaciones, unidades, edafológicas
+
+contactpoint: Lic. José de Jesús Esquivel de la Rosa, 01800 111 4634
+
+temporal: 
+
+spatial: Estados Unidos Mexicanos
+
+accrualperiodicity: 
+
+distribution: http://buscador.inegi.org.mx//search?q=+Conjunto+de+datos+vectoriales+de+la+carta+Edafol%C3%B3gica.+1%3A+250+000.+Serie+l&client=ProductosR&proxystylesheet=ProductosR&num=10&getfields=*&sort=meta%3Aedicion%3AD%3AE%3A%3A%3AD&entsp=a__inegi_politica_p72&lr=lang_es%7Clang_en&oe=UTF-8&ie=UTF-8&ip=10.210.100.253&entqr=3&filter=0&site=ProductosBuscador&tlen=260
+

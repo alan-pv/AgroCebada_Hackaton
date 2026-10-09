@@ -1,0 +1,58 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Clave:                                 E1402                    
+Nombre:                                CIUDAD DE MEXICO
+Escala:                                1:250,000
+Tema:                                  EDAFOLOGICO SERIE I
+Nombre Autoridad Productora:           INEGI
+Cobertura Estatal:                     6 estado(s) presente(s) en el mapa
+                                       Distrito Federal, Hidalgo, México, Morelos, Puebla, Tlaxcala
+Intervalo Curvas de Nivel:             N/A
+Proyección Cartográfica:               Universal Transversa de Mercator (U.T.M.)
+Datum de Referencia:                   NAD27
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Métodos de Compilación:                0 método(s) utilizado(s)
+Fecha de compilación-Método		
+Verificación de Campo:                 0                     
+Fotografías utilizadas en compilación: 0
+Imágenes utilizadas en compilación:    0
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Métodos de Actualización tradicional:  4 método(s) utilizado(s)
+                                       Compilación Cartográfica
+                                       Fotointerpretación
+				       Verificación de Campo
+                                       Análisis de Laboratorio
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Fecha de la Conversión:                MARZO-1998
+Responsable de la Conversión:          INIFAP-INEGI
+Medios para la Conversión:             Tableta Digitalizadora
+				       Barredor Optico-Mecánico
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Fecha de Actualización Digital:        ABRIL 2004
+Responsable de Actualización Digital:  INEGI
+Métodos de Actualización Digital:      2
+                                       Adecuación de Polígonos
+                                       Estructuración de Información
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Fotos Actualización Digital:           1
+				       Zona	Escala     Fecha
+			
+Imágenes Satélite en la Actualización Digital:       0
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Estadística de los Datos:  
+
+	Entidad  		Punto Líneas	Áreas	
+	Cuerpo de agua 		  0	0	169
+	Localidad         	  0	0	161
+	Punto de Verificación     0	0	  0	
+	Unidad Edafológica	  0     0       965				
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Liga con Datos Adyacentes:             Liga Norte: 1 Julio 2001
+                                       Liga Sur:   1 Julio 2001
+                                       Liga Este:  1 Julio 2001
+                                       Liga Oeste: 1 jULIO 2001
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Modelo de Datos Vectoriales:			1.0   AGOSTO 1993
+Diccionario de Datos Edafológico:		1.0   OCTUBRE 1998
+Normas para la captura de datos SITED:	        1.0   DICIEMBRE 1999
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+OBSERVACIONES:
