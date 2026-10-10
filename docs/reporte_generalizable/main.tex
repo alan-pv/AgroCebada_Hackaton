@@ -1,0 +1,93 @@
+% Reporte del modelo generalizable de rendimiento municipal. Mismo formato que docs/reporte_regimenes.
+% Compilar desde docs/reporte_generalizable (dos veces, para las referencias cruzadas):
+%   xelatex -interaction=nonstopmode main.tex && xelatex -interaction=nonstopmode main.tex
+% Las figuras y las cifras salen de scripts/figuras.py (ver el encabezado de ese archivo).
+\documentclass[conference,letterpaper]{IEEEtran}
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Termes}
+\usepackage{polyglossia}
+\setdefaultlanguage{spanish}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue!50!black}
+\graphicspath{{figuras/}}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\si}{\textcolor{green!45!black}{sí}}
+\newcommand{\no}{\textcolor{red!70!black}{no}}
+
+% ---------------------------------------------------------------- datos de la portada
+\newcommand{\universidad}{Benemérita Universidad Autónoma de Puebla}
+\newcommand{\facultad}{Facultad de Ciencias de la Computación}
+\newcommand{\carrera}{Reto AgroCebada FIRA 2026}
+\newcommand{\materia}{Reporte del modelo generalizable}
+\newcommand{\integranteA}{José Alán Pomares Valdés}
+\newcommand{\integranteB}{Luis Emmanuel Ramiro Luna}
+\newcommand{\integranteC}{Vicente Josimar López Martinez}
+\newcommand{\correo}{pv202351433@alm.buap.mx}
+\newcommand{\asesor}{Ivan Olmos Pineda}
+\newcommand{\fecha}{9 de octubre de 2026}
+
+\newcommand{\logo}[2]{%
+  \IfFileExists{figuras/#1}{\includegraphics[height=2.4cm]{#1}}%
+  {\fbox{\parbox[c][2.2cm][c]{2.2cm}{\centering\footnotesize\textcolor{gray}{#2}}}}}
+
+\begin{document}
+
+% ---------------------------------------------------------------- portada
+\begin{titlepage}
+  \centering
+  \begin{tabular}{@{}m{2.6cm}@{}m{\dimexpr\textwidth-5.2cm}@{}m{2.6cm}@{}}
+    \logo{logo_buap.png}{Logo BUAP} &
+    \centering{\Large\bfseries \universidad}\\[4pt]{\large \facultad} &
+    \hfill\logo{logo_fcc.png}{Logo FCC}
+  \end{tabular}\par
+  \vspace{4pt}\rule{\textwidth}{1.2pt}\par
+  \vspace{1.2cm}
+  {\large \carrera}\par\vspace{4pt}
+  {\large \materia}\par
+  \vspace{3cm}
+  {\Huge\bfseries ¿Dónde rinde más la\\[6pt] cebada de temporal?}\par
+  \vspace{0.8cm}
+  {\Large Un modelo municipal con datos públicos para\\[4pt] Hidalgo, México, Puebla y Tlaxcala}\par
+  \vfill
+  \begin{tabular}{@{}r@{\hspace{1em}}l@{}}
+    \textbf{Integrantes} & \integranteA \\
+                         & \integranteB \\
+                         & \integranteC \\[4pt]
+    \textbf{Asesor}      & \asesor \\[4pt]
+    \textbf{Contacto}    & \href{mailto:\correo}{\correo} \\
+  \end{tabular}\par
+  \vspace{1.5cm}
+  {\large Puebla, Pue., \fecha}\par
+\end{titlepage}
+
+\noindent\textbf{\textit{Resumen.}} \bfseries Estimamos el rendimiento esperado de la cebada de temporal en cada
+municipio de Hidalgo, México, Puebla y Tlaxcala, y su probabilidad de quedar bajo 2\,t/ha, con datos públicos. La
+etiqueta es el rendimiento oficial del SIAP de 2003 a 2025, que aplica el mismo criterio a todos los municipios. Comparamos
+interpoladores espaciales con modelos ambientales simples fijados de antemano, con validación espacial y zonas de
+exclusión de 0 a 80\,km. Sin datos a menos de 50\,km, la temperatura máxima de julio y agosto predice el nivel
+municipal mejor que el kriging de los vecinos, con un error de 0.490 contra 0.566\,t/ha. El modelo final suma el kriging
+de sus residuos y baja el error a 0.438\,t/ha. Con vecinos cerca la ventaja es pequeña y depende de cómo se pondere. El
+suelo no agrega información detectable y el clima mensual del año no pronostica la cosecha. Publicamos una capa de 268
+municipios con intervalo de 80\,\% y una marca de confianza.\par\mdseries
+
+\smallskip
+\noindent\textbf{\textit{Palabras clave.}} \bfseries cebada de temporal, rendimiento municipal, SIAP, validación
+espacial, kriging, riesgo agrícola.\par\mdseries
+
+\input{secciones/introduccion}
+\input{secciones/datos}
+\input{secciones/metodo}
+\input{secciones/resultados}
+\input{secciones/discusion}
+\input{secciones/conclusiones}
+
+\input{secciones/referencias}
+\end{document}

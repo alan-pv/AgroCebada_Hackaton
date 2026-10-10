@@ -1,0 +1,23 @@
+\section{Introducción}\label{sec:intro}
+
+FIRA financia y asegura siembras de cebada de temporal en el Altiplano. Para eso necesita responder una pregunta
+concreta. Si se siembra cebada de temporal en un lugar donde no hay parcelas medidas, ¿qué rendimiento se puede
+esperar y con qué riesgo? La cebada de temporal es la que depende solo de la lluvia, sin riego.
+
+Las etiquetas del reto no sirven para responderla. En un reporte anterior mostramos que se dividen por municipio en
+dos regímenes~\cite{regimenes}. Un régimen es el conjunto de municipios cuyas etiquetas se obtuvieron de la misma
+forma. Las parcelas del régimen A promedian 4.49\,t/ha y las del B 3.05\,t/ha, una brecha de 1.44\,t/ha. Ninguna
+variable de clima, suelo o terreno explica esa brecha, y las cifras oficiales no la reproducen. Un modelo entrenado
+con esas etiquetas aprende cómo se midió cada municipio, no dónde rinde más la cebada. En un lugar nuevo no se sabe
+qué régimen tendría.
+
+Por eso construimos un modelo aparte, entrenado con el rendimiento oficial del Servicio de Información
+Agroalimentaria y Pesquera (SIAP)~\cite{siap}. Es la única fuente que aplica el mismo criterio a todos los municipios
+de los cuatro estados. El modelo predice el promedio de un municipio, no el de una parcela. Las etiquetas del reto
+solo se usan al final, para una comparación descriptiva.
+
+El reporte sigue este orden. La Sección~\ref{sec:datos} describe las fuentes y la limpieza. La
+Sección~\ref{sec:metodo} define la unidad, la validación, la métrica y la regla de decisión, todo fijado antes de ver
+los resultados finales. La Sección~\ref{sec:resultados} compara los modelos, mide qué variables importan, evalúa el
+riesgo y presenta los mapas. La Sección~\ref{sec:discusion} separa lo que podemos afirmar de lo que no, y la
+Sección~\ref{sec:conclusiones} resume el uso para crédito y seguro.

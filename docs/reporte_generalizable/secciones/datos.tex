@@ -1,0 +1,67 @@
+\section{Datos}\label{sec:datos}
+
+\subsection{Rendimiento oficial del SIAP}
+
+Usamos el cierre agrícola municipal del SIAP para cebada grano de temporal en el ciclo primavera-verano, de 2003 a
+2025, en Hidalgo, México, Puebla y Tlaxcala~\cite{siap}. Antes de 2003 el portal solo publica totales estatales. La
+consulta da 2\,658 filas de 146 municipios. Cada fila es un municipio en un año, con superficie sembrada, cosechada y
+siniestrada, producción y rendimiento. La superficie siniestrada es la que se pierde por helada, sequía u otro
+daño y no se cosecha.
+
+Definimos dos objetivos. El rendimiento oficial es la producción entre la superficie cosechada y es el objetivo
+principal. El rendimiento sobre sembrada es la producción entre la superficie sembrada. Incluye la pérdida por
+siniestro y es el objetivo de riesgo.
+
+La limpieza tiene tres pasos.
+\begin{enumerate}
+\item \textbf{Quitamos las filas con poca superficie.} Para el rendimiento oficial exigimos al menos 50\,ha
+cosechadas, porque con menos el promedio depende de unas pocas parcelas. Para el rendimiento sobre sembrada el
+filtro va sobre la superficie sembrada, para no perder los años con pérdida casi total.
+\item \textbf{Quitamos los municipios con menos de 5 años válidos.} Quedan 1\,942 filas y 100 municipios para el
+rendimiento oficial (24 en Hidalgo, 24 en México, 28 en Puebla y 24 en Tlaxcala) y 1\,966 filas para el rendimiento
+sobre sembrada.
+\item \textbf{Marcamos las cifras repetidas.} Una fila está repetida si su rendimiento, a dos decimales, aparece en
+otro municipio del mismo estado y año. El 53\,\% de las filas limpias está repetido, desde 41\,\% en Hidalgo hasta
+75\,\% en Tlaxcala. El SIAP estima muchas veces por Distrito de Desarrollo Rural (DDR) o por Centro de Apoyo al
+Desarrollo Rural y copia la cifra en los municipios del bloque. Esas filas no son mediciones independientes. Sin
+ellas quedan 862 filas de 83 municipios, que usamos como prueba de robustez.
+\end{enumerate}
+
+La Fig.~\ref{fig:siap} muestra el rendimiento regional por año. Dos años destacan. En 2009 se siniestró el 30\,\% de
+la superficie sembrada y en 2011 el 39\,\%. El rendimiento oficial esconde esas pérdidas porque divide entre la
+superficie cosechada, y el rendimiento sobre sembrada las muestra. Además hay una tendencia al alza. Dentro de cada
+municipio el rendimiento sube 0.028\,t/ha por año, unas 0.61\,t/ha de 2003 a 2025.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{g1_siap}
+\caption{Rendimiento de los cuatro estados por año, como producción total entre superficie cosechada (azul) y entre
+superficie sembrada (naranja). La distancia entre las dos líneas es la pérdida por siniestro.}
+\label{fig:siap}
+\end{figure}
+
+Para la validación por distrito usamos la asignación de cada municipio a su DDR que publica el mismo portal. Son 19
+distritos en los cuatro estados y 15 de ellos tienen municipios en la tabla limpia. Ningún municipio cambia de
+distrito entre años.
+
+\subsection{Ambiente}
+
+Todas las variables ambientales se promedian sobre la superficie de agricultura de temporal de cada municipio, no
+sobre su polígono completo. Así describen el lugar donde se siembra y no el bosque o la ciudad vecinos.
+\begin{itemize}
+\item \textbf{Lluvia.} CHIRPS v2.0 mensual, en una rejilla de 0.05$^\circ$~\cite{chirps}.
+\item \textbf{Temperatura.} Temperatura máxima (Tmax) y mínima (Tmin) mensuales de CHIRTS-ERA5, en la misma
+rejilla~\cite{chirts}. Son las mismas fuentes de los rásteres de clima del reto.
+\item \textbf{Topografía.} Elevación y pendiente del Copernicus DEM GLO-90, de 90\,m~\cite{copdem}.
+\item \textbf{Suelo.} Carta edafológica del INEGI a escala de 1 a 250\,000, Series I y II~\cite{inegi_eda}. De la Serie I tomamos la
+fase dúrica, que corresponde al tepetate, y la fase lítica, que indica roca somera. De la Serie II tomamos la textura.
+\item \textbf{Máscara agrícola.} Uso de suelo y vegetación Serie VII del INEGI~\cite{inegi_usv}. Tomamos los polígonos
+de agricultura de temporal.
+\item \textbf{Municipios.} Marco Geoestadístico 2025 del INEGI~\cite{inegi_mg}, con 486 municipios en los cuatro
+estados. De ellos, 18 no tienen agricultura de temporal, casi todos urbanos.
+\end{itemize}
+
+Agregamos el clima en ventanas del ciclo de temporal. Mayo y junio cubren la siembra y el establecimiento, julio y
+agosto la floración y el llenado de grano, y septiembre y octubre la madurez. Para cada ventana calculamos el valor
+medio de 2003 a 2025, que describe el lugar, y la anomalía de cada año, que es la diferencia del año contra ese
+promedio.

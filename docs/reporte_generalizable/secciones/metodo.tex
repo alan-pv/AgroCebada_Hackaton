@@ -1,0 +1,86 @@
+\section{Método}\label{sec:metodo}
+
+\subsection{Unidad y objetivo}
+
+La unidad es el municipio en un año. Lo que queremos predecir es el nivel del municipio, que es su rendimiento medio
+en un año cualquiera. Como el rendimiento sube con los años, llevamos cada observación a 2025 con la tendencia común
+antes de promediar. La tendencia común es la pendiente del rendimiento contra el año dentro de cada municipio,
+promediada entre municipios. Se estima dentro de cada partición de entrenamiento. Así, la predicción de un municipio
+es su nivel esperado en 2025.
+
+\subsection{Validación}
+
+Una validación aleatoria deja en el entrenamiento a los vecinos inmediatos de cada municipio de prueba y premia a
+quien copia a los vecinos. Para medir el error en un lugar nuevo usamos esquemas que respetan la estructura espacial
+de los datos~\cite{roberts2017}.
+\begin{itemize}
+\item \textbf{Espacial con zona de exclusión (principal).} Agrupamos los 100 municipios en 20 grupos con k-medias
+sobre sus coordenadas. Cada grupo se deja fuera una vez. Al predecirlo, quitamos del entrenamiento todos los
+municipios a menos de $B$\,km de cualquier municipio del grupo. Con $B = 0$ el lugar nuevo tiene datos del SIAP
+cerca. Con $B = 50$\,km simulamos un lugar sin datos cerca. Probamos $B$ de 0, 20, 40, 50, 60 y 80\,km y repetimos
+todo 10 veces con grupos distintos.
+\item \textbf{Por distrito.} Cada DDR es un grupo. Como el SIAP copia cifras dentro de un distrito, este esquema evita
+que el interpolador gane por esa copia.
+\item \textbf{Sin cifras repetidas.} El esquema principal con $B = 0$ sobre las 862 filas sin marca de repetido.
+\item \textbf{Por año.} Deja fuera un año completo en todos los municipios. Es la única prueba de si el clima del año
+pronostica la cosecha de un año nuevo.
+\end{itemize}
+
+\subsection{Métrica y regla de decisión}
+
+El error de nivel de un municipio es la media de sus predicciones menos la media de sus rendimientos observados. La
+métrica principal es la raíz del error cuadrático medio (RMSE) de ese error de nivel, ponderada por la superficie
+sembrada media de cada municipio, en el esquema principal con $B = 0$ y con $B = 50$\,km. Fijamos esta métrica antes
+de correr la versión final de los experimentos. Ponderamos por dos razones. La pregunta de FIRA es sobre dónde se
+siembra, y la media de un municipio chico depende de pocas parcelas. Sin ponderar, un municipio de 60\,ha pesa lo
+mismo que uno de 20\,000\,ha. Reportamos también el RMSE sin ponderar y el de los municipios con mediana de al menos
+1\,000\,ha sembradas.
+
+La base que hay que superar es el kriging de vecinos. El kriging es una interpolación espacial que predice cada
+lugar con un promedio de los municipios cercanos, ponderado según cuánto se parecen los rendimientos a cada
+distancia. Lo ajustamos como un proceso gaussiano sobre las coordenadas, con un ruido mínimo ligado al error propio
+de las medias municipales, para que no las interpole como si fueran exactas. Un modelo nuevo se acepta si cumple dos condiciones.
+\begin{enumerate}
+\item \textbf{Gana en al menos 7 de las 10 repeticiones} en la métrica principal.
+\item \textbf{Pasa una prueba de permutación con $p \le 0.05$.} Revolvemos las variables ambientales entre municipios
+99 veces y repetimos la validación. El valor $p$ es la fracción de permutaciones con error igual o menor al real,
+así que su mínimo es 0.01.
+\end{enumerate}
+
+\subsection{Modelos}
+
+Comparamos cuatro familias. Todos los modelos de nivel se ajustan sobre las medias municipales, ponderadas por
+superficie sembrada.
+\begin{itemize}
+\item \textbf{Bases sin ambiente.} Media global, media estatal, distancia inversa (IDW, el promedio de los municipios
+de entrenamiento ponderado por el inverso del cuadrado de la distancia) y kriging de vecinos.
+\item \textbf{Modelos simples fijados de antemano.} Regresiones lineales con una a tres variables, elegidas por lo que
+se sabe de la cebada de temporal en el Altiplano y no por las correlaciones de estos datos. Son (a) Tmax de julio y
+agosto, porque el calor en floración y llenado acorta el ciclo y baja el peso del grano, (b) elevación, (c) Tmax de
+julio y agosto y lluvia de mayo a octubre, (d) el modelo (c) con la fracción dúrica y (e) el modelo (c) con efecto
+fijo de estado. El modelo (c) es el contendiente principal fijado para la regla.
+\item \textbf{Kriging de residuos.} Cada modelo simple más el kriging de sus residuos municipales. Cerca de municipios
+con SIAP corrige al modelo ambiental con lo observado. Lejos, la corrección tiende a cero y queda el modelo
+ambiental.
+\item \textbf{Modelos de 14 variables.} Ridge y lasso con clima, topografía y suelo. La penalización se elige con una
+validación interna que deja fuera grupos espaciales completos.
+\end{itemize}
+
+\subsection{Importancia de las variables}
+
+Agrupamos las variables en cuatro bloques. Temperatura (Tmax de julio y agosto y Tmin de mayo a octubre), lluvia (de
+mayo a octubre y de mayo y junio), topografía (elevación y pendiente) y suelo (fracción dúrica, fracción lítica y
+textura fina). Medimos dos cosas con 99 permutaciones. La importancia condicional es cuánto empeora un ridge con los
+cuatro bloques al revolver un bloque, y mide lo que el bloque agrega dado el resto. La importancia marginal es cuánto
+mejora un ridge con solo ese bloque sobre la media global, y mide lo que el bloque explica por sí solo.
+
+\subsection{Riesgo}
+
+El residuo fuera de muestra de un municipio que el modelo no vio, en un año cualquiera, junta el error del nivel y la
+variación del año. Con la distribución de esos residuos construimos un intervalo del percentil 10 al 90 (p10 a p90)
+y la probabilidad de que el rendimiento quede bajo 2\,t/ha. Es un intervalo conformal, que solo supone que los
+residuos de validación se parecen a los de un lugar nuevo~\cite{angelopoulos2023}. Para un municipio a no más de
+30\,km de uno con SIAP usamos los residuos con $B = 0$, y más lejos los de $B = 50$\,km. Fijamos antes de correr que
+usaríamos una escala local, la variación entre años interpolada de los vecinos, solo si algún estado quedaba con
+cobertura menor a 0.75 con la escala global y la local lo mejoraba. La cobertura es la fracción de observaciones que
+cae dentro del intervalo, y su valor nominal es 0.8.

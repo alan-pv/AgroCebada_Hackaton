@@ -1,0 +1,25 @@
+\section{Conclusiones y uso para crédito y seguro}\label{sec:conclusiones}
+
+Construimos un modelo del rendimiento municipal de la cebada de temporal con datos públicos y lo validamos como si
+cada municipio fuera un lugar nuevo. La temperatura máxima de julio y agosto, corregida con el kriging de los
+residuos, predice el nivel municipal con un RMSE ponderado de 0.293\,t/ha con datos cerca y de 0.438\,t/ha sin datos a
+menos de 50\,km. El kriging de vecinos tiene 0.309 y 0.566. El suelo no agrega información detectable y el clima
+mensual del año no pronostica la cosecha.
+
+Para FIRA proponemos tres usos.
+\begin{enumerate}
+\item \textbf{Priorizar zonas para crédito.} El rendimiento esperado y su intervalo p10 a p90 ordenan los municipios
+por su potencial. Los de confianza alta tienen una mediana de 2.53\,t/ha. Los de confianza media sirven para ampliar
+la cobertura a municipios vecinos sin historia propia.
+\item \textbf{Tarifar el seguro.} La probabilidad de quedar bajo 2\,t/ha en un año cualquiera resume el riesgo de cada
+municipio. Entre los municipios de confianza alta va de 0.00 en Lázaro Cárdenas, Tlaxcala, a 0.99 en San
+Agustín Tlaxiaca, Hidalgo. Como sobreestima un poco la
+frecuencia observada, es una cota prudente. Para el seguro conviene usar el rendimiento sobre sembrada, que incluye la
+pérdida por siniestro.
+\item \textbf{Exigir verificación donde la confianza es baja.} En los 77 municipios de confianza baja el valor solo
+refleja el clima. Antes de financiar ahí hace falta confirmar que se siembra cebada y que el suelo es agrícola.
+\end{enumerate}
+
+El modelo predice el promedio de un municipio. El rendimiento de un productor depende además de su manejo, y las
+etiquetas del régimen A del reto quedan 1.71\,t/ha arriba del modelo. Para estimar el rendimiento de una parcela
+harán falta datos de manejo y rendimientos medidos con un mismo criterio en todos los municipios.
