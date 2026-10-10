@@ -17,6 +17,18 @@
 \usepackage{hyperref}
 \hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue!50!black}
 \graphicspath{{figuras/}}
+\usepackage{placeins}
+% Más flotantes por página, para que las figuras queden junto al texto que las cita.
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.6}
+\renewcommand{\textfraction}{0.06}
+\renewcommand{\floatpagefraction}{0.75}
+\renewcommand{\dbltopfraction}{0.92}
+\renewcommand{\dblfloatpagefraction}{0.75}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{5}
+\setcounter{dbltopnumber}{2}
 
 \newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\si}{\textcolor{green!45!black}{sí}}
@@ -68,15 +80,12 @@
   {\large Puebla, Pue., \fecha}\par
 \end{titlepage}
 
-\noindent\textbf{\textit{Resumen.}} \bfseries Estimamos el rendimiento esperado de la cebada de temporal en cada
-municipio de Hidalgo, México, Puebla y Tlaxcala, y su probabilidad de quedar bajo 2\,t/ha, con datos públicos. La
-etiqueta es el rendimiento oficial del SIAP de 2003 a 2025, que aplica el mismo criterio a todos los municipios. Comparamos
-interpoladores espaciales con modelos ambientales simples fijados de antemano, con validación espacial y zonas de
-exclusión de 0 a 80\,km. Sin datos a menos de 50\,km, la temperatura máxima de julio y agosto predice el nivel
-municipal mejor que el kriging de los vecinos, con un error de 0.490 contra 0.566\,t/ha. El modelo final suma el kriging
-de sus residuos y baja el error a 0.438\,t/ha. Con vecinos cerca la ventaja es pequeña y depende de cómo se pondere. El
-suelo no agrega información detectable y el clima mensual del año no pronostica la cosecha. Publicamos una capa de 268
-municipios con intervalo de 80\,\% y una marca de confianza.\par\mdseries
+\noindent\textbf{\textit{Resumen.}} \bfseries Estimamos qué rendimiento de cebada de temporal esperar en cada
+municipio de Hidalgo, México, Puebla y Tlaxcala, y con qué riesgo, usando solo datos públicos. Aprendimos del
+rendimiento oficial del SIAP de 2003 a 2025. Donde no hay datos del SIAP a menos de 50\,km, un modelo basado en la
+temperatura máxima de julio y agosto se equivoca en promedio 0.44\,t/ha, contra 0.57\,t/ha de interpolar a los
+municipios vecinos. El suelo no agrega información y el clima del año no anticipa la cosecha. El resultado es un mapa
+de 268 municipios con rendimiento esperado, probabilidad de quedar bajo 2\,t/ha y una marca de confianza.\par\mdseries
 
 \smallskip
 \noindent\textbf{\textit{Palabras clave.}} \bfseries cebada de temporal, rendimiento municipal, SIAP, validación
@@ -88,6 +97,8 @@ espacial, kriging, riesgo agrícola.\par\mdseries
 \input{secciones/resultados}
 \input{secciones/discusion}
 \input{secciones/conclusiones}
+\FloatBarrier
 
 \input{secciones/referencias}
+
 \end{document}

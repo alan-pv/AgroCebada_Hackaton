@@ -805,6 +805,162 @@
   -0.38,
   1.01
  ],
+ "nivel_2025": {
+  "rango": [
+   1.32,
+   3.24
+  ],
+  "corr_tmax": -0.58,
+  "corr_tmax_pond": -0.77,
+  "corr_prec": 0.32,
+  "corr_prec_pond": 0.59,
+  "pend_tmax_pond": -0.79,
+  "pend_prec_100mm_pond": 0.21,
+  "tmax_rango_todos": [
+   22.7,
+   34.7
+  ]
+ },
+ "esquema_validacion": {
+  "B_km": 50,
+  "prueba": 11,
+  "excluidos": 39,
+  "entrenamiento": 50
+ },
+ "corr_nivel": {
+  "Tmax jul-ago": -0.58,
+  "Tmin may-oct": -0.22,
+  "Lluvia may-oct": 0.32,
+  "Lluvia may-jun": 0.46,
+  "Elevación": 0.37,
+  "Pendiente": 0.06,
+  "Fase dúrica": -0.14,
+  "Fase lítica": -0.13,
+  "Textura fina": -0.22
+ },
+ "forest_std": {},
+ "modelos_B50": {
+  "media_global": 0.594,
+  "media_estatal": 0.644,
+  "idw_vecinos": 0.56,
+  "kriging_vecinos": 0.566,
+  "simple_a_tmax": 0.49,
+  "simple_b_elev": 0.631,
+  "simple_c_tmax_prec": 0.506,
+  "simple_d_tmax_prec_durica": 0.592,
+  "simple_e_tmax_prec_estado": 0.541,
+  "kriging_residuos_simple_a_tmax": 0.438,
+  "kriging_residuos_simple_c_tmax_prec": 0.464,
+  "ridge_ambiente": 0.662,
+  "lasso_ambiente": 0.612
+ },
+ "pareada": {
+  "B0": {
+   "victorias": 7,
+   "kriging_min_max": [
+    0.269,
+    0.395
+   ],
+   "final_min_max": [
+    0.242,
+    0.368
+   ],
+   "dif_media": -0.016
+  },
+  "B50": {
+   "victorias": 10,
+   "kriging_min_max": [
+    0.554,
+    0.581
+   ],
+   "final_min_max": [
+    0.434,
+    0.447
+   ],
+   "dif_media": -0.128
+  }
+ },
+ "permutacion_fig": {
+  "n": 99,
+  "real": 0.49,
+  "min_perm": 0.617,
+  "media_perm": 0.68,
+  "max_perm": 0.741,
+  "p": 0.01,
+  "kriging": 0.566
+ },
+ "obs_pred_B50": {
+  "kriging_vecinos": {
+   "rango_pred": [
+    1.64,
+    2.5
+   ]
+  },
+  "kriging_residuos_simple_a_tmax": {
+   "rango_pred": [
+    0.78,
+    2.89
+   ]
+  },
+  "rango_obs": [
+   1.01,
+   2.93
+  ]
+ },
+ "confiabilidad": {
+  "bins": [
+   {
+    "p": 0.09,
+    "obs": 0.08,
+    "n": 162
+   },
+   {
+    "p": 0.16,
+    "obs": 0.1,
+    "n": 2438
+   },
+   {
+    "p": 0.25,
+    "obs": 0.2,
+    "n": 3485
+   },
+   {
+    "p": 0.35,
+    "obs": 0.32,
+    "n": 3032
+   },
+   {
+    "p": 0.45,
+    "obs": 0.42,
+    "n": 2237
+   },
+   {
+    "p": 0.55,
+    "obs": 0.48,
+    "n": 1757
+   },
+   {
+    "p": 0.65,
+    "obs": 0.57,
+    "n": 1599
+   },
+   {
+    "p": 0.75,
+    "obs": 0.7,
+    "n": 1938
+   },
+   {
+    "p": 0.85,
+    "obs": 0.73,
+    "n": 1941
+   },
+   {
+    "p": 0.94,
+    "obs": 0.73,
+    "n": 831
+   }
+  ]
+ },
  "constantes": {
   "dem_resolucion_m": 90,
   "clima_rejilla_grados": 0.05,

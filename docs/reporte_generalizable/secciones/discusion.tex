@@ -1,41 +1,12 @@
-\section{Discusión}\label{sec:discusion}
+\section{Limitaciones}\label{sec:discusion}
 
-\textbf{Lo que podemos afirmar.} En los cuatro estados, el rendimiento oficial de la cebada de temporal se asocia con
-el calor del verano. Los municipios con Tmax más baja en julio y agosto rinden más, y la lluvia de mayo a octubre
-suma un poco. Un modelo de una variable de temperatura, corregido con el kriging de sus residuos, predice el nivel
-municipal mejor que interpolar a los vecinos cuando no hay datos a menos de 50\,km. Ese resultado se sostiene
-ponderado y sin ponderar, por distrito y sin las cifras repetidas.
-
-\textbf{Una versión anterior concluyó lo contrario.} La primera versión de este análisis concluyó que el ambiente no
-predecía mejor que los vecinos. Una auditoría independiente encontró tres problemas. La métrica no se ponderaba, así
-que la dominaban los municipios chicos y ruidosos. La validación espacial dejaba vecinos de entrenamiento muy cerca
-del municipio de prueba, dentro del alcance del kriging. Y los modelos de 14 variables sobreajustaban. La misma auditoría
-mostró que la ganancia de las anomalías en la validación espacial era el efecto del año. Con esos puntos corregidos
-el resultado cambió, pero no en todos los escenarios. Con vecinos cerca y sin ponderar, el kriging sigue ganando.
-
-\textbf{El SIAP estima por bloques.} El 53\,\% de las filas limpias repite la cifra de otro municipio del mismo estado
-y año, y el 75\,\% en Tlaxcala. Esa copia hace que los vecinos se parezcan más de lo que se parecen sus cosechas, y
-favorece al kriging. La validación por distrito y la prueba sin repetidos atenúan el problema, pero no lo eliminan.
-También significa que el modelo aprende el rendimiento que reporta el SIAP, que puede diferir del que obtiene un
-productor en particular.
-
-\textbf{Asociación, no causa.} La Tmax de julio y agosto está correlacionada con la elevación ($r = -0.80$), con la
-historia del cultivo y con prácticas de manejo que no medimos. El modelo sirve para ordenar lugares por su rendimiento
-esperado, no para decir cuánto cambiaría el rendimiento si cambiara el clima. Por la misma colinealidad, la
-importancia condicional de la topografía es baja aunque por sí sola explique parte del nivel.
-
-\textbf{La elección de Tmax tuvo algo de información previa.} El contendiente fijado de antemano era Tmax con lluvia.
-El modelo de Tmax sola se eligió como mejor simple con $B = 50$\,km mirando los resultados, y Tmax ya se conocía como
-variable fuerte por análisis anteriores con estos datos. Los dos modelos pasan la regla y sus versiones con kriging de
-residuos casi empatan en el promedio de 0 y 50\,km (0.3655 y 0.3664\,t/ha). Con vecinos cerca el de dos variables es
-mejor (0.269 contra 0.293). Confirmar la elección requiere datos que no usamos, como parcelas medidas con un mismo
-criterio o un esquema de validación anidado.
-
-\textbf{Huecos del mapa.} El modelo no publica valores en 218 municipios fuera del rango ambiental y marca 77 de
-confianza baja. Un municipio fresco sin tradición cebadera puede salir alto solo por su clima. El modelo no sabe si
-ahí se siembra cebada, si el suelo es forestal o si hay mercado. La máscara de agricultura de temporal incluye además
-cultivos perennes, como frutales y magueyales, lo que puede sobrestimar la superficie apta.
-
-\textbf{Limitaciones del clima mensual.} Las medias mensuales no ven las heladas ni las rachas secas. En 2011, el peor
-año, se siniestró el 39\,\% de la superficie sembrada, y una media mensual no distingue una helada de una noche
-fresca. Para pronosticar el año harían falta índices diarios de helada y de déficit de agua.
+\begin{itemize}
+\item \textbf{El modelo aprende la cifra del SIAP.} Esa cifra a veces se copia entre municipios de un distrito y
+puede diferir de lo que obtiene un productor.
+\item \textbf{Asociación, no causa.} La temperatura también refleja la altura, la tradición cebadera y el manejo. El
+modelo ordena lugares, pero no dice cuánto cambiaría el rendimiento si cambiara el clima.
+\item \textbf{La elección de Tmax sola se hizo viendo resultados.} El contendiente fijado de antemano era Tmax con
+lluvia, que queda casi empatado y es mejor con vecinos cerca. Confirmarlo requiere datos nuevos.
+\item \textbf{Municipios frescos sin cebada.} Un municipio fresco puede salir alto aunque ahí no se siembre cebada o
+su suelo sea forestal. Por eso lleva confianza baja.
+\end{itemize}
