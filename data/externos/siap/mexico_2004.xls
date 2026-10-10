@@ -1,0 +1,463 @@
+<HTML LANG="es">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+<META http-equiv=Content-Type content="text/html; charset=ISO-8859-1">
+
+<style>
+th{
+	vertical-align:middle !important; 
+	text-align:center !important;
+}
+.estiloResult{
+	background-color:#B38E5D !important; 
+	color:#FFF !important;
+}
+</style>
+
+<TITLE></TITLE>
+</head>
+<body>
+
+		<div class="titulosTabla">
+			<p>
+				<strong>A&ntilde;o:</strong> 2004<br />
+				<strong>Producci&oacute;n Agr&iacute;cola</strong><br />
+				<strong>Ciclo:</strong> Primavera - Verano<br />
+				<strong>Modalidad:</strong> Temporal<br />
+				<strong>Cultivo:</strong> Cebada grano (ton)     <br /><strong>Entidad Federativa:</strong> México<br />
+			</p>
+		</div>
+		<div class="table-responsive">
+		<table id="Resultados-reporte" class="table table-striped table-bordered" border="1">
+			<tr class="estiloResult">
+				<th rowspan="2">&nbsp;</th>
+				<th rowspan="2">Entidad</th>
+				<th rowspan="2">Municipio</th>
+				<th colspan="3">Superficie<br />(ha)</th>
+				<th rowspan="2">Producci&oacute;n</th><th rowspan="2">Rendimiento<br />(udm/ha)</th><th rowspan="2">PMR<br />($/udm)</th>
+				<th rowspan="2">Valor Producci&oacute;n<br />(miles de Pesos)</th>
+			</tr>
+			<tr class="estiloResult">
+				<th>Sembrada</th>
+				<th>Cosechada</th>
+				<th>Siniestrada</th>
+			</tr>
+			<tr>
+				<td>1</td>
+				<td>México</td><td>Acambay de Ruíz Castañeda</td>
+				<td class="tdNum">70.00</td>
+				<td class="tdNum">70.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">105.00</td><td class="tdNum">1.50</td>
+				<td class="tdNum">1,500.00</td>
+				<td class="tdNum">157.50</td>
+			</tr>
+			
+			<tr>
+				<td>2</td>
+				<td>México</td><td>Acolman</td>
+				<td class="tdNum">432.00</td>
+				<td class="tdNum">432.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">864.00</td><td class="tdNum">2.00</td>
+				<td class="tdNum">2,150.00</td>
+				<td class="tdNum">1,857.60</td>
+			</tr>
+			
+			<tr>
+				<td>3</td>
+				<td>México</td><td>Aculco</td>
+				<td class="tdNum">50.00</td>
+				<td class="tdNum">50.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">80.00</td><td class="tdNum">1.60</td>
+				<td class="tdNum">1,600.00</td>
+				<td class="tdNum">128.00</td>
+			</tr>
+			
+			<tr>
+				<td>4</td>
+				<td>México</td><td>Amecameca</td>
+				<td class="tdNum">4.00</td>
+				<td class="tdNum">4.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">10.00</td><td class="tdNum">2.50</td>
+				<td class="tdNum">1,500.00</td>
+				<td class="tdNum">15.00</td>
+			</tr>
+			
+			<tr>
+				<td>5</td>
+				<td>México</td><td>Apaxco</td>
+				<td class="tdNum">250.00</td>
+				<td class="tdNum">250.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">375.00</td><td class="tdNum">1.50</td>
+				<td class="tdNum">2,150.00</td>
+				<td class="tdNum">806.25</td>
+			</tr>
+			
+			<tr>
+				<td>6</td>
+				<td>México</td><td>Atenco</td>
+				<td class="tdNum">50.00</td>
+				<td class="tdNum">50.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">82.50</td><td class="tdNum">1.65</td>
+				<td class="tdNum">1,900.00</td>
+				<td class="tdNum">156.75</td>
+			</tr>
+			
+			<tr>
+				<td>7</td>
+				<td>México</td><td>Atlacomulco</td>
+				<td class="tdNum">12.00</td>
+				<td class="tdNum">12.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">19.20</td><td class="tdNum">1.60</td>
+				<td class="tdNum">1,500.00</td>
+				<td class="tdNum">28.80</td>
+			</tr>
+			
+			<tr>
+				<td>8</td>
+				<td>México</td><td>Axapusco</td>
+				<td class="tdNum">6,754.00</td>
+				<td class="tdNum">6,754.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">11,481.80</td><td class="tdNum">1.70</td>
+				<td class="tdNum">2,150.00</td>
+				<td class="tdNum">24,685.87</td>
+			</tr>
+			
+			<tr>
+				<td>9</td>
+				<td>México</td><td>Ayapango</td>
+				<td class="tdNum">7.00</td>
+				<td class="tdNum">7.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">16.59</td><td class="tdNum">2.37</td>
+				<td class="tdNum">1,850.00</td>
+				<td class="tdNum">30.69</td>
+			</tr>
+			
+			<tr>
+				<td>10</td>
+				<td>México</td><td>Chicoloapan</td>
+				<td class="tdNum">130.00</td>
+				<td class="tdNum">130.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">260.00</td><td class="tdNum">2.00</td>
+				<td class="tdNum">1,750.00</td>
+				<td class="tdNum">455.00</td>
+			</tr>
+			
+			<tr>
+				<td>11</td>
+				<td>México</td><td>Ecatepec de Morelos</td>
+				<td class="tdNum">16.00</td>
+				<td class="tdNum">16.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">24.00</td><td class="tdNum">1.50</td>
+				<td class="tdNum">1,900.00</td>
+				<td class="tdNum">45.60</td>
+			</tr>
+			
+			<tr>
+				<td>12</td>
+				<td>México</td><td>Huehuetoca</td>
+				<td class="tdNum">200.00</td>
+				<td class="tdNum">200.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">360.00</td><td class="tdNum">1.80</td>
+				<td class="tdNum">2,150.00</td>
+				<td class="tdNum">774.00</td>
+			</tr>
+			
+			<tr>
+				<td>13</td>
+				<td>México</td><td>Hueypoxtla</td>
+				<td class="tdNum">4,000.00</td>
+				<td class="tdNum">4,000.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">6,000.00</td><td class="tdNum">1.50</td>
+				<td class="tdNum">2,150.00</td>
+				<td class="tdNum">12,900.00</td>
+			</tr>
+			
+			<tr>
+				<td>14</td>
+				<td>México</td><td>Ixtapaluca</td>
+				<td class="tdNum">70.00</td>
+				<td class="tdNum">70.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">140.00</td><td class="tdNum">2.00</td>
+				<td class="tdNum">1,750.00</td>
+				<td class="tdNum">245.00</td>
+			</tr>
+			
+			<tr>
+				<td>15</td>
+				<td>México</td><td>Ixtlahuaca</td>
+				<td class="tdNum">50.00</td>
+				<td class="tdNum">50.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">75.00</td><td class="tdNum">1.50</td>
+				<td class="tdNum">3,000.00</td>
+				<td class="tdNum">225.00</td>
+			</tr>
+			
+			<tr>
+				<td>16</td>
+				<td>México</td><td>Jaltenco</td>
+				<td class="tdNum">60.00</td>
+				<td class="tdNum">60.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">90.00</td><td class="tdNum">1.50</td>
+				<td class="tdNum">2,150.00</td>
+				<td class="tdNum">193.50</td>
+			</tr>
+			
+			<tr>
+				<td>17</td>
+				<td>México</td><td>Jilotepec</td>
+				<td class="tdNum">25.00</td>
+				<td class="tdNum">25.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">60.00</td><td class="tdNum">2.40</td>
+				<td class="tdNum">1,600.00</td>
+				<td class="tdNum">96.00</td>
+			</tr>
+			
+			<tr>
+				<td>18</td>
+				<td>México</td><td>Jocotitlán</td>
+				<td class="tdNum">50.00</td>
+				<td class="tdNum">50.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">65.00</td><td class="tdNum">1.30</td>
+				<td class="tdNum">2,000.00</td>
+				<td class="tdNum">130.00</td>
+			</tr>
+			
+			<tr>
+				<td>19</td>
+				<td>México</td><td>Morelos</td>
+				<td class="tdNum">300.00</td>
+				<td class="tdNum">300.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">450.00</td><td class="tdNum">1.50</td>
+				<td class="tdNum">1,800.00</td>
+				<td class="tdNum">810.00</td>
+			</tr>
+			
+			<tr>
+				<td>20</td>
+				<td>México</td><td>Nextlalpan</td>
+				<td class="tdNum">200.00</td>
+				<td class="tdNum">200.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">300.00</td><td class="tdNum">1.50</td>
+				<td class="tdNum">2,150.00</td>
+				<td class="tdNum">645.00</td>
+			</tr>
+			
+			<tr>
+				<td>21</td>
+				<td>México</td><td>Nopaltepec</td>
+				<td class="tdNum">2,585.00</td>
+				<td class="tdNum">2,215.00</td>
+				<td class="tdNum">370.00</td>
+				<td class="tdNum">3,987.00</td><td class="tdNum">1.80</td>
+				<td class="tdNum">2,150.00</td>
+				<td class="tdNum">8,572.05</td>
+			</tr>
+			
+			<tr>
+				<td>22</td>
+				<td>México</td><td>Ocoyoacac</td>
+				<td class="tdNum">8.00</td>
+				<td class="tdNum">8.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">9.60</td><td class="tdNum">1.20</td>
+				<td class="tdNum">1,200.00</td>
+				<td class="tdNum">11.52</td>
+			</tr>
+			
+			<tr>
+				<td>23</td>
+				<td>México</td><td>Otumba</td>
+				<td class="tdNum">3,784.00</td>
+				<td class="tdNum">3,784.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">5,676.00</td><td class="tdNum">1.50</td>
+				<td class="tdNum">2,150.00</td>
+				<td class="tdNum">12,203.40</td>
+			</tr>
+			
+			<tr>
+				<td>24</td>
+				<td>México</td><td>Papalotla</td>
+				<td class="tdNum">5.00</td>
+				<td class="tdNum">5.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">7.50</td><td class="tdNum">1.50</td>
+				<td class="tdNum">1,900.00</td>
+				<td class="tdNum">14.25</td>
+			</tr>
+			
+			<tr>
+				<td>25</td>
+				<td>México</td><td>Polotitlán</td>
+				<td class="tdNum">100.00</td>
+				<td class="tdNum">100.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">260.00</td><td class="tdNum">2.60</td>
+				<td class="tdNum">1,600.00</td>
+				<td class="tdNum">416.00</td>
+			</tr>
+			
+			<tr>
+				<td>26</td>
+				<td>México</td><td>San Felipe del Progreso</td>
+				<td class="tdNum">20.00</td>
+				<td class="tdNum">20.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">36.00</td><td class="tdNum">1.80</td>
+				<td class="tdNum">1,800.00</td>
+				<td class="tdNum">64.80</td>
+			</tr>
+			
+			<tr>
+				<td>27</td>
+				<td>México</td><td>San Martín de Las Pirámides</td>
+				<td class="tdNum">58.00</td>
+				<td class="tdNum">58.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">92.80</td><td class="tdNum">1.60</td>
+				<td class="tdNum">2,150.00</td>
+				<td class="tdNum">199.52</td>
+			</tr>
+			
+			<tr>
+				<td>28</td>
+				<td>México</td><td>Soyaniquilpan de Juárez</td>
+				<td class="tdNum">20.00</td>
+				<td class="tdNum">20.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">40.00</td><td class="tdNum">2.00</td>
+				<td class="tdNum">1,600.00</td>
+				<td class="tdNum">64.00</td>
+			</tr>
+			
+			<tr>
+				<td>29</td>
+				<td>México</td><td>Tecámac</td>
+				<td class="tdNum">1,800.00</td>
+				<td class="tdNum">1,800.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">2,700.00</td><td class="tdNum">1.50</td>
+				<td class="tdNum">2,150.00</td>
+				<td class="tdNum">5,805.00</td>
+			</tr>
+			
+			<tr>
+				<td>30</td>
+				<td>México</td><td>Temascalapa</td>
+				<td class="tdNum">6,200.00</td>
+				<td class="tdNum">5,432.00</td>
+				<td class="tdNum">768.00</td>
+				<td class="tdNum">10,864.00</td><td class="tdNum">2.00</td>
+				<td class="tdNum">2,150.00</td>
+				<td class="tdNum">23,357.60</td>
+			</tr>
+			
+			<tr>
+				<td>31</td>
+				<td>México</td><td>Temascalcingo</td>
+				<td class="tdNum">350.00</td>
+				<td class="tdNum">350.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">630.00</td><td class="tdNum">1.80</td>
+				<td class="tdNum">1,800.00</td>
+				<td class="tdNum">1,134.00</td>
+			</tr>
+			
+			<tr>
+				<td>32</td>
+				<td>México</td><td>Teotihuacán</td>
+				<td class="tdNum">250.00</td>
+				<td class="tdNum">250.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">450.00</td><td class="tdNum">1.80</td>
+				<td class="tdNum">2,150.00</td>
+				<td class="tdNum">967.50</td>
+			</tr>
+			
+			<tr>
+				<td>33</td>
+				<td>México</td><td>Tepetlaoxtoc</td>
+				<td class="tdNum">389.00</td>
+				<td class="tdNum">389.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">622.40</td><td class="tdNum">1.60</td>
+				<td class="tdNum">1,900.00</td>
+				<td class="tdNum">1,182.56</td>
+			</tr>
+			
+			<tr>
+				<td>34</td>
+				<td>México</td><td>Tepotzotlán</td>
+				<td class="tdNum">125.00</td>
+				<td class="tdNum">125.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">225.00</td><td class="tdNum">1.80</td>
+				<td class="tdNum">2,150.00</td>
+				<td class="tdNum">483.75</td>
+			</tr>
+			
+			<tr>
+				<td>35</td>
+				<td>México</td><td>Tequixquiac</td>
+				<td class="tdNum">550.00</td>
+				<td class="tdNum">550.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">825.00</td><td class="tdNum">1.50</td>
+				<td class="tdNum">2,150.00</td>
+				<td class="tdNum">1,773.75</td>
+			</tr>
+			
+			<tr>
+				<td>36</td>
+				<td>México</td><td>Tlalmanalco</td>
+				<td class="tdNum">6.00</td>
+				<td class="tdNum">6.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">15.00</td><td class="tdNum">2.50</td>
+				<td class="tdNum">1,500.00</td>
+				<td class="tdNum">22.50</td>
+			</tr>
+			
+			<tr>
+				<td>37</td>
+				<td>México</td><td>Zumpango</td>
+				<td class="tdNum">2,700.00</td>
+				<td class="tdNum">2,700.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">4,050.00</td><td class="tdNum">1.50</td>
+				<td class="tdNum">2,150.00</td>
+				<td class="tdNum">8,707.50</td>
+			</tr>
+			
+			<tr><th colspan="3">Total</th>
+			<th class="tdNum">31,680.00</th>
+			<th class="tdNum">30,542.00</th>
+			<th class="tdNum">1,138.00</th>
+			<th class="tdNum">51,348.39</th><th class="tdNum">1.68</th>
+			<th class="tdNum">2,129.87</th>
+			<th class="tdNum">109,365.26</th>
+		</tr>
+		
+		</table></div>
+</body>
+</html>

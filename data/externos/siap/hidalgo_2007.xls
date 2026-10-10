@@ -1,0 +1,342 @@
+<HTML LANG="es">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+<META http-equiv=Content-Type content="text/html; charset=ISO-8859-1">
+
+<style>
+th{
+	vertical-align:middle !important; 
+	text-align:center !important;
+}
+.estiloResult{
+	background-color:#B38E5D !important; 
+	color:#FFF !important;
+}
+</style>
+
+<TITLE></TITLE>
+</head>
+<body>
+
+		<div class="titulosTabla">
+			<p>
+				<strong>A&ntilde;o:</strong> 2007<br />
+				<strong>Producci&oacute;n Agr&iacute;cola</strong><br />
+				<strong>Ciclo:</strong> Primavera - Verano<br />
+				<strong>Modalidad:</strong> Temporal<br />
+				<strong>Cultivo:</strong> Cebada grano (ton)     <br /><strong>Entidad Federativa:</strong> Hidalgo<br />
+			</p>
+		</div>
+		<div class="table-responsive">
+		<table id="Resultados-reporte" class="table table-striped table-bordered" border="1">
+			<tr class="estiloResult">
+				<th rowspan="2">&nbsp;</th>
+				<th rowspan="2">Entidad</th>
+				<th rowspan="2">Municipio</th>
+				<th colspan="3">Superficie<br />(ha)</th>
+				<th rowspan="2">Producci&oacute;n</th><th rowspan="2">Rendimiento<br />(udm/ha)</th><th rowspan="2">PMR<br />($/udm)</th>
+				<th rowspan="2">Valor Producci&oacute;n<br />(miles de Pesos)</th>
+			</tr>
+			<tr class="estiloResult">
+				<th>Sembrada</th>
+				<th>Cosechada</th>
+				<th>Siniestrada</th>
+			</tr>
+			<tr>
+				<td>1</td>
+				<td>Hidalgo</td><td>Acatlán</td>
+				<td class="tdNum">657.00</td>
+				<td class="tdNum">652.00</td>
+				<td class="tdNum">5.00</td>
+				<td class="tdNum">1,043.20</td><td class="tdNum">1.60</td>
+				<td class="tdNum">2,500.00</td>
+				<td class="tdNum">2,608.00</td>
+			</tr>
+			
+			<tr>
+				<td>2</td>
+				<td>Hidalgo</td><td>Acaxochitlán</td>
+				<td class="tdNum">110.00</td>
+				<td class="tdNum">110.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">187.00</td><td class="tdNum">1.70</td>
+				<td class="tdNum">2,500.00</td>
+				<td class="tdNum">467.50</td>
+			</tr>
+			
+			<tr>
+				<td>3</td>
+				<td>Hidalgo</td><td>Almoloya</td>
+				<td class="tdNum">9,218.00</td>
+				<td class="tdNum">8,984.00</td>
+				<td class="tdNum">234.00</td>
+				<td class="tdNum">16,171.20</td><td class="tdNum">1.80</td>
+				<td class="tdNum">2,100.00</td>
+				<td class="tdNum">33,959.52</td>
+			</tr>
+			
+			<tr>
+				<td>4</td>
+				<td>Hidalgo</td><td>Apan</td>
+				<td class="tdNum">20,390.00</td>
+				<td class="tdNum">19,715.00</td>
+				<td class="tdNum">675.00</td>
+				<td class="tdNum">37,655.65</td><td class="tdNum">1.91</td>
+				<td class="tdNum">2,100.00</td>
+				<td class="tdNum">79,076.87</td>
+			</tr>
+			
+			<tr>
+				<td>5</td>
+				<td>Hidalgo</td><td>Atotonilco El Grande</td>
+				<td class="tdNum">30.00</td>
+				<td class="tdNum">30.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">30.00</td><td class="tdNum">1.00</td>
+				<td class="tdNum">2,600.00</td>
+				<td class="tdNum">78.00</td>
+			</tr>
+			
+			<tr>
+				<td>6</td>
+				<td>Hidalgo</td><td>Cuautepec de Hinojosa</td>
+				<td class="tdNum">8,347.00</td>
+				<td class="tdNum">6,724.81</td>
+				<td class="tdNum">1,622.19</td>
+				<td class="tdNum">12,911.58</td><td class="tdNum">1.92</td>
+				<td class="tdNum">2,500.00</td>
+				<td class="tdNum">32,278.95</td>
+			</tr>
+			
+			<tr>
+				<td>7</td>
+				<td>Hidalgo</td><td>Emiliano Zapata</td>
+				<td class="tdNum">2,537.00</td>
+				<td class="tdNum">2,519.00</td>
+				<td class="tdNum">18.00</td>
+				<td class="tdNum">4,786.10</td><td class="tdNum">1.90</td>
+				<td class="tdNum">2,100.00</td>
+				<td class="tdNum">10,050.81</td>
+			</tr>
+			
+			<tr>
+				<td>8</td>
+				<td>Hidalgo</td><td>Epazoyucan</td>
+				<td class="tdNum">7,509.00</td>
+				<td class="tdNum">6,909.00</td>
+				<td class="tdNum">600.00</td>
+				<td class="tdNum">5,181.75</td><td class="tdNum">0.75</td>
+				<td class="tdNum">1,700.00</td>
+				<td class="tdNum">8,808.98</td>
+			</tr>
+			
+			<tr>
+				<td>9</td>
+				<td>Hidalgo</td><td>Huasca de Ocampo</td>
+				<td class="tdNum">150.00</td>
+				<td class="tdNum">150.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">180.00</td><td class="tdNum">1.20</td>
+				<td class="tdNum">2,800.00</td>
+				<td class="tdNum">504.00</td>
+			</tr>
+			
+			<tr>
+				<td>10</td>
+				<td>Hidalgo</td><td>Huichapan</td>
+				<td class="tdNum">180.00</td>
+				<td class="tdNum">180.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">144.00</td><td class="tdNum">0.80</td>
+				<td class="tdNum">3,800.00</td>
+				<td class="tdNum">547.20</td>
+			</tr>
+			
+			<tr>
+				<td>11</td>
+				<td>Hidalgo</td><td>Metepec</td>
+				<td class="tdNum">2,145.00</td>
+				<td class="tdNum">2,145.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">1,286.80</td><td class="tdNum">0.60</td>
+				<td class="tdNum">2,500.00</td>
+				<td class="tdNum">3,217.00</td>
+			</tr>
+			
+			<tr>
+				<td>12</td>
+				<td>Hidalgo</td><td>Nopala de Villagrán</td>
+				<td class="tdNum">90.00</td>
+				<td class="tdNum">90.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">81.00</td><td class="tdNum">0.90</td>
+				<td class="tdNum">3,000.00</td>
+				<td class="tdNum">243.00</td>
+			</tr>
+			
+			<tr>
+				<td>13</td>
+				<td>Hidalgo</td><td>Omitlán de Juárez</td>
+				<td class="tdNum">10.00</td>
+				<td class="tdNum">10.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">10.00</td><td class="tdNum">1.00</td>
+				<td class="tdNum">2,800.00</td>
+				<td class="tdNum">28.00</td>
+			</tr>
+			
+			<tr>
+				<td>14</td>
+				<td>Hidalgo</td><td>Pachuca de Soto</td>
+				<td class="tdNum">2,985.00</td>
+				<td class="tdNum">2,785.00</td>
+				<td class="tdNum">200.00</td>
+				<td class="tdNum">3,760.00</td><td class="tdNum">1.35</td>
+				<td class="tdNum">1,900.00</td>
+				<td class="tdNum">7,144.00</td>
+			</tr>
+			
+			<tr>
+				<td>15</td>
+				<td>Hidalgo</td><td>Mineral de La Reforma</td>
+				<td class="tdNum">2,053.00</td>
+				<td class="tdNum">1,968.50</td>
+				<td class="tdNum">84.50</td>
+				<td class="tdNum">2,756.00</td><td class="tdNum">1.40</td>
+				<td class="tdNum">2,000.00</td>
+				<td class="tdNum">5,512.00</td>
+			</tr>
+			
+			<tr>
+				<td>16</td>
+				<td>Hidalgo</td><td>San Agustín Tlaxiaca</td>
+				<td class="tdNum">1,250.00</td>
+				<td class="tdNum">1,250.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">1,375.00</td><td class="tdNum">1.10</td>
+				<td class="tdNum">1,600.00</td>
+				<td class="tdNum">2,200.00</td>
+			</tr>
+			
+			<tr>
+				<td>17</td>
+				<td>Hidalgo</td><td>Santiago Tulantepec de Lugo Guerrero</td>
+				<td class="tdNum">356.00</td>
+				<td class="tdNum">356.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">682.00</td><td class="tdNum">1.92</td>
+				<td class="tdNum">2,400.00</td>
+				<td class="tdNum">1,636.80</td>
+			</tr>
+			
+			<tr>
+				<td>18</td>
+				<td>Hidalgo</td><td>Singuilucan</td>
+				<td class="tdNum">12,100.00</td>
+				<td class="tdNum">11,809.77</td>
+				<td class="tdNum">290.23</td>
+				<td class="tdNum">25,482.90</td><td class="tdNum">2.16</td>
+				<td class="tdNum">2,500.00</td>
+				<td class="tdNum">63,707.25</td>
+			</tr>
+			
+			<tr>
+				<td>19</td>
+				<td>Hidalgo</td><td>Tepeapulco</td>
+				<td class="tdNum">8,042.00</td>
+				<td class="tdNum">7,591.00</td>
+				<td class="tdNum">451.00</td>
+				<td class="tdNum">15,182.00</td><td class="tdNum">2.00</td>
+				<td class="tdNum">2,100.00</td>
+				<td class="tdNum">31,882.20</td>
+			</tr>
+			
+			<tr>
+				<td>20</td>
+				<td>Hidalgo</td><td>Villa de Tezontepec</td>
+				<td class="tdNum">2,630.00</td>
+				<td class="tdNum">2,440.00</td>
+				<td class="tdNum">190.00</td>
+				<td class="tdNum">3,660.00</td><td class="tdNum">1.50</td>
+				<td class="tdNum">1,600.00</td>
+				<td class="tdNum">5,856.00</td>
+			</tr>
+			
+			<tr>
+				<td>21</td>
+				<td>Hidalgo</td><td>Tizayuca</td>
+				<td class="tdNum">2,180.00</td>
+				<td class="tdNum">1,960.00</td>
+				<td class="tdNum">220.00</td>
+				<td class="tdNum">5,096.00</td><td class="tdNum">2.60</td>
+				<td class="tdNum">2,000.00</td>
+				<td class="tdNum">10,192.00</td>
+			</tr>
+			
+			<tr>
+				<td>22</td>
+				<td>Hidalgo</td><td>Tlanalapa</td>
+				<td class="tdNum">3,562.00</td>
+				<td class="tdNum">3,510.00</td>
+				<td class="tdNum">52.00</td>
+				<td class="tdNum">7,020.00</td><td class="tdNum">2.00</td>
+				<td class="tdNum">2,100.00</td>
+				<td class="tdNum">14,742.00</td>
+			</tr>
+			
+			<tr>
+				<td>23</td>
+				<td>Hidalgo</td><td>Tolcayuca</td>
+				<td class="tdNum">3,980.00</td>
+				<td class="tdNum">3,680.00</td>
+				<td class="tdNum">300.00</td>
+				<td class="tdNum">5,152.00</td><td class="tdNum">1.40</td>
+				<td class="tdNum">1,600.00</td>
+				<td class="tdNum">8,243.20</td>
+			</tr>
+			
+			<tr>
+				<td>24</td>
+				<td>Hidalgo</td><td>Tulancingo de Bravo</td>
+				<td class="tdNum">2,717.00</td>
+				<td class="tdNum">2,712.50</td>
+				<td class="tdNum">4.50</td>
+				<td class="tdNum">4,882.50</td><td class="tdNum">1.80</td>
+				<td class="tdNum">2,500.00</td>
+				<td class="tdNum">12,206.25</td>
+			</tr>
+			
+			<tr>
+				<td>25</td>
+				<td>Hidalgo</td><td>Zapotlán de Juárez</td>
+				<td class="tdNum">5,126.00</td>
+				<td class="tdNum">4,776.00</td>
+				<td class="tdNum">350.00</td>
+				<td class="tdNum">7,641.60</td><td class="tdNum">1.60</td>
+				<td class="tdNum">1,600.00</td>
+				<td class="tdNum">12,226.56</td>
+			</tr>
+			
+			<tr>
+				<td>26</td>
+				<td>Hidalgo</td><td>Zempoala</td>
+				<td class="tdNum">13,669.33</td>
+				<td class="tdNum">11,919.33</td>
+				<td class="tdNum">1,750.00</td>
+				<td class="tdNum">15,495.13</td><td class="tdNum">1.30</td>
+				<td class="tdNum">1,700.00</td>
+				<td class="tdNum">26,341.72</td>
+			</tr>
+			
+			<tr><th colspan="3">Total</th>
+			<th class="tdNum">112,023.33</th>
+			<th class="tdNum">104,976.91</th>
+			<th class="tdNum">7,046.42</th>
+			<th class="tdNum">177,853.41</th><th class="tdNum">1.69</th>
+			<th class="tdNum">2,101.49</th>
+			<th class="tdNum">373,757.80</th>
+		</tr>
+		
+		</table></div>
+</body>
+</html>
