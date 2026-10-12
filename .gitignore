@@ -14,3 +14,6 @@ data/processed/series_*.parquet
 
 # Worktrees y configuración local de herramientas
 /.claude/
+
+# Configuración local de la app (ver .env.example)
+.env

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block head %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+{% endblock %}
+
+{% block body_class %}map-page{% endblock %}
+
+{% block content %}
+  <section class="controls">
+    <label>Colorear por
+      <select id="layer">
+        <option value="set">Conjunto</option>
+        <option value="yield">Rendimiento observado</option>
+        <option value="pred">Predicción del modelo</option>
+      </select>
+    </label>
+    <label>Estado
+      <select id="state">
+        <option value="">Todos</option>
+      </select>
+    </label>
+    <label>Municipio
+      <select id="municipality">
+        <option value="">Todos</option>
+      </select>
+    </label>
+    <span id="count" class="count"></span>
+  </section>
+  <div id="map"
+       data-parcels-url="{{ url_for('parcels.parcels') }}"
+       data-predictions-url="{{ url_for('predictions.predictions') }}"></div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="{{ url_for('scripts', filename='map.js') }}"></script>
+{% endblock %}

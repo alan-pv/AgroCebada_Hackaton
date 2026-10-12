@@ -12,8 +12,7 @@ Requiere [uv](https://docs.astral.sh/uv/). Python 3.12 se instala solo.
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
-uv sync                    # dependencias base y grupo dev
-uv sync --extra app        # además streamlit, plotly y folium
+uv sync                    # dependencias base (incluye flask y plotly para la app) y grupo dev
 uv sync --extra tabpfn     # además tabpfn
 ```
 
@@ -24,10 +23,53 @@ uv run python -m agrocebada.parcelas   # genera data/processed/parcelas.parquet 
 uv run python -m agrocebada.validar    # comprueba IDs, duplicados, rangos y fechas del dataset
 uv run python -m agrocebada.build_features   # series, variables satelitales, clima, topografía y features.parquet (~2 min)
 uv run pytest                          # pruebas
-uv run python scripts/diagnostico_inicial.py   # reproduce las cifras del ROADMAP (requiere pyshp)
+uv run scripts/diagnostico_inicial.py   # reproduce las cifras del ROADMAP (requiere pyshp)
 ```
 
 Los ZIP de rásteres se descomprimen bajo demanda en `data/interim/` (`agrocebada.io.extraer_rasteres()`).
+
+## App
+
+Servidor Flask en `app/`. Se ejecuta desde la raíz del repo; el comando está en `scripts/cli.py`.
+
+```bash
+cp .env.example .env     # una sola vez: puerto y host de la app
+uv run app               # servidor de desarrollo en http://127.0.0.1:8080
+uv run app --debug       # igual, pero recarga al guardar y muestra los errores en el navegador
+uv run app --production  # servidor de producción con waitress
+uv run app --test        # pruebas de la app
+```
+
+Usa `--debug` solo en local: la página de errores permite ejecutar código en el servidor.
+
+La configuración va en `.env`, que no se versiona: `AGRCBDA_PORT` (8080 por defecto) y `AGRCBDA_HOST` (127.0.0.1 por defecto; con `0.0.0.0` acepta conexiones de otras máquinas). Si `.env` no existe se usan esos valores, y una variable `AGRCBDA_*` definida en la terminal gana sobre el archivo.
+
+Las plantillas Jinja van en `app/templates`, el JavaScript en `app/scripts` (servido en `/scripts`), los estilos en `app/styles` (servidos en `/styles`) y cada sección de la app en un módulo de `app/modules`.
+
+| Ruta | Qué devuelve |
+|---|---|
+| `GET /` | Página inicial con el mapa de las parcelas |
+| `GET /health` | `{"status": "ok"}`, para comprobar que el servidor está arriba |
+| `GET /api/parcels` | Las 197 parcelas en GeoJSON: ID, estado, municipio, conjunto, rendimiento observado y área |
+| `GET /api/predictions` | Predicción, intervalo p10 a p90 y probabilidad bajo 2.5 t/ha de las 197 parcelas (fuera de fold en las de entrenamiento). Filtros `set`, `state` y `municipality`; con `format=csv` descarga un CSV |
+
+## CLI
+
+Un comando por cada archivo de `scripts/`, desde la raíz del repo.
+
+```bash
+uv run app                                   # scripts/cli.py: servidor de la app en http://127.0.0.1:8080
+uv run app --debug                           # scripts/cli.py: servidor en modo debug (solo en local)
+uv run app --production                      # scripts/cli.py: servidor de producción con waitress
+uv run app --test                            # scripts/cli.py: pruebas de la app
+uv run scripts/baselines.py                  # baselines de validación y regla de decisión del régimen (unos minutos)
+uv run scripts/experimentos_v1.py            # experimentos del modelo v1, registro y candidato_v1.json (~35 min)
+uv run scripts/ensemble_intervalos.py        # ensemble, intervalos p10 a p90 y candidato_v2.json (~10 min)
+uv run scripts/interpretabilidad.py          # preguntas guía, importancias y SHAP (varios minutos)
+uv run scripts/interpretabilidad.py --rapido # lo mismo con menos repeticiones, para probar
+uv pip install pyshp                         # solo para el diagnóstico; pyshp no es dependencia del proyecto
+uv run scripts/diagnostico_inicial.py        # cifras del diagnóstico inicial del ROADMAP
+```
 
 ## Reproducir la entrega
 
@@ -37,10 +79,10 @@ Secuencia completa desde los datos del reto, en orden. Los tiempos son aproximad
 uv sync
 uv run python -m agrocebada.parcelas            # parcelas.parquet y .gpkg (segundos)
 uv run python -m agrocebada.build_features      # features.parquet (~2 min)
-uv run python scripts/baselines.py              # baselines y regla de decisión (unos minutos)
-uv run python scripts/experimentos_v1.py        # candidato_v1.json y registro (~35 min)
-uv run python scripts/ensemble_intervalos.py    # candidato_v2.json y calibracion_v2.parquet (~10 min)
-uv run python scripts/interpretabilidad.py      # preguntas guía, importancias y SHAP (varios minutos)
+uv run scripts/baselines.py                     # baselines y regla de decisión (unos minutos)
+uv run scripts/experimentos_v1.py               # candidato_v1.json y registro (~35 min)
+uv run scripts/ensemble_intervalos.py           # candidato_v2.json y calibracion_v2.parquet (~10 min)
+uv run scripts/interpretabilidad.py             # preguntas guía, importancias y SHAP (varios minutos)
 uv run python -m agrocebada.train_final         # models/modelo_final.joblib (~10 s)
 uv run python -m agrocebada.predict             # archivos de entrega y controles (~5 s)
 uv run pytest                                   # pruebas

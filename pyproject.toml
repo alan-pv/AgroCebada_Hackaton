@@ -1,6 +1,6 @@
 [project]
 name = "agrocebada"
-version = "0.1.0"
+version = "0.2.0"
 description = "Reto AgroCebada FIRA 2026: predicción de rendimiento de cebada (t/ha) con datos satelitales, clima y topografía"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
@@ -19,11 +19,17 @@ dependencies = [
     "pyarrow",
     "matplotlib",
     "joblib",
+    "flask>=3.1.3",
+    "plotly>=7.1.0",
+    "waitress>=3.0.2",
+    "python-dotenv>=1.2.4",
 ]
 
 [project.optional-dependencies]
-app = ["streamlit", "plotly", "folium"]
 tabpfn = ["tabpfn"]
+
+[project.scripts]
+app = "scripts.cli:main"
 
 [dependency-groups]
 dev = ["pytest"]
@@ -33,7 +39,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/agrocebada"]
+packages = ["src/agrocebada", "app"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
