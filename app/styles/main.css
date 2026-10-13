@@ -1,0 +1,115 @@
+/* Estilos base de la app AgroCebada */
+
+:root {
+  --texto: #1f2a1f;
+  --fondo: #f7f6f1;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--texto);
+  background: var(--fondo);
+}
+
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Página del mapa: encabezado, controles y mapa a toda la altura */
+
+.map-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+}
+
+.topbar {
+  padding: 0.75rem 1rem 0.25rem;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.topbar p {
+  margin: 0.25rem 0 0;
+  color: #52514e;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  padding: 0.5rem 1rem 0.75rem;
+}
+
+.controls label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.95rem;
+}
+
+.controls select {
+  font: inherit;
+  padding: 0.25rem 0.4rem;
+}
+
+.count {
+  color: #52514e;
+  font-size: 0.9rem;
+}
+
+#map {
+  flex: 1;
+  min-height: 300px;
+}
+
+/* Leyenda del mapa */
+
+.legend {
+  background: #fff;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(11, 11, 11, 0.25);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--texto);
+}
+
+.legend strong {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend-swatch {
+  width: 14px;
+  height: 14px;
+  border: 1px solid #52514e;
+  border-radius: 3px;
+}
+
+.legend-swatch--no-data {
+  border-style: dashed;
+  border-color: #898781;
+}
+
+/* En el celular, cada control ocupa su propia línea */
+@media (max-width: 600px) {
+  .controls label {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+}
