@@ -16,6 +16,8 @@ uv sync                    # dependencias base (incluye flask y plotly para la a
 uv sync --extra tabpfn     # además tabpfn
 ```
 
+En ARM de 64 bits (aarch64) no se instala `exactextract`, que no tiene versión para esa arquitectura. Ahí funciona la app, pero no `agrocebada.build_features`.
+
 ## Comandos
 
 ```bash
@@ -33,16 +35,26 @@ Los ZIP de rásteres se descomprimen bajo demanda en `data/interim/` (`agrocebad
 Servidor Flask en `app/`. Se ejecuta desde la raíz del repo; el comando está en `scripts/cli.py`.
 
 ```bash
-cp .env.example .env     # una sola vez: puerto y host de la app
-uv run app               # servidor de desarrollo en http://127.0.0.1:8080
+uv run app install       # una sola vez: crea .env (puerto y host) a partir de .env.example si no existe e instala las dependencias
+uv run app               # servidor de desarrollo en http://127.0.0.1:8090
 uv run app --debug       # igual, pero recarga al guardar y muestra los errores en el navegador
-uv run app --production  # servidor de producción con waitress
+uv run app --production  # servidor de producción con waitress; carga datos y modelo antes de aceptar peticiones
 uv run app --test        # pruebas de la app
 ```
 
+`install` ejecuta `[ -f .env ] || cp .env.example .env` y luego `uv sync --inexact`. Con `--inexact` no se quitan paquetes instalados aparte, como el extra `tabpfn`.
+
 Usa `--debug` solo en local: la página de errores permite ejecutar código en el servidor.
 
-La configuración va en `.env`, que no se versiona: `AGRCBDA_PORT` (8080 por defecto) y `AGRCBDA_HOST` (127.0.0.1 por defecto; con `0.0.0.0` acepta conexiones de otras máquinas). Si `.env` no existe se usan esos valores, y una variable `AGRCBDA_*` definida en la terminal gana sobre el archivo.
+La configuración va en `.env`, que no se versiona; `.env.example` trae los valores por defecto:
+
+| Variable | Por defecto | Qué controla |
+|---|---|---|
+| `AGRCBDA_PORT` | `8090` | Puerto del servidor |
+| `AGRCBDA_HOST` | `127.0.0.1` | Solo acepta conexiones de esta máquina; con `0.0.0.0` acepta las de otras |
+| `AGRCBDA_MAX_CONTENT_LENGTH` | `1048576` (1 MB) | Tamaño máximo del cuerpo de una petición, en bytes; si se pasa, la app responde 413 |
+
+Si falta una variable en `.env` se usa su valor por defecto, y una variable `AGRCBDA_*` definida en la terminal gana sobre el archivo. `install` no agrega variables nuevas a un `.env` que ya existe.
 
 Las plantillas Jinja van en `app/templates`, el JavaScript en `app/scripts` (servido en `/scripts`), los estilos en `app/styles` (servidos en `/styles`) y cada sección de la app en un módulo de `app/modules`.
 
@@ -52,16 +64,33 @@ Las plantillas Jinja van en `app/templates`, el JavaScript en `app/scripts` (ser
 | `GET /health` | `{"status": "ok"}`, para comprobar que el servidor está arriba |
 | `GET /api/parcels` | Las 197 parcelas en GeoJSON: ID, estado, municipio, conjunto, rendimiento observado y área |
 | `GET /api/predictions` | Predicción, intervalo p10 a p90 y probabilidad bajo 2.5 t/ha de las 197 parcelas (fuera de fold en las de entrenamiento). Filtros `set`, `state` y `municipality`; con `format=csv` descarga un CSV |
+| `POST /api/predict` | Corre el modelo final en vivo. Cuerpo JSON `{"ids": ["AGC_001", "AGC_002"], "threshold": 2.5}`, con el umbral opcional entre 1 y 6 t/ha. Devuelve la versión del modelo, el umbral y, por parcela, predicción, p10, p90 y probabilidad bajo el umbral. Hasta 59 parcelas por petición |
+
+### En el servidor
+
+La app corre en una Raspberry Pi 4 (aarch64, Debian 13) detrás de un túnel de Cloudflare, que da el HTTPS. Escucha solo en `127.0.0.1` y en el puerto 8090, porque ahí el 8080 está ocupado. `exactextract` no tiene versión para ARM y la app no la usa; `pyproject.toml` la omite en aarch64, así que en la Pi no hacen falta `--no-sync` ni `--no-install-package`:
+
+```bash
+uv run app install       # crea .env e instala las dependencias
+uv run app --production  # servidor de producción
+```
+
+- Solo lee archivos ya generados: `data/processed/parcelas.gpkg` y `features.parquet`, `outputs/predicciones.parquet` y `models/modelo_final.joblib`. No usa `tabpfn` ni `exactextract`, no descarga rásteres y ninguna ruta reentrena el modelo. `tests/test_app.py` corre la app con esos módulos bloqueados.
+- Límites por petición: hasta 59 parcelas y umbral entre 1 y 6 t/ha en `POST /api/predict`, y cuerpo de `AGRCBDA_MAX_CONTENT_LENGTH` bytes como máximo (1 MB por defecto; si se pasa responde 413). Las últimas 256 selecciones se guardan en memoria y una repetida no vuelve a correr el modelo.
+- Las rutas salen de `url_for` y el JavaScript las toma de la página, así que la app funciona en la raíz del subdominio sin rutas escritas a mano.
+- Al arrancar en producción carga datos y modelo (unos segundos) y luego muestra `Sirviendo en http://127.0.0.1:8090`.
+- Los datos y el modelo quedan en memoria mientras el servicio está arriba, y el navegador reutiliza `/api/parcels` durante una hora. Si cambian las predicciones, las variables o el modelo hay que reiniciar el servicio.
 
 ## CLI
 
 Un comando por cada archivo de `scripts/`, desde la raíz del repo.
 
 ```bash
-uv run app                                   # scripts/cli.py: servidor de la app en http://127.0.0.1:8080
+uv run app                                   # scripts/cli.py: servidor de la app en http://127.0.0.1:8090
 uv run app --debug                           # scripts/cli.py: servidor en modo debug (solo en local)
 uv run app --production                      # scripts/cli.py: servidor de producción con waitress
 uv run app --test                            # scripts/cli.py: pruebas de la app
+uv run app install                           # scripts/cli.py: crea .env si no existe e instala las dependencias
 uv run scripts/baselines.py                  # baselines de validación y regla de decisión del régimen (unos minutos)
 uv run scripts/experimentos_v1.py            # experimentos del modelo v1, registro y candidato_v1.json (~35 min)
 uv run scripts/ensemble_intervalos.py        # ensemble, intervalos p10 a p90 y candidato_v2.json (~10 min)
