@@ -1,6 +1,6 @@
 [project]
 name = "agrocebada"
-version = "0.2.0"
+version = "0.3.0"
 description = "Reto AgroCebada FIRA 2026: predicción de rendimiento de cebada (t/ha) con datos satelitales, clima y topografía"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
@@ -11,7 +11,8 @@ dependencies = [
     "pyogrio",
     "shapely",
     "rasterio",
-    "exactextract",
+    # Sin versión para ARM de 64 bits; solo la usa build_features, no la app del servidor
+    "exactextract; platform_machine != 'aarch64'",
     "scipy",
     "scikit-learn",
     "lightgbm",

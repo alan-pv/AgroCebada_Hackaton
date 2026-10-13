@@ -4,14 +4,16 @@ from pathlib import Path
 from dotenv import load_dotenv
 from flask import Flask, render_template, send_from_directory
 
-from .modules import parcels, predictions
+from .modules import model, parcels, predictions
 
 ROOT = Path(__file__).resolve().parent
 
-# Lee .env de la raíz del repo; si AGRCBDA_HOST o AGRCBDA_PORT ya están definidas en la terminal, ganan sobre el archivo
+# Lee .env de la raíz del repo; si una variable AGRCBDA_* ya está definida en la terminal, gana sobre el archivo
 load_dotenv(ROOT.parent / ".env")
 HOST = os.getenv("AGRCBDA_HOST", "127.0.0.1")
-PORT = int(os.getenv("AGRCBDA_PORT", "8080"))
+PORT = int(os.getenv("AGRCBDA_PORT", "8090"))
+# Tamaño máximo del cuerpo de una petición, en bytes (1 MB por defecto); si se pasa, Flask responde 413
+MAX_CONTENT_LENGTH = int(os.getenv("AGRCBDA_MAX_CONTENT_LENGTH", str(1024 * 1024)))
 
 
 class AgroCebadaApp:
@@ -22,6 +24,7 @@ class AgroCebadaApp:
             static_folder=str(ROOT / "styles"),
             static_url_path="/styles",
         )
+        self.server.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
         self.server.config.update(config or {})
         self._path_register()
 
@@ -31,6 +34,7 @@ class AgroCebadaApp:
         self.server.add_url_rule("/scripts/<path:filename>", "scripts", self.scripts)
         self.server.register_blueprint(parcels.bp)
         self.server.register_blueprint(predictions.bp)
+        self.server.register_blueprint(model.bp)
 
     def index(self):
         return render_template("index.html")
@@ -44,9 +48,19 @@ class AgroCebadaApp:
     def run(self, host=HOST, port=PORT, debug=False):
         self.server.run(host=host, port=port, debug=debug)
 
+    def warm_up(self):
+        # Carga datos y modelo antes de aceptar peticiones: la primera visita no espera
+        # y los hilos de waitress no los cargan varias veces a la vez
+        parcels.parcels_geojson()
+        predictions.predictions_table()
+        model.warm_up()
+
     def serve(self, host=HOST, port=PORT):
         # Servidor de producción
         from waitress import serve
+        print("Cargando datos y modelo...", flush=True)
+        self.warm_up()
+        print(f"Sirviendo en http://{host}:{port}", flush=True)
         serve(self.server, host=host, port=port)
 
 
