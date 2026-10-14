@@ -32,6 +32,8 @@ def features_table():
 def predict_cached(ids, threshold):
     # ids es una tupla ordenada y sin repetidos, para que la misma selección reutilice el resultado
     out = predict(features_table().loc[list(ids)], umbral=threshold, modelo=load_model())
+    # la API conserva su contrato. La marca de confianza se expone en un cambio aparte (#12)
+    out = out[["ID_POLIGONO", "pred", "p10", "p90", "prob_bajo_umbral"]]
     out = out.rename(columns={"ID_POLIGONO": "id", "prob_bajo_umbral": "prob_below"})
     return out.round({"pred": 3, "p10": 3, "p90": 3, "prob_below": 3}).to_dict(orient="records")
 
