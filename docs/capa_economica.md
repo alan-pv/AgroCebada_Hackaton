@@ -69,6 +69,12 @@ La tabla municipal trae datos para mostrar junto a la ficha.
 | `precio_min` y `precio_max` | Precio más bajo y más alto del periodo 2023 a 2025. |
 | `rendimiento_paquete_probable` | Rendimiento que supone el paquete tecnológico de FIRA para la zona. |
 
+## Costo económico y probabilidades extremas
+
+El costo total del paquete incluye renta de la tierra y otros conceptos que el crédito no financia. Por ejemplo, la renta en Tlaxcala es de 3,500 $/ha. Por eso cubrir el costo total es un criterio económico y no es lo mismo que pagar el crédito.
+
+Las probabilidades salen de una distribución empírica de errores con un número finito de parcelas. Por eso pueden dar exactamente 0 o 1. Sugerimos mostrar "menos de 1 %" cuando la probabilidad sea menor que 0.01 y "más de 99 %" cuando sea mayor que 0.99, y no mostrar un 0 % ni un 100 % que sugiera certeza.
+
 ## Cosas que hay que tener presentes
 
 1. Las etiquetas del reto son rendimientos que reporta la comercializadora, es decir, grano entregado entre superficie declarada. El SIAP mide otra cosa.
@@ -76,7 +82,7 @@ La tabla municipal trae datos para mostrar junto a la ficha.
 3. Los costos son los del paquete de FIRA del ciclo primavera-verano 2022, el más reciente público, actualizados a 2025 con el índice de precios al consumidor general de INEGI (factor 1.147). El índice general no sigue el precio de los insumos agrícolas, así que el costo real puede ser distinto. Conviene dejarlo editable.
 4. El paquete de Hidalgo supone 3.5 t/ha y cuesta unos 28,400 $/ha en 2025. Por eso el punto de equilibrio total queda cerca o por encima del rendimiento esperado. Singuilucan es el caso extremo, con precio de 4,300 $/t y un punto de equilibrio total de 6.6 t/ha.
 5. En Tlaxcala el paquete financia solo una parte pequeña del costo, porque una buena parte es aportación del productor y gasto no financiable. Por eso el punto de equilibrio del crédito de Calpulalpan y Nanacamilpa es bajo, alrededor de 1 t/ha, y el del costo total es alto, alrededor de 3.9 t/ha. Con el semáforo de costos casi todas las parcelas salen en rojo, y con el del crédito salen en verde.
-6. Chignahuapan usa la zona Sierra Norte de Puebla. Es un supuesto nuestro, la fuente no dice qué municipios cubre cada zona. Su paquete es el más caro y supone 5.5 t/ha.
+6. Chignahuapan usa por defecto el paquete de Agencias Hidalgo, que es el mismo altiplano cebadero. Es un supuesto nuestro. El paquete de Sierra Norte de Puebla es de alta productividad, supone 5.5 t/ha y 8,000 $/t e incluye renta de la tierra, así que no cuadra con el precio del SIAP. Queda como alternativa en la tabla municipal, con un punto de equilibrio total de 6.9 t/ha. Se puede probar pasando `costo_total` y `costo_credito` de esa alternativa.
 7. El percentil 10 no es un mal año. Es el límite inferior de la incertidumbre del modelo y cada intervalo deja 10 % de la probabilidad por debajo.
 8. El precio del SIAP mezcla ventas de grano aceptado y de grano rechazado o vendido como forraje. Los contratos reportados en la prensa para 2024 y 2026 fueron de 6,800 a 7,400 $/t. Singuilucan y Chignahuapan quedan abajo de eso porque el SIAP les asigna 4,300 y 5,100 $/t.
 9. La actualización de costos y la elección de zona se pueden revisar con FIRA. Si FIRA entrega paquetes de 2025 o 2026, basta sustituir los costos al llamar la función.

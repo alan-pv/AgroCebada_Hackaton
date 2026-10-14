@@ -55,11 +55,14 @@ MUNICIPIOS = [
     ("13021", "Hidalgo", "Emiliano Zapata", "Emiliano Zapata", "B", "AGENCIAS HIDALGO"),
     ("13057", "Hidalgo", "Singuilucan", "Singuilucan", "B", "AGENCIAS HIDALGO"),
     ("13061", "Hidalgo", "Tepeapulco", "Tepeapulco", "A", "AGENCIAS HIDALGO"),
-    ("21053", "Puebla", "Chignahuapan", "Chignahuapan", "A", "SIERRA NORTE PUEBLA"),
+    ("21053", "Puebla", "Chignahuapan", "Chignahuapan", "A", "AGENCIAS HIDALGO"),
     ("29006", "Tlaxcala", "Calpulalpan", "Calpulalpan", "B", "AGENCIAS DE TLAXCALA"),
     ("29021", "Tlaxcala", "Nanacamilpa de Mariano Arista", "Nanacamilpa de Mariano Arista", "B",
      "AGENCIAS DE TLAXCALA"),
 ]
+# Zona alternativa por CVEGEO. Paquete de alta productividad (5.5 t/ha, 8,000 $/t, con renta de
+# la tierra) que queda como sensibilidad para Chignahuapan.
+ALTERNATIVAS = {"21053": "SIERRA NORTE PUEBLA"}
 COLUMNAS_CRUDAS = [
     "Año", "Estado", "IdZona", "Zona", "Cultivo", "Tecnología", "Modalidad", "Estatus",
     "Rendimiento pesimista", "Rendimiento probable", "Rendimiento optimista", "Precio probable",
@@ -85,9 +88,9 @@ def zonas_usadas():
     raw = pd.read_csv(AGRO / "cebada_agrocostos_crudo.csv")
     z = raw[(raw["Año"] == ANIO_COSTO) & (raw["Ciclo corto"] == "PV")
             & raw["Tecnología"].eq("TEMPORAL-MEJORADA-FERTILIZADA")
-            & raw["Modalidad"].eq("TRADICIONAL") & raw["Zona"].isin({m[5] for m in MUNICIPIOS})]
+            & raw["Modalidad"].eq("TRADICIONAL") & raw["Zona"].isin({m[5] for m in MUNICIPIOS} | set(ALTERNATIVAS.values()))]
     z = z[COLUMNAS_CRUDAS].copy()
-    assert len(z) == 3, z
+    assert len(z) == 3, z  # Hidalgo, Tlaxcala y la alternativa de Puebla
     z["costo_total_2022"] = z.TotalMenorUDIS
     z["costo_credito_2022"] = z.TotalCreditoMenorUDIS + z.TotalInteresesMenorUDIS
     z["costo_credito_mayor_udis_2022"] = z.TotalCreditoMayorUDIS + z.TotalInteresesMayorUDIS
@@ -143,6 +146,11 @@ def construir():
     m["costo_total_2025"] = m.costo_total_2022 * f.factor_inpc
     m["costo_credito_2025"] = m.costo_credito_2022 * f.factor_inpc
     m = m.merge(siap_municipal(), on="CVEGEO")
+    m["zona_alternativa"] = m.CVEGEO.map(ALTERNATIVAS)
+    alt = z.set_index("zona_agrocostos")
+    for col, base in (("costo_total_2025_alt", "costo_total_2022"),
+                      ("costo_credito_2025_alt", "costo_credito_2022")):
+        m[col] = m.zona_alternativa.map(alt[base]) * f.factor_inpc
     m["pe_total_t_ha"] = m.costo_total_2025 / m.precio_2023_2025
     m["pe_credito_t_ha"] = m.costo_credito_2025 / m.precio_2023_2025
     cols = ["CVEGEO", "estado", "municipio", "regimen", "zona_agrocostos", "costo_total_2022",
@@ -151,6 +159,10 @@ def construir():
             "rendimiento_paquete_probable", "siniestralidad_2003_2025", "siniestralidad_2013_2025",
             "anios_perdida_20", "anios_perdida_50", "siap_rend_media", "siap_rend_sd",
             "siap_rend_p10", "siap_frac_rend_repetido"]
+    m["pe_total_alt"] = m.costo_total_2025_alt / m.precio_2023_2025
+    m["pe_credito_alt"] = m.costo_credito_2025_alt / m.precio_2023_2025
+    cols += ["zona_alternativa", "costo_total_2025_alt", "costo_credito_2025_alt", "pe_total_alt",
+             "pe_credito_alt"]
     return m[cols], z, factor_inpc()
 
 

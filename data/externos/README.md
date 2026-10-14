@@ -97,11 +97,11 @@ Datos públicos que se usaron en el análisis de los regímenes de etiquetas (`d
 
 | Municipios | Zona AgroCostos | Cultivo del paquete | Rend. probable (t/ha) | Costo total 2022 ($/ha) |
 |---|---|---|---|---|
-| Almoloya, Apan, Cuautepec de Hinojosa, Emiliano Zapata, Singuilucan, Tepeapulco | AGENCIAS HIDALGO | Cebada alta productividad | 3.5 | 24,736 |
+| Almoloya, Apan, Chignahuapan, Cuautepec de Hinojosa, Emiliano Zapata, Singuilucan, Tepeapulco | AGENCIAS HIDALGO | Cebada alta productividad | 3.5 | 24,736 |
 | Calpulalpan, Nanacamilpa | AGENCIAS DE TLAXCALA | Cebada | 4.0 | 21,594 |
-| Chignahuapan | SIERRA NORTE PUEBLA | Cebada alta productividad | 5.5 | 31,128 |
+| Chignahuapan (alternativa) | SIERRA NORTE PUEBLA | Cebada alta productividad | 5.5 | 31,128 |
 
-- Hidalgo tiene una sola zona de cebada de temporal en 2022 (Agencias Hidalgo). En ciclos anteriores se llamó Altiplano de Hidalgo. Puebla tiene dos en 2022, Sierra Norte Puebla y Agencia Teziutlán. Asignamos Chignahuapan a Sierra Norte por ser la región geográfica en que está el municipio. Es un supuesto nuestro, el CSV y el catálogo de zonas no dicen qué municipios cubre cada zona.
+- Hidalgo tiene una sola zona de cebada de temporal en 2022 (Agencias Hidalgo). En ciclos anteriores se llamó Altiplano de Hidalgo. Puebla tiene dos en 2022, Sierra Norte Puebla y Agencia Teziutlán. Asignamos Chignahuapan al paquete de Agencias Hidalgo por defecto, pues es el mismo altiplano cebadero. El paquete de Sierra Norte Puebla es de alta productividad (5.5 t/ha), supone un precio de 8,000 $/t e incluye 4,000 $/ha de renta de la tierra, lo que lo vuelve inconsistente con el precio del SIAP de 5,149 $/t. Queda como alternativa en las columnas `zona_alternativa`, `costo_total_2025_alt`, `costo_credito_2025_alt`, `pe_total_alt` y `pe_credito_alt` de la tabla municipal (vacías en los otros municipios). Ambas son supuestos nuestros, el CSV y el catálogo de zonas no dicen qué municipios cubre cada zona.
 - Campos usados. `Rendimiento probable`, `Precio probable`, `CostoTotal`, `TotalFinanciable`, `TotalNoFinanciable`, `AportacionN1/N2`, `TasaN1/N2`, `TotalCredito*UDIS`, `TotalAportacion*UDIS`, `TotalIntereses*UDIS`, `Total*UDIS`. Los campos `AvioInteres` y `CostoDirecto` no son pesos (son proporciones o factores) y no los usamos.
 - Lectura de los campos de crédito (comprobada con los datos). Para cada paquete se cumple
 
@@ -112,7 +112,7 @@ Datos públicos que se usaron en el análisis de los regímenes de etiquetas (`d
   - `costo_total_2022 = TotalMenorUDIS` (incluye el interés del avío).
   - `costo_credito_2022 = TotalCreditoMenorUDIS + TotalInteresesMenorUDIS` (lo que se debe pagar de lo financiado, capital más interés).
   - `pe_total_t_ha = costo_total_2025 / precio` y `pe_credito_t_ha = costo_credito_2025 / precio`, con el precio en $/t.
-- Cobertura del crédito. Por la parte no financiable y la aportación del productor, el crédito es 53 % del costo en Hidalgo, 27 % en Tlaxcala y 62 % en Puebla.
+- Cobertura del crédito. Por la parte no financiable y la aportación del productor, el crédito es 53 % del costo en Hidalgo, 27 % en Tlaxcala y 62 % en Sierra Norte Puebla.
 - Tabla de las zonas usadas, con los campos originales y el costo del crédito: `fira_agrocostos/zonas_usadas.csv`.
 
 ## INEGI, INPC para actualizar los costos a 2025
