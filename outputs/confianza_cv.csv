@@ -1,0 +1,4 @@
+grupo,filas,parcelas,mae,cola_baja,cobertura,dif_mae_0_vs_1mas,dif_ic_inf,dif_ic_sup
+0,353,86,0.3716,0.0765,0.8017,0.1228,0.0225,0.2277
+1-2,306,71,0.2523,0.0752,0.8497,,,
+3 o más,31,10,0.2148,0.129,0.871,,,
