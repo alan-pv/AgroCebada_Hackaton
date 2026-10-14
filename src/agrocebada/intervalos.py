@@ -141,9 +141,11 @@ class CalibradorIntervalo:
         claves = self._claves(regimen, area)
         esc = self._escala(area)
         out = np.empty(len(pred))
+        umbral = np.asarray(umbral, dtype=float)  # número o un valor por parcela
         for c in pd.unique(claves):
             m = claves == c
-            out[m] = prob_bajo_umbral(pred[m], self.residuos_de(c), umbral, esc[m])
+            u = umbral if umbral.ndim == 0 else umbral[m]
+            out[m] = prob_bajo_umbral(pred[m], self.residuos_de(c), u, esc[m])
         return out
 
     def a_tabla(self):

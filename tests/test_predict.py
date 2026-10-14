@@ -4,7 +4,7 @@ import pytest
 
 from agrocebada import controles
 from agrocebada.config import NOMBRE_EQUIPO, OUTPUTS, PROCESSED
-from agrocebada.predict import SALIDA, cargar_modelo, predict
+from agrocebada.predict import RADIO_MEDIA, RADIO_VECINOS, SALIDA, cargar_modelo, predict
 from agrocebada.train_final import cargar_datos
 
 
@@ -25,6 +25,7 @@ def pred59(modelo, datos):
 
 def test_contrato_de_predict(pred59, datos):
     assert list(pred59.columns) == SALIDA
+    assert SALIDA[:5] == ["ID_POLIGONO", "pred", "p10", "p90", "prob_bajo_umbral"]
     assert len(pred59) == 59
     assert set(pred59["ID_POLIGONO"]) == set(datos[2].index)
     assert not pred59.isna().any().any()
@@ -134,3 +135,50 @@ def test_predicciones_parquet_para_la_app():
     ent = p[p["conjunto"] == "ENTRENAMIENTO"]
     assert ent["observado"].notna().all()
     assert p.loc[p["conjunto"] == "PREDICCION", "observado"].isna().all()
+
+
+def test_marca_de_confianza_tiene_valores_validos(pred59):
+    assert set(pred59["confianza"]) <= {"alta", "media", "baja"}
+    assert (pred59["vecinos_400m"] >= 0).all() and pred59["vecinos_400m"].dtype.kind == "i"
+    assert (pred59["dist_vecino_m"] > 0).all()
+    assert pred59["motivo_confianza"].str.len().gt(0).all()
+    alta = pred59["confianza"] == "alta"
+    assert (pred59.loc[alta, "vecinos_400m"] >= 1).all()
+    assert (pred59.loc[pred59["confianza"] == "media", "vecinos_400m"] == 0).all()
+    media = pred59["confianza"] == "media"
+    assert (pred59.loc[media, "dist_vecino_m"].between(RADIO_VECINOS, RADIO_MEDIA)).all()
+    assert pred59["confianza"].value_counts().to_dict() == {"alta": 35, "media": 14, "baja": 10}
+
+
+def test_la_marca_no_cambia_la_prediccion_ni_el_intervalo(pred59):
+    v2 = pd.read_csv(OUTPUTS / "prediccion_v2_intervalos.csv").set_index("ID_POLIGONO")
+    p = pred59.set_index("ID_POLIGONO").loc[v2.index]
+    for c in ["pred", "p10", "p90", "prob_bajo_umbral"]:
+        np.testing.assert_allclose(p[c], v2[c], rtol=0, atol=1e-12)
+
+
+def test_umbral_por_parcela(modelo, datos):
+    X59 = datos[2]
+    escalar = predict(X59, umbral=2.8, modelo=modelo)
+    constante = predict(X59, umbral=np.full(len(X59), 2.8), modelo=modelo)
+    pd.testing.assert_frame_equal(escalar, constante)
+    serie = predict(X59, umbral=pd.Series(np.full(len(X59), 2.8), index=X59.index), modelo=modelo)
+    pd.testing.assert_frame_equal(escalar, serie)
+    variable = np.where(np.arange(len(X59)) % 2 == 0, 2.0, 3.5)
+    mezcla = predict(X59, umbral=variable, modelo=modelo)["prob_bajo_umbral"].to_numpy()
+    bajo = predict(X59, umbral=2.0, modelo=modelo)["prob_bajo_umbral"].to_numpy()
+    alto = predict(X59, umbral=3.5, modelo=modelo)["prob_bajo_umbral"].to_numpy()
+    np.testing.assert_allclose(mezcla, np.where(variable == 2.0, bajo, alto))
+    with pytest.raises(ValueError, match="un valor por parcela"):
+        predict(X59, umbral=[2.0, 3.0], modelo=modelo)
+
+
+def test_parcela_de_entrenamiento_no_es_su_propia_vecina(modelo, datos):
+    X = datos[0]
+    r = predict(X, modelo=modelo)
+    assert (r["dist_vecino_m"] > 0).all()
+    # el mismo punto como parcela nueva (otro ID) sí tiene un vecino a distancia 0
+    nueva = X.reset_index().assign(ID_POLIGONO=lambda d: "NUEVA_" + d["ID_POLIGONO"])
+    rn = predict(nueva, modelo=modelo, excluir_entrenamiento=False)
+    assert (rn["dist_vecino_m"] == 0).all()
+    assert (rn["vecinos_400m"].to_numpy() == r["vecinos_400m"].to_numpy() + 1).all()
