@@ -1,0 +1,763 @@
+{
+  "rend: B=0 simple_a_tmax vs kriging_vecinos": {
+    "principal": {
+      "victorias": 2,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.33446183944079133,
+      "metrica_base": 0.30935422967078646,
+      "diferencia_media": 0.025107609770004813,
+      "aceptada": false
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.4571228596790274,
+      "metrica_base": 0.34311755647350983,
+      "diferencia_media": 0.11400530320551758,
+      "aceptada": false
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 2,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.3142849817249845,
+      "metrica_base": 0.30678039428876047,
+      "diferencia_media": 0.007504587436224014,
+      "aceptada": false
+    }
+  },
+  "rend: B=0 simple_b_elev vs kriging_vecinos": {
+    "principal": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.4371222930261502,
+      "metrica_base": 0.30935422967078646,
+      "diferencia_media": 0.12776806335536375,
+      "aceptada": false
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.5087070425044239,
+      "metrica_base": 0.34311755647350983,
+      "diferencia_media": 0.1655894860309141,
+      "aceptada": false
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.4275555252606084,
+      "metrica_base": 0.30678039428876047,
+      "diferencia_media": 0.12077513097184797,
+      "aceptada": false
+    }
+  },
+  "rend: B=0 simple_c_tmax_prec vs kriging_vecinos": {
+    "principal": {
+      "victorias": 10,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.2722643302774211,
+      "metrica_base": 0.30935422967078646,
+      "diferencia_media": -0.037089899393365364,
+      "aceptada": true
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.4260786211589367,
+      "metrica_base": 0.34311755647350983,
+      "diferencia_media": 0.08296106468542692,
+      "aceptada": false
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 10,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.24608251861267805,
+      "metrica_base": 0.30678039428876047,
+      "diferencia_media": -0.060697875676082445,
+      "aceptada": true
+    }
+  },
+  "rend: B=0 simple_d_tmax_prec_durica vs kriging_vecinos": {
+    "principal": {
+      "victorias": 7,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.2865582535530835,
+      "metrica_base": 0.30935422967078646,
+      "diferencia_media": -0.022795976117702916,
+      "aceptada": true
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.43415303033778335,
+      "metrica_base": 0.34311755647350983,
+      "diferencia_media": 0.09103547386427359,
+      "aceptada": false
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 10,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.26249977023212956,
+      "metrica_base": 0.30678039428876047,
+      "diferencia_media": -0.04428062405663096,
+      "aceptada": true
+    }
+  },
+  "rend: B=0 simple_e_tmax_prec_estado vs kriging_vecinos": {
+    "principal": {
+      "victorias": 5,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.30507930740364547,
+      "metrica_base": 0.30935422967078646,
+      "diferencia_media": -0.004274922267140957,
+      "aceptada": false
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.4255839340629528,
+      "metrica_base": 0.34311755647350983,
+      "diferencia_media": 0.08246637758944309,
+      "aceptada": false
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 7,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.2846104060469576,
+      "metrica_base": 0.30678039428876047,
+      "diferencia_media": -0.02216998824180287,
+      "aceptada": true
+    }
+  },
+  "rend: B=0 kriging_residuos_simple_a_tmax vs kriging_vecinos": {
+    "principal": {
+      "victorias": 7,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.29317609618407314,
+      "metrica_base": 0.30935422967078646,
+      "diferencia_media": -0.0161781334867133,
+      "aceptada": true
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.41114111219266414,
+      "metrica_base": 0.34311755647350983,
+      "diferencia_media": 0.06802355571915446,
+      "aceptada": false
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 10,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.27413692632899933,
+      "metrica_base": 0.30678039428876047,
+      "diferencia_media": -0.03264346795976112,
+      "aceptada": true
+    }
+  },
+  "rend: B=0 kriging_residuos_simple_b_elev vs kriging_vecinos": {
+    "principal": {
+      "victorias": 7,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.30178444136631677,
+      "metrica_base": 0.30935422967078646,
+      "diferencia_media": -0.007569788304469699,
+      "aceptada": true
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.4190241216365328,
+      "metrica_base": 0.34311755647350983,
+      "diferencia_media": 0.07590656516302301,
+      "aceptada": false
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 8,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.2847549282277883,
+      "metrica_base": 0.30678039428876047,
+      "diferencia_media": -0.022025466060972162,
+      "aceptada": true
+    }
+  },
+  "rend: B=0 kriging_residuos_simple_c_tmax_prec vs kriging_vecinos": {
+    "principal": {
+      "victorias": 10,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.2691418183138701,
+      "metrica_base": 0.30935422967078646,
+      "diferencia_media": -0.040212411356916396,
+      "aceptada": true
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.42672667921299057,
+      "metrica_base": 0.34311755647350983,
+      "diferencia_media": 0.08360912273948087,
+      "aceptada": false
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 10,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.23892034479043725,
+      "metrica_base": 0.30678039428876047,
+      "diferencia_media": -0.06786004949832325,
+      "aceptada": true
+    }
+  },
+  "rend: B=0 kriging_residuos_simple_d_tmax_prec_durica vs kriging_vecinos": {
+    "principal": {
+      "victorias": 9,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.2787988652961979,
+      "metrica_base": 0.30935422967078646,
+      "diferencia_media": -0.0305553643745885,
+      "aceptada": true
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.4323181109550466,
+      "metrica_base": 0.34311755647350983,
+      "diferencia_media": 0.08920055448153678,
+      "aceptada": false
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 10,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.25027884526608873,
+      "metrica_base": 0.30678039428876047,
+      "diferencia_media": -0.05650154902267177,
+      "aceptada": true
+    }
+  },
+  "rend: B=0 kriging_residuos_simple_e_tmax_prec_estado vs kriging_vecinos": {
+    "principal": {
+      "victorias": 8,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.28743768622228766,
+      "metrica_base": 0.30935422967078646,
+      "diferencia_media": -0.021916543448498808,
+      "aceptada": true
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.4263088287515928,
+      "metrica_base": 0.34311755647350983,
+      "diferencia_media": 0.0831912722780831,
+      "aceptada": false
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 10,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.26162416066728295,
+      "metrica_base": 0.30678039428876047,
+      "diferencia_media": -0.04515623362147756,
+      "aceptada": true
+    }
+  },
+  "rend: B=0 ridge_ambiente vs kriging_vecinos": {
+    "principal": {
+      "victorias": 4,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.3024110481614547,
+      "metrica_base": 0.30935422967078646,
+      "diferencia_media": -0.00694318150933178,
+      "aceptada": false
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.46946338052100245,
+      "metrica_base": 0.34311755647350983,
+      "diferencia_media": 0.12634582404749264,
+      "aceptada": false
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 9,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.2800351290325598,
+      "metrica_base": 0.30678039428876047,
+      "diferencia_media": -0.02674526525620069,
+      "aceptada": true
+    }
+  },
+  "rend: B=0 lasso_ambiente vs kriging_vecinos": {
+    "principal": {
+      "victorias": 4,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.301535833608795,
+      "metrica_base": 0.30935422967078646,
+      "diferencia_media": -0.007818396061991462,
+      "aceptada": false
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.4596307098937544,
+      "metrica_base": 0.34311755647350983,
+      "diferencia_media": 0.11651315342024463,
+      "aceptada": false
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 10,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.2789856545048478,
+      "metrica_base": 0.30678039428876047,
+      "diferencia_media": -0.02779473978391269,
+      "aceptada": true
+    }
+  },
+  "rend: B=0 mejor simple (elegido mirando el resultado)": "simple_c_tmax_prec",
+  "rend: B=0 regla simple_c_tmax_prec vs kriging_vecinos": {
+    "a_priori": true,
+    "victorias": 10,
+    "p": 0.01,
+    "aceptada": true,
+    "permutacion": {
+      "principal": {
+        "metrica_real": 0.2722643302774211,
+        "metrica_perm_media": 0.5404727803865115,
+        "n": 99,
+        "p": 0.01
+      },
+      "nivel_sin_ponderar": {
+        "metrica_real": 0.4260786211589367,
+        "metrica_perm_media": 0.5090325342737548,
+        "n": 99,
+        "p": 0.01
+      },
+      "nivel_ponderado_grandes": {
+        "metrica_real": 0.24608251861267805,
+        "metrica_perm_media": 0.548886691878579,
+        "n": 99,
+        "p": 0.01
+      }
+    }
+  },
+  "rend: B=50 simple_a_tmax vs kriging_vecinos": {
+    "principal": {
+      "victorias": 10,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.49011035967046757,
+      "metrica_base": 0.5661555923195503,
+      "diferencia_media": -0.07604523264908268,
+      "aceptada": true
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 8,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.5110068352577216,
+      "metrica_base": 0.5179317591202153,
+      "diferencia_media": -0.006924923862493548,
+      "aceptada": true
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 10,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.48848499727409633,
+      "metrica_base": 0.5779836643794457,
+      "diferencia_media": -0.08949866710534937,
+      "aceptada": true
+    }
+  },
+  "rend: B=50 simple_b_elev vs kriging_vecinos": {
+    "principal": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.6314630713847954,
+      "metrica_base": 0.5661555923195503,
+      "diferencia_media": 0.06530747906524528,
+      "aceptada": false
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.6227309463167167,
+      "metrica_base": 0.5179317591202153,
+      "diferencia_media": 0.1047991871965015,
+      "aceptada": false
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.6350080804071625,
+      "metrica_base": 0.5779836643794457,
+      "diferencia_media": 0.057024416027716816,
+      "aceptada": false
+    }
+  },
+  "rend: B=50 simple_c_tmax_prec vs kriging_vecinos": {
+    "principal": {
+      "victorias": 10,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.5059122627551159,
+      "metrica_base": 0.5661555923195503,
+      "diferencia_media": -0.060243329564434435,
+      "aceptada": true
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 7,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.5149702923512142,
+      "metrica_base": 0.5179317591202153,
+      "diferencia_media": -0.002961466769001009,
+      "aceptada": true
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 10,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.5070909908230162,
+      "metrica_base": 0.5779836643794457,
+      "diferencia_media": -0.07089267355642946,
+      "aceptada": true
+    }
+  },
+  "rend: B=50 simple_d_tmax_prec_durica vs kriging_vecinos": {
+    "principal": {
+      "victorias": 3,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.5924173465063418,
+      "metrica_base": 0.5661555923195503,
+      "diferencia_media": 0.02626175418679172,
+      "aceptada": false
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.5749783080858849,
+      "metrica_base": 0.5179317591202153,
+      "diferencia_media": 0.057046548965669644,
+      "aceptada": false
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 4,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.5977916457333997,
+      "metrica_base": 0.5779836643794457,
+      "diferencia_media": 0.019807981353953997,
+      "aceptada": false
+    }
+  },
+  "rend: B=50 simple_e_tmax_prec_estado vs kriging_vecinos": {
+    "principal": {
+      "victorias": 5,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.5412361411028482,
+      "metrica_base": 0.5661555923195503,
+      "diferencia_media": -0.024919451216702016,
+      "aceptada": false
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 4,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.5457653595558559,
+      "metrica_base": 0.5179317591202153,
+      "diferencia_media": 0.027833600435640704,
+      "aceptada": false
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 5,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.5333611823640878,
+      "metrica_base": 0.5779836643794457,
+      "diferencia_media": -0.04462248201535801,
+      "aceptada": false
+    }
+  },
+  "rend: B=50 kriging_residuos_simple_a_tmax vs kriging_vecinos": {
+    "principal": {
+      "victorias": 10,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.43784548758361286,
+      "metrica_base": 0.5661555923195503,
+      "diferencia_media": -0.12831010473593737,
+      "aceptada": true
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 10,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.45920022472979244,
+      "metrica_base": 0.5179317591202153,
+      "diferencia_media": -0.0587315343904228,
+      "aceptada": true
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 10,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.4360350297539347,
+      "metrica_base": 0.5779836643794457,
+      "diferencia_media": -0.14194863462551097,
+      "aceptada": true
+    }
+  },
+  "rend: B=50 kriging_residuos_simple_b_elev vs kriging_vecinos": {
+    "principal": {
+      "victorias": 10,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.521268286616789,
+      "metrica_base": 0.5661555923195503,
+      "diferencia_media": -0.044887305702761136,
+      "aceptada": true
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.5483087132958703,
+      "metrica_base": 0.5179317591202153,
+      "diferencia_media": 0.030376954175655023,
+      "aceptada": false
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 10,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.5220755378043392,
+      "metrica_base": 0.5779836643794457,
+      "diferencia_media": -0.055908126575106465,
+      "aceptada": true
+    }
+  },
+  "rend: B=50 kriging_residuos_simple_c_tmax_prec vs kriging_vecinos": {
+    "principal": {
+      "victorias": 10,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.4637125215441893,
+      "metrica_base": 0.5661555923195503,
+      "diferencia_media": -0.10244307077536097,
+      "aceptada": true
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 10,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.4963848975291197,
+      "metrica_base": 0.5179317591202153,
+      "diferencia_media": -0.02154686159109558,
+      "aceptada": true
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 10,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.4614694177323777,
+      "metrica_base": 0.5779836643794457,
+      "diferencia_media": -0.11651424664706804,
+      "aceptada": true
+    }
+  },
+  "rend: B=50 kriging_residuos_simple_d_tmax_prec_durica vs kriging_vecinos": {
+    "principal": {
+      "victorias": 7,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.5709123402112221,
+      "metrica_base": 0.5661555923195503,
+      "diferencia_media": 0.004756747891671864,
+      "aceptada": true
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.5648033814945775,
+      "metrica_base": 0.5179317591202153,
+      "diferencia_media": 0.04687162237436231,
+      "aceptada": false
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 7,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.5745057592999901,
+      "metrica_base": 0.5779836643794457,
+      "diferencia_media": -0.0034779050794555787,
+      "aceptada": true
+    }
+  },
+  "rend: B=50 kriging_residuos_simple_e_tmax_prec_estado vs kriging_vecinos": {
+    "principal": {
+      "victorias": 5,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.5324023812231589,
+      "metrica_base": 0.5661555923195503,
+      "diferencia_media": -0.0337532110963914,
+      "aceptada": false
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 4,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.5410887173452454,
+      "metrica_base": 0.5179317591202153,
+      "diferencia_media": 0.023156958225030132,
+      "aceptada": false
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 6,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.5239828163266868,
+      "metrica_base": 0.5779836643794457,
+      "diferencia_media": -0.05400084805275893,
+      "aceptada": false
+    }
+  },
+  "rend: B=50 ridge_ambiente vs kriging_vecinos": {
+    "principal": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.6615309208649788,
+      "metrica_base": 0.5661555923195503,
+      "diferencia_media": 0.0953753285454286,
+      "aceptada": false
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.6169699637426378,
+      "metrica_base": 0.5179317591202153,
+      "diferencia_media": 0.0990382046224225,
+      "aceptada": false
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.670919156305723,
+      "metrica_base": 0.5779836643794457,
+      "diferencia_media": 0.09293549192627726,
+      "aceptada": false
+    }
+  },
+  "rend: B=50 lasso_ambiente vs kriging_vecinos": {
+    "principal": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.6121828493586438,
+      "metrica_base": 0.5661555923195503,
+      "diferencia_media": 0.046027257039093536,
+      "aceptada": false
+    },
+    "nivel_sin_ponderar": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.5851877497614122,
+      "metrica_base": 0.5179317591202153,
+      "diferencia_media": 0.06725599064119689,
+      "aceptada": false
+    },
+    "nivel_ponderado_grandes": {
+      "victorias": 0,
+      "repeticiones": 10,
+      "metrica_nuevo": 0.6165709511930353,
+      "metrica_base": 0.5779836643794457,
+      "diferencia_media": 0.03858728681358955,
+      "aceptada": false
+    }
+  },
+  "rend: B=50 mejor simple (elegido mirando el resultado)": "simple_a_tmax",
+  "rend: B=50 regla simple_c_tmax_prec vs kriging_vecinos": {
+    "a_priori": true,
+    "victorias": 10,
+    "p": 0.01,
+    "aceptada": true,
+    "permutacion": {
+      "principal": {
+        "metrica_real": 0.5059122627551159,
+        "metrica_perm_media": 0.6877485207065318,
+        "n": 99,
+        "p": 0.01
+      },
+      "nivel_sin_ponderar": {
+        "metrica_real": 0.5149702923512142,
+        "metrica_perm_media": 0.633141913967818,
+        "n": 99,
+        "p": 0.01
+      },
+      "nivel_ponderado_grandes": {
+        "metrica_real": 0.5070909908230162,
+        "metrica_perm_media": 0.6984336260293409,
+        "n": 99,
+        "p": 0.01
+      }
+    }
+  },
+  "rend: B=50 regla simple_a_tmax vs kriging_vecinos": {
+    "a_priori": false,
+    "victorias": 10,
+    "p": 0.01,
+    "aceptada": true,
+    "permutacion": {
+      "principal": {
+        "metrica_real": 0.49011035967046757,
+        "metrica_perm_media": 0.6795101714183875,
+        "n": 99,
+        "p": 0.01
+      },
+      "nivel_sin_ponderar": {
+        "metrica_real": 0.5110068352577216,
+        "metrica_perm_media": 0.6235982152540431,
+        "n": 99,
+        "p": 0.01
+      },
+      "nivel_ponderado_grandes": {
+        "metrica_real": 0.48848499727409633,
+        "metrica_perm_media": 0.6903926666546889,
+        "n": 99,
+        "p": 0.01
+      }
+    }
+  },
+  "rend: modelo_final": {
+    "modelo": "kriging_residuos_simple_a_tmax",
+    "motivo": "simple_a_tmax pasa la regla en B = 50. Promedio de la métrica principal en B = 0 y 50: kriging_vecinos 0.438, simple_a_tmax 0.412, kriging_residuos_simple_a_tmax 0.366"
+  },
+  "rend: B=0 regla kriging_residuos_simple_a_tmax vs kriging_vecinos": {
+    "victorias": 7,
+    "p": 0.02,
+    "aceptada": true,
+    "permutacion": {
+      "principal": {
+        "metrica_real": 0.29317609618780716,
+        "metrica_perm_media": 0.3267603512250724,
+        "n": 99,
+        "p": 0.02
+      },
+      "nivel_sin_ponderar": {
+        "metrica_real": 0.4111411121956351,
+        "metrica_perm_media": 0.35521894771314894,
+        "n": 99,
+        "p": 0.98
+      },
+      "nivel_ponderado_grandes": {
+        "metrica_real": 0.2741369263317704,
+        "metrica_perm_media": 0.3245040166297531,
+        "n": 99,
+        "p": 0.01
+      }
+    }
+  },
+  "rend: espacial 5 folds, fila: lgbm_ubicacion_anomalias vs lgbm_ubicacion": {
+    "victorias": 10,
+    "repeticiones": 10,
+    "metrica_nuevo": 0.6113638173639002,
+    "metrica_base": 0.6686659831287283,
+    "diferencia_media": -0.05730216576482824,
+    "aceptada": true
+  },
+  "rend: espacial 5 folds, fila: lgbm_ubicacion_anomalias vs lgbm_ubicacion_indicadoras_anio": {
+    "victorias": 3,
+    "repeticiones": 10,
+    "metrica_nuevo": 0.6113638173639002,
+    "metrica_base": 0.6081659455560029,
+    "diferencia_media": 0.003197871807897179,
+    "aceptada": false
+  },
+  "rend: espacial 5 folds, fila: kriging_mas_anomalia vs kriging_mas_efecto_estado_anio": {
+    "victorias": 0,
+    "repeticiones": 10,
+    "metrica_nuevo": 0.6454087000719497,
+    "metrica_base": 0.5958002779098196,
+    "diferencia_media": 0.04960842216213022,
+    "aceptada": false
+  },
+  "rend: anio (pronóstico), fila: propia_mas_anomalia_ridge menos media_propia_tendencia": 0.003741242520454824,
+  "rend: anio (pronóstico), fila: propia_mas_anomalia_lgbm menos media_propia_tendencia": 0.015304297739038186,
+  "rend_sembrada: anio (pronóstico), fila: propia_mas_anomalia_ridge menos media_propia_tendencia": 0.00545919726973676,
+  "rend_sembrada: anio (pronóstico), fila: propia_mas_anomalia_lgbm menos media_propia_tendencia": 0.017954966103754355
+}

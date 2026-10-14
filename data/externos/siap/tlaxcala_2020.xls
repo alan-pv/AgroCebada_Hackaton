@@ -1,0 +1,342 @@
+<HTML LANG="es">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+<META http-equiv=Content-Type content="text/html; charset=ISO-8859-1">
+
+<style>
+th{
+	vertical-align:middle !important; 
+	text-align:center !important;
+}
+.estiloResult{
+	background-color:#B38E5D !important; 
+	color:#FFF !important;
+}
+</style>
+
+<TITLE></TITLE>
+</head>
+<body>
+
+		<div class="titulosTabla">
+			<p>
+				<strong>A&ntilde;o:</strong> 2020<br />
+				<strong>Producci&oacute;n Agr&iacute;cola</strong><br />
+				<strong>Ciclo:</strong> Primavera - Verano<br />
+				<strong>Modalidad:</strong> Temporal<br />
+				<strong>Cultivo:</strong> Cebada grano (ton)     <br /><strong>Entidad Federativa:</strong> Tlaxcala<br />
+			</p>
+		</div>
+		<div class="table-responsive">
+		<table id="Resultados-reporte" class="table table-striped table-bordered" border="1">
+			<tr class="estiloResult">
+				<th rowspan="2">&nbsp;</th>
+				<th rowspan="2">Entidad</th>
+				<th rowspan="2">Municipio</th>
+				<th colspan="3">Superficie<br />(ha)</th>
+				<th rowspan="2">Producci&oacute;n</th><th rowspan="2">Rendimiento<br />(udm/ha)</th><th rowspan="2">PMR<br />($/udm)</th>
+				<th rowspan="2">Valor Producci&oacute;n<br />(miles de Pesos)</th>
+			</tr>
+			<tr class="estiloResult">
+				<th>Sembrada</th>
+				<th>Cosechada</th>
+				<th>Siniestrada</th>
+			</tr>
+			<tr>
+				<td>1</td>
+				<td>Tlaxcala</td><td>Atlangatepec</td>
+				<td class="tdNum">990.00</td>
+				<td class="tdNum">990.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">2,593.80</td><td class="tdNum">2.62</td>
+				<td class="tdNum">4,222.14</td>
+				<td class="tdNum">10,951.39</td>
+			</tr>
+			
+			<tr>
+				<td>2</td>
+				<td>Tlaxcala</td><td>Atltzayanca</td>
+				<td class="tdNum">130.00</td>
+				<td class="tdNum">130.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">325.00</td><td class="tdNum">2.50</td>
+				<td class="tdNum">4,020.85</td>
+				<td class="tdNum">1,306.78</td>
+			</tr>
+			
+			<tr>
+				<td>3</td>
+				<td>Tlaxcala</td><td>Apizaco</td>
+				<td class="tdNum">251.00</td>
+				<td class="tdNum">251.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">657.62</td><td class="tdNum">2.62</td>
+				<td class="tdNum">4,221.54</td>
+				<td class="tdNum">2,776.17</td>
+			</tr>
+			
+			<tr>
+				<td>4</td>
+				<td>Tlaxcala</td><td>Calpulalpan</td>
+				<td class="tdNum">5,252.00</td>
+				<td class="tdNum">5,252.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">13,655.20</td><td class="tdNum">2.60</td>
+				<td class="tdNum">4,133.07</td>
+				<td class="tdNum">56,437.90</td>
+			</tr>
+			
+			<tr>
+				<td>5</td>
+				<td>Tlaxcala</td><td>El Carmen Tequexquitla</td>
+				<td class="tdNum">9.00</td>
+				<td class="tdNum">9.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">22.32</td><td class="tdNum">2.48</td>
+				<td class="tdNum">4,171.67</td>
+				<td class="tdNum">93.11</td>
+			</tr>
+			
+			<tr>
+				<td>6</td>
+				<td>Tlaxcala</td><td>Cuapiaxtla</td>
+				<td class="tdNum">280.00</td>
+				<td class="tdNum">280.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">705.60</td><td class="tdNum">2.52</td>
+				<td class="tdNum">4,017.64</td>
+				<td class="tdNum">2,834.85</td>
+			</tr>
+			
+			<tr>
+				<td>7</td>
+				<td>Tlaxcala</td><td>Muñoz de Domingo Arenas</td>
+				<td class="tdNum">342.00</td>
+				<td class="tdNum">342.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">858.42</td><td class="tdNum">2.51</td>
+				<td class="tdNum">4,225.10</td>
+				<td class="tdNum">3,626.91</td>
+			</tr>
+			
+			<tr>
+				<td>8</td>
+				<td>Tlaxcala</td><td>Españita</td>
+				<td class="tdNum">1,645.00</td>
+				<td class="tdNum">1,645.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">4,112.50</td><td class="tdNum">2.50</td>
+				<td class="tdNum">4,172.30</td>
+				<td class="tdNum">17,158.58</td>
+			</tr>
+			
+			<tr>
+				<td>9</td>
+				<td>Tlaxcala</td><td>Huamantla</td>
+				<td class="tdNum">35.00</td>
+				<td class="tdNum">35.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">87.50</td><td class="tdNum">2.50</td>
+				<td class="tdNum">4,015.40</td>
+				<td class="tdNum">351.35</td>
+			</tr>
+			
+			<tr>
+				<td>10</td>
+				<td>Tlaxcala</td><td>Hueyotlipan</td>
+				<td class="tdNum">2,200.00</td>
+				<td class="tdNum">2,200.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">5,500.00</td><td class="tdNum">2.50</td>
+				<td class="tdNum">4,233.04</td>
+				<td class="tdNum">23,281.72</td>
+			</tr>
+			
+			<tr>
+				<td>11</td>
+				<td>Tlaxcala</td><td>Ixtacuixtla de Mariano Matamoros</td>
+				<td class="tdNum">460.00</td>
+				<td class="tdNum">460.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">1,150.00</td><td class="tdNum">2.50</td>
+				<td class="tdNum">4,494.40</td>
+				<td class="tdNum">5,168.56</td>
+			</tr>
+			
+			<tr>
+				<td>12</td>
+				<td>Tlaxcala</td><td>Sanctórum de Lázaro Cárdenas</td>
+				<td class="tdNum">1,050.00</td>
+				<td class="tdNum">1,050.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">2,625.00</td><td class="tdNum">2.50</td>
+				<td class="tdNum">4,190.75</td>
+				<td class="tdNum">11,000.72</td>
+			</tr>
+			
+			<tr>
+				<td>13</td>
+				<td>Tlaxcala</td><td>Nanacamilpa de Mariano Arista</td>
+				<td class="tdNum">1,850.00</td>
+				<td class="tdNum">1,850.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">4,625.00</td><td class="tdNum">2.50</td>
+				<td class="tdNum">4,182.96</td>
+				<td class="tdNum">19,346.19</td>
+			</tr>
+			
+			<tr>
+				<td>14</td>
+				<td>Tlaxcala</td><td>Terrenate</td>
+				<td class="tdNum">2,030.00</td>
+				<td class="tdNum">2,030.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">5,237.40</td><td class="tdNum">2.58</td>
+				<td class="tdNum">4,009.80</td>
+				<td class="tdNum">21,000.93</td>
+			</tr>
+			
+			<tr>
+				<td>15</td>
+				<td>Tlaxcala</td><td>Tetla de La Solidaridad</td>
+				<td class="tdNum">410.00</td>
+				<td class="tdNum">410.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">1,025.00</td><td class="tdNum">2.50</td>
+				<td class="tdNum">4,192.34</td>
+				<td class="tdNum">4,297.15</td>
+			</tr>
+			
+			<tr>
+				<td>16</td>
+				<td>Tlaxcala</td><td>Tlaxco</td>
+				<td class="tdNum">4,800.00</td>
+				<td class="tdNum">4,800.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">12,576.00</td><td class="tdNum">2.62</td>
+				<td class="tdNum">4,209.59</td>
+				<td class="tdNum">52,939.80</td>
+			</tr>
+			
+			<tr>
+				<td>17</td>
+				<td>Tlaxcala</td><td>Tocatlán</td>
+				<td class="tdNum">63.00</td>
+				<td class="tdNum">63.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">157.50</td><td class="tdNum">2.50</td>
+				<td class="tdNum">4,008.90</td>
+				<td class="tdNum">631.40</td>
+			</tr>
+			
+			<tr>
+				<td>18</td>
+				<td>Tlaxcala</td><td>Ziltlaltépec de Trinidad Sánchez Santos</td>
+				<td class="tdNum">50.00</td>
+				<td class="tdNum">50.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">122.50</td><td class="tdNum">2.45</td>
+				<td class="tdNum">4,080.60</td>
+				<td class="tdNum">499.87</td>
+			</tr>
+			
+			<tr>
+				<td>19</td>
+				<td>Tlaxcala</td><td>Xaloztoc</td>
+				<td class="tdNum">190.00</td>
+				<td class="tdNum">190.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">450.30</td><td class="tdNum">2.37</td>
+				<td class="tdNum">4,009.05</td>
+				<td class="tdNum">1,805.28</td>
+			</tr>
+			
+			<tr>
+				<td>20</td>
+				<td>Tlaxcala</td><td>Xaltocan</td>
+				<td class="tdNum">384.00</td>
+				<td class="tdNum">384.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">703.60</td><td class="tdNum">1.83</td>
+				<td class="tdNum">4,699.44</td>
+				<td class="tdNum">3,306.53</td>
+			</tr>
+			
+			<tr>
+				<td>21</td>
+				<td>Tlaxcala</td><td>Yauhquemehcan</td>
+				<td class="tdNum">302.00</td>
+				<td class="tdNum">302.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">936.20</td><td class="tdNum">3.10</td>
+				<td class="tdNum">4,695.00</td>
+				<td class="tdNum">4,395.46</td>
+			</tr>
+			
+			<tr>
+				<td>22</td>
+				<td>Tlaxcala</td><td>Benito Juárez</td>
+				<td class="tdNum">805.00</td>
+				<td class="tdNum">805.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">2,012.50</td><td class="tdNum">2.50</td>
+				<td class="tdNum">4,123.94</td>
+				<td class="tdNum">8,299.43</td>
+			</tr>
+			
+			<tr>
+				<td>23</td>
+				<td>Tlaxcala</td><td>Emiliano Zapata</td>
+				<td class="tdNum">7.00</td>
+				<td class="tdNum">7.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">16.87</td><td class="tdNum">2.41</td>
+				<td class="tdNum">4,005.86</td>
+				<td class="tdNum">67.58</td>
+			</tr>
+			
+			<tr>
+				<td>24</td>
+				<td>Tlaxcala</td><td>Lázaro Cárdenas</td>
+				<td class="tdNum">25.00</td>
+				<td class="tdNum">25.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">60.25</td><td class="tdNum">2.41</td>
+				<td class="tdNum">4,005.48</td>
+				<td class="tdNum">241.33</td>
+			</tr>
+			
+			<tr>
+				<td>25</td>
+				<td>Tlaxcala</td><td>San José Teacalco</td>
+				<td class="tdNum">215.00</td>
+				<td class="tdNum">215.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">531.05</td><td class="tdNum">2.47</td>
+				<td class="tdNum">4,005.23</td>
+				<td class="tdNum">2,126.98</td>
+			</tr>
+			
+			<tr>
+				<td>26</td>
+				<td>Tlaxcala</td><td>San Lucas Tecopilco</td>
+				<td class="tdNum">330.00</td>
+				<td class="tdNum">330.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">924.00</td><td class="tdNum">2.80</td>
+				<td class="tdNum">4,670.45</td>
+				<td class="tdNum">4,315.50</td>
+			</tr>
+			
+			<tr><th colspan="3">Total</th>
+			<th class="tdNum">24,105.00</th>
+			<th class="tdNum">24,105.00</th>
+			<th class="tdNum">0.00</th>
+			<th class="tdNum">61,671.13</th><th class="tdNum">2.56</th>
+			<th class="tdNum">4,187.72</th>
+			<th class="tdNum">258,261.44</th>
+		</tr>
+		
+		</table></div>
+</body>
+</html>

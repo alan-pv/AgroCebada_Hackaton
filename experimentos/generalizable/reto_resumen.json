@@ -1,0 +1,28 @@
+{
+  "modelo": "kriging_residuos_simple_a_tmax",
+  "escala": "local",
+  "por_regimen": {
+    "A": {
+      "parcelas": 87.0,
+      "municipios": 4.0,
+      "reto": 4.489,
+      "nivel_B0": 2.784,
+      "nivel_B50": 2.911,
+      "siap_2025": 3.005,
+      "dif_reto_nivel_B0": 1.705,
+      "dif_reto_nivel_B50": 1.578,
+      "dif_reto_siap_2025": 1.484
+    },
+    "B": {
+      "parcelas": 51.0,
+      "municipios": 5.0,
+      "reto": 3.045,
+      "nivel_B0": 2.699,
+      "nivel_B50": 2.912,
+      "siap_2025": 3.172,
+      "dif_reto_nivel_B0": 0.346,
+      "dif_reto_nivel_B50": 0.133,
+      "dif_reto_siap_2025": -0.127
+    }
+  }
+}

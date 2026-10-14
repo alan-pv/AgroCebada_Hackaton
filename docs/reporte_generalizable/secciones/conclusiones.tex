@@ -1,0 +1,63 @@
+\section{Conclusiones y uso para FIRA}\label{sec:conclusiones}
+
+Con datos públicos se puede estimar el rendimiento esperado de la cebada de temporal en municipios sin datos propios.
+La temperatura máxima de julio y agosto es la variable clave. Proponemos tres usos.
+\begin{enumerate}
+\item \textbf{Priorizar zonas para crédito} con el rendimiento esperado y su intervalo.
+\item \textbf{Tarifar el seguro} con la probabilidad de quedar bajo 2\,t/ha, que es una estimación prudente.
+\item \textbf{Verificar en campo antes de financiar} en los 77 municipios de confianza baja.
+\end{enumerate}
+
+\textbf{Zonas con buen rendimiento esperado y sin cebada registrada.} La Tabla~\ref{tab:nuevas} lista municipios
+sin historia en el SIAP cuyo rendimiento esperado supera la mediana de 2.53\,t/ha de los municipios con historia. En
+ninguno el SIAP registra cebada de temporal con más de 150\,ha sembradas en algún año de 2003 a 2025.
+\begin{itemize}
+\item \textbf{Oriente de Puebla y Tlaxcala, y norte del Estado de México.} Están junto a zonas cebaderas, con confianza
+media. Son los candidatos más sólidos para ampliar el crédito.
+\item \textbf{Valle de Toluca y sierra al poniente de la Ciudad de México.} Tienen veranos frescos y algunos de los
+valores esperados más altos, pero están a más de 25\,km de datos y su confianza es baja. Ahí domina el maíz, hay zonas urbanas y
+bosque, y el modelo no ve las heladas. Requieren parcelas de prueba antes de financiar.
+\end{itemize}
+
+\begin{table}[!tbp]
+\centering
+\caption{Municipios sin historia en el SIAP con mayor rendimiento esperado en 2025 (t/ha). El intervalo contiene 8
+de cada 10 años.}
+\label{tab:nuevas}
+\footnotesize
+\begin{tabular}{@{}llcc@{}}
+\toprule
+Municipio & Estado & Esperado & Intervalo \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{Confianza media, junto a zonas cebaderas}} \\
+Lafragua & Puebla & 3.00 & 1.7 a 4.3 \\
+El Carmen Tequexquitla & Tlaxcala & 2.85 & 1.7 a 3.9 \\
+El Oro & México & 2.83 & 1.5 a 4.1 \\
+Temoaya & México & 2.78 & 1.7 a 3.8 \\
+General Felipe Ángeles & Puebla & 2.77 & 1.4 a 4.1 \\
+Quecholac & Puebla & 2.75 & 1.4 a 4.1 \\
+Tlahuapan & Puebla & 2.70 & 1.7 a 3.7 \\
+Ixtenco & Tlaxcala & 2.69 & 1.8 a 3.6 \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{Confianza baja, lejos de datos}} \\
+Jilotzingo & México & 3.08 & 1.9 a 3.9 \\
+Tenango del Valle & México & 3.02 & 1.8 a 3.9 \\
+Calimaya & México & 2.96 & 1.7 a 3.9 \\
+Toluca & México & 2.82 & 1.5 a 3.8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El rendimiento de un productor depende además de su manejo. Estimarlo requiere datos de manejo y rendimientos medidos
+con un mismo criterio en todos los municipios.
+
+\textbf{Relación con la evaluación del reto.} FIRA evaluará con sus propias parcelas, y en ellas el modelo del reto es
+mejor, con un error de 0.46\,t/ha contra 1.35 a 1.46 del modelo del SIAP. Los dos errores no son comparables. El del
+reto mide parcelas en 9 municipios y el del SIAP mide promedios municipales en lugares sin datos, donde se equivoca
+0.44\,t/ha. Las etiquetas del reto mezclan dos criterios de medición que difieren en 1.44\,t/ha, y el modelo del reto
+aprende esa diferencia, que no existe fuera de esos municipios. El modelo del SIAP aprende de datos medidos con un
+mismo criterio y por eso generaliza a lugares nuevos, pero por la misma razón no reproduce las etiquetas del reto.
+Tampoco podemos llevar la Tmax al modelo del reto. En sus 9 municipios va de 23.3 a 23.9\,$^\circ$C, contra 23.0 a
+25.7\,$^\circ$C en los municipios con SIAP, y las parcelas de un mismo municipio comparten casi el mismo clima. Esa
+variación explicaría a lo más 0.5\,t/ha, menos que la diferencia entre los dos criterios de medición.
+Proponemos entregar el modelo del reto para su evaluación y el del SIAP para decidir dónde sembrar.

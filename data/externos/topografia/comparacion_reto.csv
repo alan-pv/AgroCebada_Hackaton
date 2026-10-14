@@ -1,0 +1,4 @@
+variable,ventana_lon_lat,resolucion_grados,celdas,correlacion,sesgo_copernicus_menos_reto,rmse,media_copernicus,media_reto
+elevacion_m,-99.9627 17.7500 -96.6000 21.4500,0.0025,821080,0.9995,2.886,22.599,1826.576,1823.691
+pendiente_grados,-99.9627 17.7500 -96.6000 21.4500,0.0025,814768,0.9577,0.1,2.56,10.31,10.21
+pendiente_grados_copernicus_a_120m,-99.9627 17.7500 -96.6000 21.4500,0.0025,814768,0.958,-0.557,2.584,9.654,10.21

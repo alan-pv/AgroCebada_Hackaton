@@ -1,0 +1,25 @@
+\section{Datos}\label{sec:datos}
+
+\textbf{Rendimiento.} Usamos el cierre agrícola municipal del SIAP para cebada grano de temporal en
+primavera-verano, de 2003 a 2025~\cite{siap}. Quitamos las cosechas de menos de 50\,ha y los municipios con menos de
+5 años de datos. Quedan 1\,942 registros de 100 municipios, unos 25 por estado. El rendimiento sube en promedio
+0.028\,t/ha por año, así que llevamos cada año al nivel de 2025 antes de promediar.
+
+El SIAP muchas veces estima una cifra por distrito y la copia a varios municipios. Así ocurre en el 53\,\% de los
+registros. Lo tomamos en cuenta en la validación de la Sección~\ref{sec:metodo}.
+
+\textbf{Ambiente.} Usamos lluvia de CHIRPS~\cite{chirps}, temperatura máxima (Tmax) y mínima de
+CHIRTS-ERA5~\cite{chirts}, elevación y pendiente del Copernicus DEM~\cite{copdem} y la carta de suelos del
+INEGI~\cite{inegi_eda}. Cada variable se promedia solo sobre la agricultura de temporal del municipio~\cite{inegi_usv},
+en los 486 municipios del Marco Geoestadístico~\cite{inegi_mg}.
+
+La Fig.~\ref{fig:mapas_obs} muestra el patrón central. Los municipios con mejor rendimiento están donde el verano es
+más fresco, en el oriente de Puebla, Tlaxcala y el centro del Estado de México.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{g_mapas_obs}
+\caption{(a) Rendimiento oficial promedio de cada municipio con datos del SIAP, llevado a 2025. (b) Temperatura
+máxima promedio de julio y agosto en la agricultura de temporal de cada municipio.}
+\label{fig:mapas_obs}
+\end{figure*}

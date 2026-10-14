@@ -1,0 +1,75 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Clave:                                 E1402                     
+Nombre:                                C:d. de México
+Escala:                                1:250,000
+Tema:                                  EDAFOLOGICO SERIE II
+Nombre Autoridad Productora:           INEGI
+Cobertura Estatal:                     5 estado(s) presente(s) en el mapa
+                                       Estado de Mexico,Morelos,Hidalgo,Puebla,Tlaxcala
+Intervalo Curvas de Nivel:             N/A
+Proyección Cartográfica:               Universal Transversa de Mercator 
+                                       (UTM)
+Datum de Referencia:                   ITRF92
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Métodos de Compilación:                4 método(s) utilizado(s)
+                                       Compliación Cartográfica, Verificación de 						    Campo, Ánalisis Visual, Ánalisis de 							    Laboratorio.
+Fecha de compilación-Método		
+Verificación de Campo:                 0                     
+Fotografías utilizadas en compilación: 0
+Imágenes utilizadas en compilación:    0
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Métodos de Actualización tradicional:  0 método(s) utilizado(s)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Fecha de la Conversión:                MARZO-1998
+Responsable de la Conversión:          INIFAP-INEGI
+Medios para la Conversión:             Tableta Digitalizadora
+				      	    Barredor Optico-Mecánico
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Fecha de Actualización Digital:        ABRIL 2004
+Responsable de Actualización Digital:  INEGI
+Métodos de Actualización Digital:      2
+                                       Verificación de campo,
+                                       Extracción por sobreposición de 
+                                       archivos RASTER/VECTOR
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Fotos Actualización Digital:           0
+
+Imágenes Satélite en la Actualización Digital:       3
+LANDSAT THEMATIC MAPPER BANDAS 2, 3, 4, 5, 7 PATH 28 ROW 45 FEB 1993 PIXEL 25M.
+LANDSAT THEMATIC MAPPER BANDAS 2, 3, 4, 5, 7 PATH 29 ROW 45 MAR 1993 PIXEL 25M.
+LANDSAT THEMATIC MAPPER BANDAS 2, 3, 4, 5, 7 PATH 30 ROW 45 ABR 1993 PIXEL 25M.
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Estadística de los Datos:  
+
+Entidad  		   Puntos    Líneas    Áreas    Hectáreas
+Andosoles 	0       0       	155     	451719.7260
+Arenosoles       	0       	0        35      93269.4820
+Cambisoles	0		0	 	49      98939.8400
+Cuerpo de agua 	0       	0       167      20627.1160
+Durisoles	0		0		53		93702.4520
+Fluvisoles	0		0		07		10474.8140
+Gleysoles       	0     	0       	03       5310.8500
+Histosol       	0       	0       	03       5704.1740 
+Leptosoles	0		0		89		155793.2810
+Localidad         0		0		164	 	159689.0060
+Luvisoles	0		0		72		149231.8740
+Phaeozems	0		0		288		715115.1400
+Planosoles	0		0		35		88071.3070
+Regosoles	0		0		18		47067.2850
+Solonchacs        0       	0       	05      	16378.9920
+Solonetz   	0       	0       	01      	12954.7450
+Umbrisoles 	0       	0       	07      	19686.1230   
+Vertisoles	0		0		86		178577.2150					
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Liga con Datos Adyacentes:             Liga Norte: 17  MARZO 2004
+                                       Liga Sur:   0
+                                       Liga Este:  0
+                                       Liga Oeste: 0
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Modelo de Datos Espaciales:           	1.0   ABRIL 2006
+Diccionario de Datos Edafológicos:	1.0   SEPTIEMBRE 2008
+Normas para la captura de datos SITED:	1.0   DICIEMBRE 1999
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+OBSERVACIONES: Durante la etapa de liga con el conjunto E1402, se detectaron inconsistencias se hicieron los cambios correspondientes.

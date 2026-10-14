@@ -1,0 +1,978 @@
+{
+ "datos": {
+  "anio_ini": 2003,
+  "anio_fin": 2025,
+  "filas_crudas": 2658,
+  "municipios_crudos": 146,
+  "filas_limpias": 1942,
+  "municipios_limpios": 100,
+  "municipios_por_estado": {
+   "Hidalgo": 24,
+   "México": 24,
+   "Puebla": 28,
+   "Tlaxcala": 24
+  },
+  "filas_sembrada": 1966,
+  "min_cosechada_ha": 50.0,
+  "min_anios": 5,
+  "frac_repetido_pct": 53.0,
+  "frac_repetido_estado_pct": {
+   "Hidalgo": 41.0,
+   "México": 47.0,
+   "Puebla": 51.0,
+   "Tlaxcala": 75.0
+  },
+  "filas_sin_repetidos": 862,
+  "municipios_sin_repetidos": 83,
+  "ddr_modelado": 15,
+  "ddr_total": 19,
+  "siniestro_pct": {
+   "2003": 3.0,
+   "2004": 2.0,
+   "2005": 7.0,
+   "2006": 2.0,
+   "2007": 4.0,
+   "2008": 4.0,
+   "2009": 30.0,
+   "2010": 14.0,
+   "2011": 39.0,
+   "2012": 1.0,
+   "2013": 2.0,
+   "2014": 3.0,
+   "2015": 2.0,
+   "2016": 1.0,
+   "2017": 1.0,
+   "2018": 1.0,
+   "2019": 0.0,
+   "2020": 9.0,
+   "2021": 0.0,
+   "2022": 2.0,
+   "2023": 2.0,
+   "2024": 0.0,
+   "2025": 0.0
+  },
+  "rend_anual": {
+   "2003": 2.2,
+   "2004": 1.99,
+   "2005": 1.95,
+   "2006": 2.42,
+   "2007": 1.78,
+   "2008": 2.14,
+   "2009": 1.42,
+   "2010": 1.98,
+   "2011": 0.86,
+   "2012": 2.38,
+   "2013": 1.85,
+   "2014": 2.12,
+   "2015": 2.18,
+   "2016": 2.43,
+   "2017": 2.21,
+   "2018": 2.22,
+   "2019": 2.07,
+   "2020": 2.36,
+   "2021": 2.41,
+   "2022": 2.15,
+   "2023": 2.19,
+   "2024": 2.3,
+   "2025": 2.52
+  },
+  "rend_sembrada_anual": {
+   "2003": 2.14,
+   "2004": 1.95,
+   "2005": 1.82,
+   "2006": 2.38,
+   "2007": 1.7,
+   "2008": 2.06,
+   "2009": 1.0,
+   "2010": 1.7,
+   "2011": 0.52,
+   "2012": 2.36,
+   "2013": 1.81,
+   "2014": 2.05,
+   "2015": 2.14,
+   "2016": 2.41,
+   "2017": 2.18,
+   "2018": 2.2,
+   "2019": 2.06,
+   "2020": 2.16,
+   "2021": 2.41,
+   "2022": 2.1,
+   "2023": 2.15,
+   "2024": 2.3,
+   "2025": 2.51
+  },
+  "tendencia_t_ha_anio": 0.028,
+  "tendencia_23_anios": 0.61,
+  "municipios_inegi": 486,
+  "municipios_sin_temporal": 18
+ },
+ "tabla": {
+  "media_global": {
+   "B0_pond": 0.504,
+   "B0_sin": 0.488,
+   "B50_pond": 0.594,
+   "B50_sin": 0.579,
+   "ddr_pond": 0.534,
+   "sinrep_B0_pond": 0.592
+  },
+  "media_estatal": {
+   "B0_pond": 0.451,
+   "B0_sin": 0.41,
+   "B50_pond": 0.644,
+   "B50_sin": 0.53,
+   "ddr_pond": 0.497,
+   "sinrep_B0_pond": 0.532
+  },
+  "idw_vecinos": {
+   "B0_pond": 0.349,
+   "B0_sin": 0.349,
+   "B50_pond": 0.56,
+   "B50_sin": 0.51,
+   "ddr_pond": 0.446,
+   "sinrep_B0_pond": 0.402
+  },
+  "kriging_vecinos": {
+   "B0_pond": 0.309,
+   "B0_sin": 0.343,
+   "B50_pond": 0.566,
+   "B50_sin": 0.518,
+   "ddr_pond": 0.503,
+   "sinrep_B0_pond": 0.402
+  },
+  "simple_a_tmax": {
+   "B0_pond": 0.334,
+   "B0_sin": 0.457,
+   "B50_pond": 0.49,
+   "B50_sin": 0.511,
+   "ddr_pond": 0.373,
+   "sinrep_B0_pond": 0.422
+  },
+  "simple_b_elev": {
+   "B0_pond": 0.437,
+   "B0_sin": 0.509,
+   "B50_pond": 0.631,
+   "B50_sin": 0.623,
+   "ddr_pond": 0.481,
+   "sinrep_B0_pond": 0.546
+  },
+  "simple_c_tmax_prec": {
+   "B0_pond": 0.272,
+   "B0_sin": 0.426,
+   "B50_pond": 0.506,
+   "B50_sin": 0.515,
+   "ddr_pond": 0.305,
+   "sinrep_B0_pond": 0.365
+  },
+  "simple_d_tmax_prec_durica": {
+   "B0_pond": 0.287,
+   "B0_sin": 0.434,
+   "B50_pond": 0.592,
+   "B50_sin": 0.575,
+   "ddr_pond": 0.334,
+   "sinrep_B0_pond": 0.374
+  },
+  "simple_e_tmax_prec_estado": {
+   "B0_pond": 0.305,
+   "B0_sin": 0.426,
+   "B50_pond": 0.541,
+   "B50_sin": 0.546,
+   "ddr_pond": 0.494,
+   "sinrep_B0_pond": 0.38
+  },
+  "kriging_residuos_simple_a_tmax": {
+   "B0_pond": 0.293,
+   "B0_sin": 0.411,
+   "B50_pond": 0.438,
+   "B50_sin": 0.459,
+   "ddr_pond": 0.393,
+   "sinrep_B0_pond": 0.383
+  },
+  "kriging_residuos_simple_c_tmax_prec": {
+   "B0_pond": 0.269,
+   "B0_sin": 0.427,
+   "B50_pond": 0.464,
+   "B50_sin": 0.496,
+   "ddr_pond": 0.359,
+   "sinrep_B0_pond": 0.369
+  },
+  "ridge_ambiente": {
+   "B0_pond": 0.302,
+   "B0_sin": 0.469,
+   "B50_pond": 0.662,
+   "B50_sin": 0.617,
+   "ddr_pond": 0.354,
+   "sinrep_B0_pond": null
+  },
+  "lasso_ambiente": {
+   "B0_pond": 0.302,
+   "B0_sin": 0.46,
+   "B50_pond": 0.612,
+   "B50_sin": 0.585,
+   "ddr_pond": 0.332,
+   "sinrep_B0_pond": null
+  }
+ },
+ "regla": {
+  "B0_simple_a_tmax": {
+   "victorias": 2,
+   "victorias_sin_pond": 0,
+   "aceptada": false
+  },
+  "B0_simple_c_tmax_prec": {
+   "victorias": 10,
+   "victorias_sin_pond": 0,
+   "aceptada": true,
+   "p": 0.01,
+   "p_sin_pond": 0.01,
+   "a_priori": true
+  },
+  "B0_kriging_residuos_simple_a_tmax": {
+   "victorias": 7,
+   "victorias_sin_pond": 0,
+   "aceptada": true,
+   "p": 0.02,
+   "p_sin_pond": 0.98,
+   "a_priori": null
+  },
+  "B0_simple_b_elev": {
+   "victorias": 0,
+   "victorias_sin_pond": 0,
+   "aceptada": false
+  },
+  "B0_ridge_ambiente": {
+   "victorias": 4,
+   "victorias_sin_pond": 0,
+   "aceptada": false
+  },
+  "B0_lasso_ambiente": {
+   "victorias": 4,
+   "victorias_sin_pond": 0,
+   "aceptada": false
+  },
+  "B50_simple_a_tmax": {
+   "victorias": 10,
+   "victorias_sin_pond": 8,
+   "aceptada": true,
+   "p": 0.01,
+   "p_sin_pond": 0.01,
+   "a_priori": false
+  },
+  "B50_simple_c_tmax_prec": {
+   "victorias": 10,
+   "victorias_sin_pond": 7,
+   "aceptada": true,
+   "p": 0.01,
+   "p_sin_pond": 0.01,
+   "a_priori": true
+  },
+  "B50_kriging_residuos_simple_a_tmax": {
+   "victorias": 10,
+   "victorias_sin_pond": 10,
+   "aceptada": true
+  },
+  "B50_simple_b_elev": {
+   "victorias": 0,
+   "victorias_sin_pond": 0,
+   "aceptada": false
+  },
+  "B50_ridge_ambiente": {
+   "victorias": 0,
+   "victorias_sin_pond": 0,
+   "aceptada": false
+  },
+  "B50_lasso_ambiente": {
+   "victorias": 0,
+   "victorias_sin_pond": 0,
+   "aceptada": false
+  },
+  "promedio_B0_B50": {
+   "kriging_vecinos": 0.438,
+   "simple_a_tmax": 0.412,
+   "kriging_residuos_simple_a_tmax": 0.366,
+   "simple_c_tmax_prec": 0.389,
+   "kriging_residuos_simple_c_tmax_prec": 0.366
+  },
+  "promedio_B0_B50_4dec": {
+   "kriging_residuos_simple_a_tmax": 0.3655,
+   "kriging_residuos_simple_c_tmax_prec": 0.3664
+  }
+ },
+ "grandes": {
+  "kriging_vecinos": {
+   "B0": 0.307,
+   "B50": 0.578
+  },
+  "simple_c_tmax_prec": {
+   "B0": 0.246,
+   "B50": 0.507
+  },
+  "kriging_residuos_simple_a_tmax": {
+   "B0": 0.274,
+   "B50": 0.436
+  }
+ },
+ "curva": {
+  "media_global": {
+   "0": 0.504,
+   "20": 0.535,
+   "40": 0.586,
+   "50": 0.594,
+   "60": 0.6,
+   "80": 0.625
+  },
+  "kriging_vecinos": {
+   "0": 0.309,
+   "20": 0.381,
+   "40": 0.527,
+   "50": 0.566,
+   "60": 0.574,
+   "80": 0.584
+  },
+  "simple_a_tmax": {
+   "0": 0.334,
+   "20": 0.378,
+   "40": 0.475,
+   "50": 0.49,
+   "60": 0.492,
+   "80": 0.522
+  },
+  "simple_c_tmax_prec": {
+   "0": 0.272,
+   "20": 0.304,
+   "40": 0.449,
+   "50": 0.506,
+   "60": 0.529,
+   "80": 0.572
+  },
+  "kriging_residuos_simple_a_tmax": {
+   "0": 0.293,
+   "20": 0.369,
+   "40": 0.44,
+   "50": 0.438,
+   "60": 0.431,
+   "80": 0.445
+  }
+ },
+ "buffers_km": [
+  0,
+  20,
+  40,
+  50,
+  60,
+  80
+ ],
+ "validacion": {
+  "n_grupos": 20,
+  "n_rep": 10,
+  "n_perm": 99,
+  "umbral_grande_ha": 1000.0,
+  "anio_referencia": 2025,
+  "potencia_idw": 2.0
+ },
+ "importancia": {
+  "B0_temperatura": {
+   "condicional": 0.12,
+   "p_condicional": 0.01,
+   "marginal": 0.167,
+   "p_marginal": 0.01,
+   "rmse_completo": 0.273,
+   "rmse_media_global": 0.504
+  },
+  "B0_lluvia": {
+   "condicional": 0.106,
+   "p_condicional": 0.01,
+   "marginal": 0.1,
+   "p_marginal": 0.01,
+   "rmse_completo": 0.273,
+   "rmse_media_global": 0.504
+  },
+  "B0_topografia": {
+   "condicional": 0.038,
+   "p_condicional": 0.02,
+   "marginal": 0.07,
+   "p_marginal": 0.01,
+   "rmse_completo": 0.273,
+   "rmse_media_global": 0.504
+  },
+  "B0_suelo": {
+   "condicional": -0.005,
+   "p_condicional": 0.64,
+   "marginal": -0.049,
+   "p_marginal": 0.9,
+   "rmse_completo": 0.273,
+   "rmse_media_global": 0.504
+  },
+  "B50_temperatura": {
+   "condicional": 0.164,
+   "p_condicional": 0.01,
+   "marginal": 0.032,
+   "p_marginal": 0.01,
+   "rmse_completo": 0.607,
+   "rmse_media_global": 0.594
+  },
+  "B50_lluvia": {
+   "condicional": 0.099,
+   "p_condicional": 0.01,
+   "marginal": -0.059,
+   "p_marginal": 0.07,
+   "rmse_completo": 0.607,
+   "rmse_media_global": 0.594
+  },
+  "B50_topografia": {
+   "condicional": 0.052,
+   "p_condicional": 0.01,
+   "marginal": -0.093,
+   "p_marginal": 0.72,
+   "rmse_completo": 0.607,
+   "rmse_media_global": 0.594
+  },
+  "B50_suelo": {
+   "condicional": -0.076,
+   "p_condicional": 1.0,
+   "marginal": -0.307,
+   "p_marginal": 1.0,
+   "rmse_completo": 0.607,
+   "rmse_media_global": 0.594
+  }
+ },
+ "corr_elev_tmax": -0.8,
+ "corr_prec_mayoct_mayjun": 0.91,
+ "coef": {
+  "tmax_sola_por_grado": -0.79,
+  "tmax_con_lluvia_por_grado": -0.67,
+  "lluvia_por_100mm": 0.15
+ },
+ "tmax_rango_con_siap": [
+  23.0,
+  25.7
+ ],
+ "corr_tmax_nivel": -0.6,
+ "clima_anio": {
+  "espacial_kriging_vecinos": {
+   "sin_pond": 0.682,
+   "pond": 0.646
+  },
+  "espacial_lgbm_ubicacion": {
+   "sin_pond": 0.669,
+   "pond": 0.617
+  },
+  "espacial_lgbm_ubicacion_anomalias": {
+   "sin_pond": 0.611,
+   "pond": 0.536
+  },
+  "espacial_lgbm_ubicacion_indicadoras_anio": {
+   "sin_pond": 0.608,
+   "pond": 0.539
+  },
+  "espacial_kriging_mas_efecto_estado_anio": {
+   "sin_pond": 0.596,
+   "pond": 0.519
+  },
+  "espacial_idw_vecinos_anio": {
+   "sin_pond": 0.588,
+   "pond": 0.548
+  },
+  "anio_media_propia_tendencia": {
+   "sin_pond": 0.632,
+   "pond": 0.603
+  },
+  "anio_propia_mas_anomalia_ridge": {
+   "sin_pond": 0.636,
+   "pond": 0.602
+  },
+  "anio_propia_mas_anomalia_lgbm": {
+   "sin_pond": 0.647,
+   "pond": 0.62
+  },
+  "victorias_anom_vs_indicadoras": 3,
+  "victorias_anom_vs_ubicacion": 10
+ },
+ "escala": "local",
+ "cobertura": {
+  "rend_B0_global": {
+   "todos": 0.797,
+   "todos_pond": 0.828,
+   "ancho": 1.745,
+   "brier": 0.198,
+   "prob_media": 0.462,
+   "frac_obs": 0.411,
+   "Hidalgo": 0.787,
+   "México": 0.804,
+   "Puebla": 0.74,
+   "Tlaxcala": 0.867
+  },
+  "rend_B0_local": {
+   "todos": 0.815,
+   "todos_pond": 0.825,
+   "ancho": 1.862,
+   "brier": 0.199,
+   "prob_media": 0.475,
+   "frac_obs": 0.411,
+   "Hidalgo": 0.778,
+   "México": 0.806,
+   "Puebla": 0.819,
+   "Tlaxcala": 0.859
+  },
+  "rend_B50_global": {
+   "todos": 0.793,
+   "todos_pond": 0.79,
+   "ancho": 1.88,
+   "brier": 0.225,
+   "prob_media": 0.468,
+   "frac_obs": 0.411,
+   "Hidalgo": 0.734,
+   "México": 0.811,
+   "Puebla": 0.77,
+   "Tlaxcala": 0.87
+  },
+  "rend_B50_local": {
+   "todos": 0.815,
+   "todos_pond": 0.797,
+   "ancho": 2.06,
+   "brier": 0.227,
+   "prob_media": 0.477,
+   "frac_obs": 0.411,
+   "Hidalgo": 0.74,
+   "México": 0.836,
+   "Puebla": 0.837,
+   "Tlaxcala": 0.858
+  },
+  "rend_sembrada_B0_global": {
+   "todos": 0.798,
+   "todos_pond": 0.821,
+   "ancho": 1.867,
+   "brier": 0.202,
+   "prob_media": 0.485,
+   "frac_obs": 0.448,
+   "Hidalgo": 0.79,
+   "México": 0.802,
+   "Puebla": 0.75,
+   "Tlaxcala": 0.854
+  },
+  "rend_sembrada_B0_local": {
+   "todos": 0.817,
+   "todos_pond": 0.826,
+   "ancho": 2.034,
+   "brier": 0.202,
+   "prob_media": 0.498,
+   "frac_obs": 0.448,
+   "Hidalgo": 0.781,
+   "México": 0.796,
+   "Puebla": 0.831,
+   "Tlaxcala": 0.858
+  },
+  "rend_sembrada_B50_global": {
+   "todos": 0.793,
+   "todos_pond": 0.793,
+   "ancho": 2.06,
+   "brier": 0.232,
+   "prob_media": 0.492,
+   "frac_obs": 0.448,
+   "Hidalgo": 0.741,
+   "México": 0.813,
+   "Puebla": 0.775,
+   "Tlaxcala": 0.853
+  },
+  "rend_sembrada_B50_local": {
+   "todos": 0.811,
+   "todos_pond": 0.805,
+   "ancho": 2.252,
+   "brier": 0.235,
+   "prob_media": 0.501,
+   "frac_obs": 0.448,
+   "Hidalgo": 0.747,
+   "México": 0.811,
+   "Puebla": 0.832,
+   "Tlaxcala": 0.856
+  }
+ },
+ "capa": {
+  "municipios": 486,
+  "con_prediccion": 268,
+  "sin_prediccion": 218,
+  "dentro_dominio": 229,
+  "con_siap": 100,
+  "confianza": {
+   "alta": 100,
+   "media": 91,
+   "baja": 77
+  },
+  "dist_cerca_km": 30.0,
+  "dist_media_km": 25.0,
+  "dist_dominio_km": 50.0,
+  "cobertura_minima": 0.75,
+  "esperado_alta_mediana": 2.53,
+  "esperado_rango": [
+   1.26,
+   3.16
+  ],
+  "prob_bajo_2_alta_mediana": 0.23,
+  "prob_sembrada_alta_mediana": 0.25,
+  "ancho_mediano": 1.9,
+  "top10": [
+   {
+    "municipio": "San Salvador el Seco",
+    "estado": "Puebla",
+    "esperado": 3.16,
+    "confianza": "alta",
+    "dist_siap_km": 4.0
+   },
+   {
+    "municipio": "San Juan Atenco",
+    "estado": "Puebla",
+    "esperado": 3.16,
+    "confianza": "alta",
+    "dist_siap_km": 7.0
+   },
+   {
+    "municipio": "Jilotzingo",
+    "estado": "México",
+    "esperado": 3.08,
+    "confianza": "baja",
+    "dist_siap_km": 37.0
+   },
+   {
+    "municipio": "Tlalmanalco",
+    "estado": "México",
+    "esperado": 3.07,
+    "confianza": "media",
+    "dist_siap_km": 18.0
+   },
+   {
+    "municipio": "Mazapiltepec de Juárez",
+    "estado": "Puebla",
+    "esperado": 3.05,
+    "confianza": "alta",
+    "dist_siap_km": 4.0
+   },
+   {
+    "municipio": "Soltepec",
+    "estado": "Puebla",
+    "esperado": 3.03,
+    "confianza": "alta",
+    "dist_siap_km": 10.0
+   },
+   {
+    "municipio": "Tenango del Valle",
+    "estado": "México",
+    "esperado": 3.02,
+    "confianza": "baja",
+    "dist_siap_km": 54.0
+   },
+   {
+    "municipio": "Lafragua",
+    "estado": "Puebla",
+    "esperado": 3.0,
+    "confianza": "media",
+    "dist_siap_km": 9.0
+   },
+   {
+    "municipio": "Ocotepec",
+    "estado": "Puebla",
+    "esperado": 2.98,
+    "confianza": "alta",
+    "dist_siap_km": 7.0
+   },
+   {
+    "municipio": "Huixquilucan",
+    "estado": "México",
+    "esperado": 2.97,
+    "confianza": "baja",
+    "dist_siap_km": 47.0
+   }
+  ],
+  "top10_por_confianza": {
+   "alta": 5,
+   "baja": 3,
+   "media": 2
+  },
+  "top5_alta": [
+   {
+    "municipio": "San Salvador el Seco",
+    "estado": "Puebla",
+    "esperado": 3.16,
+    "prob_bajo_2": 0.18
+   },
+   {
+    "municipio": "San Juan Atenco",
+    "estado": "Puebla",
+    "esperado": 3.16,
+    "prob_bajo_2": 0.18
+   },
+   {
+    "municipio": "Mazapiltepec de Juárez",
+    "estado": "Puebla",
+    "esperado": 3.05,
+    "prob_bajo_2": 0.19
+   },
+   {
+    "municipio": "Soltepec",
+    "estado": "Puebla",
+    "esperado": 3.03,
+    "prob_bajo_2": 0.21
+   },
+   {
+    "municipio": "Ocotepec",
+    "estado": "Puebla",
+    "esperado": 2.98,
+    "prob_bajo_2": 0.14
+   }
+  ],
+  "bottom3_alta": [
+   {
+    "municipio": "Nopala de Villagrán",
+    "estado": "Hidalgo",
+    "esperado": 1.43,
+    "prob_bajo_2": 0.88
+   },
+   {
+    "municipio": "San Agustín Tlaxiaca",
+    "estado": "Hidalgo",
+    "esperado": 1.38,
+    "prob_bajo_2": 0.99
+   },
+   {
+    "municipio": "Huichapan",
+    "estado": "Hidalgo",
+    "esperado": 1.33,
+    "prob_bajo_2": 0.91
+   }
+  ],
+  "prob_alta_min": {
+   "municipio": "Lázaro Cárdenas",
+   "estado": "Tlaxcala",
+   "prob": 0.0,
+   "esperado": 2.73
+  },
+  "prob_alta_max": {
+   "municipio": "San Agustín Tlaxiaca",
+   "estado": "Hidalgo",
+   "prob": 0.99,
+   "esperado": 1.38
+  },
+  "casos_bosque": {
+   "Huixquilucan": {
+    "esperado": 2.97,
+    "confianza": "baja",
+    "dist_siap_km": 47.0,
+    "agricola_ha": 4847.0
+   },
+   "Jilotzingo": {
+    "esperado": 3.08,
+    "confianza": "baja",
+    "dist_siap_km": 37.0,
+    "agricola_ha": 1744.0
+   },
+   "Tlalmanalco": {
+    "esperado": 3.07,
+    "confianza": "media",
+    "dist_siap_km": 18.0,
+    "agricola_ha": 237.0
+   }
+  }
+ },
+ "reto": {
+  "A": {
+   "parcelas": 87,
+   "municipios": 4,
+   "reto": 4.49,
+   "nivel_fuera_muestra_B0": 2.78,
+   "nivel_fuera_muestra_B50": 2.91,
+   "siap_2025": 3.01,
+   "dif_reto_nivel_B0": 1.71,
+   "dif_reto_nivel_B50": 1.58,
+   "dif_reto_siap_2025": 1.48
+  },
+  "B": {
+   "parcelas": 51,
+   "municipios": 5,
+   "reto": 3.05,
+   "nivel_fuera_muestra_B0": 2.7,
+   "nivel_fuera_muestra_B50": 2.91,
+   "siap_2025": 3.17,
+   "dif_reto_nivel_B0": 0.35,
+   "dif_reto_nivel_B50": 0.13,
+   "dif_reto_siap_2025": -0.13
+  }
+ },
+ "reto_municipios": 9,
+ "reto_brecha": 1.44,
+ "reto_dif_A_rango": [
+  1.5,
+  1.91
+ ],
+ "reto_dif_B_rango": [
+  -0.38,
+  1.01
+ ],
+ "nivel_2025": {
+  "rango": [
+   1.32,
+   3.24
+  ],
+  "corr_tmax": -0.58,
+  "corr_tmax_pond": -0.77,
+  "corr_prec": 0.32,
+  "corr_prec_pond": 0.59,
+  "pend_tmax_pond": -0.79,
+  "pend_prec_100mm_pond": 0.21,
+  "tmax_rango_todos": [
+   22.7,
+   34.7
+  ]
+ },
+ "esquema_validacion": {
+  "B_km": 50,
+  "prueba": 11,
+  "excluidos": 39,
+  "entrenamiento": 50
+ },
+ "corr_nivel": {
+  "Tmax jul-ago": -0.58,
+  "Tmin may-oct": -0.22,
+  "Lluvia may-oct": 0.32,
+  "Lluvia may-jun": 0.46,
+  "Elevación": 0.37,
+  "Pendiente": 0.06,
+  "Fase dúrica": -0.14,
+  "Fase lítica": -0.13,
+  "Textura fina": -0.22
+ },
+ "forest_std": {},
+ "modelos_B50": {
+  "media_global": 0.594,
+  "media_estatal": 0.644,
+  "idw_vecinos": 0.56,
+  "kriging_vecinos": 0.566,
+  "simple_a_tmax": 0.49,
+  "simple_b_elev": 0.631,
+  "simple_c_tmax_prec": 0.506,
+  "simple_d_tmax_prec_durica": 0.592,
+  "simple_e_tmax_prec_estado": 0.541,
+  "kriging_residuos_simple_a_tmax": 0.438,
+  "kriging_residuos_simple_c_tmax_prec": 0.464,
+  "ridge_ambiente": 0.662,
+  "lasso_ambiente": 0.612
+ },
+ "pareada": {
+  "B0": {
+   "victorias": 7,
+   "kriging_min_max": [
+    0.269,
+    0.395
+   ],
+   "final_min_max": [
+    0.242,
+    0.368
+   ],
+   "dif_media": -0.016
+  },
+  "B50": {
+   "victorias": 10,
+   "kriging_min_max": [
+    0.554,
+    0.581
+   ],
+   "final_min_max": [
+    0.434,
+    0.447
+   ],
+   "dif_media": -0.128
+  }
+ },
+ "permutacion_fig": {
+  "n": 99,
+  "real": 0.49,
+  "min_perm": 0.617,
+  "media_perm": 0.68,
+  "max_perm": 0.741,
+  "p": 0.01,
+  "kriging": 0.566
+ },
+ "obs_pred_B50": {
+  "kriging_vecinos": {
+   "rango_pred": [
+    1.64,
+    2.5
+   ]
+  },
+  "kriging_residuos_simple_a_tmax": {
+   "rango_pred": [
+    0.78,
+    2.89
+   ]
+  },
+  "rango_obs": [
+   1.01,
+   2.93
+  ]
+ },
+ "confiabilidad": {
+  "bins": [
+   {
+    "p": 0.09,
+    "obs": 0.08,
+    "n": 162
+   },
+   {
+    "p": 0.16,
+    "obs": 0.1,
+    "n": 2438
+   },
+   {
+    "p": 0.25,
+    "obs": 0.2,
+    "n": 3485
+   },
+   {
+    "p": 0.35,
+    "obs": 0.32,
+    "n": 3032
+   },
+   {
+    "p": 0.45,
+    "obs": 0.42,
+    "n": 2237
+   },
+   {
+    "p": 0.55,
+    "obs": 0.48,
+    "n": 1757
+   },
+   {
+    "p": 0.65,
+    "obs": 0.57,
+    "n": 1599
+   },
+   {
+    "p": 0.75,
+    "obs": 0.7,
+    "n": 1938
+   },
+   {
+    "p": 0.85,
+    "obs": 0.73,
+    "n": 1941
+   },
+   {
+    "p": 0.94,
+    "obs": 0.73,
+    "n": 831
+   }
+  ]
+ },
+ "constantes": {
+  "dem_resolucion_m": 90,
+  "clima_rejilla_grados": 0.05,
+  "edafologia_escala": 250000,
+  "regla_victorias_min": 7,
+  "regla_p_max": 0.05,
+  "umbral_riesgo_t_ha": 2.0,
+  "cobertura_nominal": 0.8,
+  "variables_ridge_lasso": 14,
+  "ejemplo_ponderacion_ha": [
+   60,
+   20000
+  ]
+ }
+}

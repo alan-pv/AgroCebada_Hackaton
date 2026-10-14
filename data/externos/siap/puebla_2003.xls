@@ -1,0 +1,362 @@
+<HTML LANG="es">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+<META http-equiv=Content-Type content="text/html; charset=ISO-8859-1">
+
+<style>
+th{
+	vertical-align:middle !important; 
+	text-align:center !important;
+}
+.estiloResult{
+	background-color:#B38E5D !important; 
+	color:#FFF !important;
+}
+</style>
+
+<TITLE></TITLE>
+</head>
+<body>
+
+		<div class="titulosTabla">
+			<p>
+				<strong>A&ntilde;o:</strong> 2003<br />
+				<strong>Producci&oacute;n Agr&iacute;cola</strong><br />
+				<strong>Ciclo:</strong> Primavera - Verano<br />
+				<strong>Modalidad:</strong> Temporal<br />
+				<strong>Cultivo:</strong> Cebada grano (ton)     <br /><strong>Entidad Federativa:</strong> Puebla<br />
+			</p>
+		</div>
+		<div class="table-responsive">
+		<table id="Resultados-reporte" class="table table-striped table-bordered" border="1">
+			<tr class="estiloResult">
+				<th rowspan="2">&nbsp;</th>
+				<th rowspan="2">Entidad</th>
+				<th rowspan="2">Municipio</th>
+				<th colspan="3">Superficie<br />(ha)</th>
+				<th rowspan="2">Producci&oacute;n</th><th rowspan="2">Rendimiento<br />(udm/ha)</th><th rowspan="2">PMR<br />($/udm)</th>
+				<th rowspan="2">Valor Producci&oacute;n<br />(miles de Pesos)</th>
+			</tr>
+			<tr class="estiloResult">
+				<th>Sembrada</th>
+				<th>Cosechada</th>
+				<th>Siniestrada</th>
+			</tr>
+			<tr>
+				<td>1</td>
+				<td>Puebla</td><td>Ahuazotepec</td>
+				<td class="tdNum">75.00</td>
+				<td class="tdNum">75.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">150.00</td><td class="tdNum">2.00</td>
+				<td class="tdNum">1,800.00</td>
+				<td class="tdNum">270.00</td>
+			</tr>
+			
+			<tr>
+				<td>2</td>
+				<td>Puebla</td><td>Ajalpan</td>
+				<td class="tdNum">40.00</td>
+				<td class="tdNum">40.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">20.00</td><td class="tdNum">0.50</td>
+				<td class="tdNum">2,500.00</td>
+				<td class="tdNum">50.00</td>
+			</tr>
+			
+			<tr>
+				<td>3</td>
+				<td>Puebla</td><td>Aljojuca</td>
+				<td class="tdNum">50.00</td>
+				<td class="tdNum">50.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">140.00</td><td class="tdNum">2.80</td>
+				<td class="tdNum">1,300.00</td>
+				<td class="tdNum">182.00</td>
+			</tr>
+			
+			<tr>
+				<td>4</td>
+				<td>Puebla</td><td>Aquixtla</td>
+				<td class="tdNum">47.00</td>
+				<td class="tdNum">47.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">105.00</td><td class="tdNum">2.23</td>
+				<td class="tdNum">1,500.00</td>
+				<td class="tdNum">157.50</td>
+			</tr>
+			
+			<tr>
+				<td>5</td>
+				<td>Puebla</td><td>Cuyoaco</td>
+				<td class="tdNum">5,500.00</td>
+				<td class="tdNum">5,500.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">15,400.00</td><td class="tdNum">2.80</td>
+				<td class="tdNum">1,300.00</td>
+				<td class="tdNum">20,020.00</td>
+			</tr>
+			
+			<tr>
+				<td>6</td>
+				<td>Puebla</td><td>Chignahuapan</td>
+				<td class="tdNum">6,794.00</td>
+				<td class="tdNum">5,413.00</td>
+				<td class="tdNum">1,381.00</td>
+				<td class="tdNum">12,456.70</td><td class="tdNum">2.30</td>
+				<td class="tdNum">1,500.00</td>
+				<td class="tdNum">18,685.05</td>
+			</tr>
+			
+			<tr>
+				<td>7</td>
+				<td>Puebla</td><td>Chignautla</td>
+				<td class="tdNum">500.00</td>
+				<td class="tdNum">500.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">1,250.00</td><td class="tdNum">2.50</td>
+				<td class="tdNum">1,300.00</td>
+				<td class="tdNum">1,625.00</td>
+			</tr>
+			
+			<tr>
+				<td>8</td>
+				<td>Puebla</td><td>Ixtacamaxtitlán</td>
+				<td class="tdNum">585.00</td>
+				<td class="tdNum">585.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">1,299.00</td><td class="tdNum">2.22</td>
+				<td class="tdNum">1,500.00</td>
+				<td class="tdNum">1,948.50</td>
+			</tr>
+			
+			<tr>
+				<td>9</td>
+				<td>Puebla</td><td>Libres</td>
+				<td class="tdNum">2,500.00</td>
+				<td class="tdNum">2,500.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">7,000.00</td><td class="tdNum">2.80</td>
+				<td class="tdNum">1,300.00</td>
+				<td class="tdNum">9,100.00</td>
+			</tr>
+			
+			<tr>
+				<td>10</td>
+				<td>Puebla</td><td>Mazapiltepec de Juárez</td>
+				<td class="tdNum">40.00</td>
+				<td class="tdNum">40.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">112.00</td><td class="tdNum">2.80</td>
+				<td class="tdNum">1,300.00</td>
+				<td class="tdNum">145.60</td>
+			</tr>
+			
+			<tr>
+				<td>11</td>
+				<td>Puebla</td><td>Nopalucan</td>
+				<td class="tdNum">1,200.00</td>
+				<td class="tdNum">1,200.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">3,120.00</td><td class="tdNum">2.60</td>
+				<td class="tdNum">1,300.00</td>
+				<td class="tdNum">4,056.00</td>
+			</tr>
+			
+			<tr>
+				<td>12</td>
+				<td>Puebla</td><td>Ocotepec</td>
+				<td class="tdNum">1,100.00</td>
+				<td class="tdNum">1,100.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">3,080.00</td><td class="tdNum">2.80</td>
+				<td class="tdNum">1,300.00</td>
+				<td class="tdNum">4,004.00</td>
+			</tr>
+			
+			<tr>
+				<td>13</td>
+				<td>Puebla</td><td>Oriental</td>
+				<td class="tdNum">1,500.00</td>
+				<td class="tdNum">1,500.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">4,200.00</td><td class="tdNum">2.80</td>
+				<td class="tdNum">1,300.00</td>
+				<td class="tdNum">5,460.00</td>
+			</tr>
+			
+			<tr>
+				<td>14</td>
+				<td>Puebla</td><td>Palmar de Bravo</td>
+				<td class="tdNum">200.00</td>
+				<td class="tdNum">200.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">300.00</td><td class="tdNum">1.50</td>
+				<td class="tdNum">2,000.00</td>
+				<td class="tdNum">600.00</td>
+			</tr>
+			
+			<tr>
+				<td>15</td>
+				<td>Puebla</td><td>Rafael Lara Grajales</td>
+				<td class="tdNum">250.00</td>
+				<td class="tdNum">250.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">650.00</td><td class="tdNum">2.60</td>
+				<td class="tdNum">1,300.00</td>
+				<td class="tdNum">845.00</td>
+			</tr>
+			
+			<tr>
+				<td>16</td>
+				<td>Puebla</td><td>San José Chiapa</td>
+				<td class="tdNum">70.00</td>
+				<td class="tdNum">70.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">196.00</td><td class="tdNum">2.80</td>
+				<td class="tdNum">1,300.00</td>
+				<td class="tdNum">254.80</td>
+			</tr>
+			
+			<tr>
+				<td>17</td>
+				<td>Puebla</td><td>San Juan Atenco</td>
+				<td class="tdNum">70.00</td>
+				<td class="tdNum">70.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">196.00</td><td class="tdNum">2.80</td>
+				<td class="tdNum">1,300.00</td>
+				<td class="tdNum">254.80</td>
+			</tr>
+			
+			<tr>
+				<td>18</td>
+				<td>Puebla</td><td>San Salvador El Seco</td>
+				<td class="tdNum">80.00</td>
+				<td class="tdNum">80.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">224.00</td><td class="tdNum">2.80</td>
+				<td class="tdNum">1,300.00</td>
+				<td class="tdNum">291.20</td>
+			</tr>
+			
+			<tr>
+				<td>19</td>
+				<td>Puebla</td><td>Soltepec</td>
+				<td class="tdNum">50.00</td>
+				<td class="tdNum">50.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">130.00</td><td class="tdNum">2.60</td>
+				<td class="tdNum">1,300.00</td>
+				<td class="tdNum">169.00</td>
+			</tr>
+			
+			<tr>
+				<td>20</td>
+				<td>Puebla</td><td>Tepeyahualco</td>
+				<td class="tdNum">1,300.00</td>
+				<td class="tdNum">1,300.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">3,640.00</td><td class="tdNum">2.80</td>
+				<td class="tdNum">1,300.00</td>
+				<td class="tdNum">4,732.00</td>
+			</tr>
+			
+			<tr>
+				<td>21</td>
+				<td>Puebla</td><td>Tlacotepec de Benito Juárez</td>
+				<td class="tdNum">5.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">5.00</td>
+				<td class="tdNum">0.00</td><td class="tdNum">0</td><td class="tdNum">0</td>
+				<td class="tdNum">0.00</td>
+			</tr>
+			
+			<tr>
+				<td>22</td>
+				<td>Puebla</td><td>Tlatlauquitepec</td>
+				<td class="tdNum">1,500.00</td>
+				<td class="tdNum">1,500.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">3,750.00</td><td class="tdNum">2.50</td>
+				<td class="tdNum">1,300.00</td>
+				<td class="tdNum">4,875.00</td>
+			</tr>
+			
+			<tr>
+				<td>23</td>
+				<td>Puebla</td><td>Tochtepec</td>
+				<td class="tdNum">3.00</td>
+				<td class="tdNum">3.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">1.00</td><td class="tdNum">0.33</td>
+				<td class="tdNum">6,000.00</td>
+				<td class="tdNum">6.00</td>
+			</tr>
+			
+			<tr>
+				<td>24</td>
+				<td>Puebla</td><td>Vicente Guerrero</td>
+				<td class="tdNum">20.00</td>
+				<td class="tdNum">20.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">10.00</td><td class="tdNum">0.50</td>
+				<td class="tdNum">2,500.00</td>
+				<td class="tdNum">25.00</td>
+			</tr>
+			
+			<tr>
+				<td>25</td>
+				<td>Puebla</td><td>Xiutetelco</td>
+				<td class="tdNum">700.00</td>
+				<td class="tdNum">700.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">1,750.00</td><td class="tdNum">2.50</td>
+				<td class="tdNum">1,300.00</td>
+				<td class="tdNum">2,275.00</td>
+			</tr>
+			
+			<tr>
+				<td>26</td>
+				<td>Puebla</td><td>Yehualtepec</td>
+				<td class="tdNum">8.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">8.00</td>
+				<td class="tdNum">0.00</td><td class="tdNum">0</td><td class="tdNum">0</td>
+				<td class="tdNum">0.00</td>
+			</tr>
+			
+			<tr>
+				<td>27</td>
+				<td>Puebla</td><td>Zacatlán</td>
+				<td class="tdNum">474.00</td>
+				<td class="tdNum">474.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">1,133.00</td><td class="tdNum">2.39</td>
+				<td class="tdNum">1,500.00</td>
+				<td class="tdNum">1,699.50</td>
+			</tr>
+			
+			<tr>
+				<td>28</td>
+				<td>Puebla</td><td>Zautla</td>
+				<td class="tdNum">260.00</td>
+				<td class="tdNum">260.00</td>
+				<td class="tdNum">0.00</td>
+				<td class="tdNum">650.00</td><td class="tdNum">2.50</td>
+				<td class="tdNum">1,300.00</td>
+				<td class="tdNum">845.00</td>
+			</tr>
+			
+			<tr><th colspan="3">Total</th>
+			<th class="tdNum">24,921.00</th>
+			<th class="tdNum">23,527.00</th>
+			<th class="tdNum">1,394.00</th>
+			<th class="tdNum">60,962.70</th><th class="tdNum">2.59</th>
+			<th class="tdNum">1,354.53</th>
+			<th class="tdNum">82,575.95</th>
+		</tr>
+		
+		</table></div>
+</body>
+</html>

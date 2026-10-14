@@ -1,0 +1,29 @@
+\section{Método}\label{sec:metodo}
+
+\textbf{Modelos.} Comparamos dos formas de estimar un municipio.
+\begin{itemize}
+\item \textbf{Kriging de vecinos.} Promedia el rendimiento de los municipios cercanos, dando más peso a los más
+próximos. Es la base a superar porque no usa ambiente.
+\item \textbf{Modelos ambientales simples.} Regresiones con una o dos variables elegidas por lo que se sabe del
+cultivo. La principal usa la Tmax de julio y agosto, porque el calor en la floración acorta el llenado del grano. El
+modelo final le suma el kriging de sus errores, que corrige cerca de los datos y se apaga lejos de ellos.
+\end{itemize}
+También probamos modelos con 14 variables de clima, terreno y suelo.
+
+\textbf{Validación.} Agrupamos los 100 municipios en 20 zonas y predecimos una zona a la vez sin usar sus
+datos~\cite{roberts2017}. Para simular un lugar realmente nuevo quitamos además los municipios a menos de 50\,km de la
+zona (Fig.~\ref{fig:validacion}). Repetimos todo 10 veces con zonas distintas.
+
+\textbf{Error.} Medimos el error típico en t/ha entre el rendimiento promedio predicho y el observado de cada
+municipio. Le damos más peso a los municipios con más superficie sembrada, que es donde FIRA opera.
+
+\textbf{Regla de decisión.} La fijamos antes de correr los experimentos. Un modelo ambiental sustituye al kriging si gana
+en al menos 7 de las 10 repeticiones y si su ventaja desaparece al revolver las variables entre municipios.
+
+\begin{figure}[!tbp]
+\centering
+\includegraphics[width=\columnwidth]{g_validacion}
+\caption{Una partición de la validación. El modelo se entrena sin los municipios grises y predice los naranjas, como
+si fueran un lugar sin datos del SIAP a menos de 50\,km.}
+\label{fig:validacion}
+\end{figure}
