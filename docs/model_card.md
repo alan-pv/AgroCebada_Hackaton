@@ -4,7 +4,7 @@ Esta ficha describe el modelo que genera las 59 predicciones de la entrega. Dice
 
 ## Resumen
 
-El modelo predice el rendimiento de cebada de una parcela en toneladas por hectárea (t/ha) a partir de dos cosas. La primera es el régimen de etiquetas de su municipio. La segunda es el rendimiento de las parcelas de entrenamiento vecinas del mismo régimen a menos de 400 m. No usa imágenes de satélite, clima ni topografía, porque ningún bloque de esas variables pasó la regla de decisión del equipo. Además de la predicción entrega un intervalo p10 a p90 y la probabilidad de que el rendimiento quede bajo 2.5 t/ha.
+El modelo predice el rendimiento de cebada de una parcela en toneladas por hectárea (t/ha) a partir de dos cosas. La primera es el régimen de etiquetas de su municipio. La segunda es el rendimiento de las parcelas de entrenamiento vecinas del mismo régimen a menos de 400 m. No usa imágenes de satélite, clima ni topografía, porque ningún bloque de esas variables pasó la regla de decisión del equipo. Además de la predicción entrega un intervalo p10 a p90, la probabilidad de que el rendimiento quede bajo 2.5 t/ha y una marca de confianza por parcela.
 
 | Medida | Valor |
 |---|---|
@@ -78,6 +78,44 @@ Intervalos p10 a p90 con validación cruzada anidada. En cada fold externo la pa
 
 En las 59 parcelas el ancho medio es 1.06 t/ha. La probabilidad media de quedar bajo 2.5 t/ha es 0.003 en el régimen A y 0.171 en el B. En 18 parcelas, todas del régimen B, supera 0.10.
 
+### Calibración del p10
+
+Para el crédito importa el lado bajo del intervalo. Con la misma validación anidada medimos qué fracción de las parcelas reales queda por debajo de su p10. Lo ideal es 0.10. Los intervalos de confianza de 95 % salen de un bootstrap de parcelas, porque las 5 repeticiones de una parcela no son independientes.
+
+| Grupo | Parcelas bajo su p10 | Pinball 0.1 del modelo | Pinball 0.1 de la media por régimen |
+|---|---|---|---|
+| Todas | 0.078 [0.039, 0.120] | 0.0934 | 0.1012 |
+| Régimen A | 0.099 [0.041, 0.163] | 0.1079 | 0.1215 |
+| Régimen B | 0.043 [0.000, 0.098] | 0.0686 | 0.0667 |
+
+La línea base es la media del régimen más el cuantil inferior de sus residuos. La diferencia global de pinball es -0.008 con intervalo [-0.025, 0.004]. No es significativa, igual que la diferencia de RMSE. Ningún régimen se distingue de 0.10 en la cola baja, así que no ajustamos la escala del intervalo. El p10 ya es el cuantil inferior unilateral de nivel 0.10 de los residuos del régimen, de modo que un conformal unilateral daría el mismo valor. Las cifras salen de `scripts/calibracion_p10.py` y quedan en `outputs/calibracion_p10.csv`.
+
+Una auditoría anterior reportó una cobertura de 0.76 en el régimen B. Esa cifra salía de una sola repetición de 51 parcelas, con los desplazamientos ya entregados aplicados a las predicciones fuera de fold. Con los mismos desplazamientos la cobertura de B varía de 0.67 a 0.94 entre las 10 repeticiones, con media de 0.81. La validación anidada de 5 repeticiones da 0.886 [0.816, 0.949]. Con 51 parcelas el error estándar de una cobertura es de 0.05 a 0.06, y por eso reportamos el intervalo y no solo el punto.
+
+Qué significa el p10. Los residuos vienen de un solo año, 2025, y comparan parcelas distintas bajo el mismo clima. Por eso el p10 dice que 9 de cada 10 parcelas en condiciones como las de 2025 rinden más que ese valor. No dice que 9 de cada 10 años. No incluye la variabilidad entre años por sequía, helada o plaga, que además afecta a todas las parcelas de un municipio a la vez. Para una cartera de crédito el p10 subestima ese riesgo común.
+
+### Marca de confianza por parcela
+
+`predict()` devuelve las columnas `confianza`, `vecinos_400m`, `dist_vecino_m` y `motivo_confianza`. Se calculan con las parcelas de entrenamiento del mismo régimen.
+
+| Confianza | Regla |
+|---|---|
+| alta | Al menos una parcela medida a 400 m o menos |
+| media | Ninguna a 400 m, pero la más cercana está a 800 m o menos |
+| baja | La más cercana está a más de 800 m, o el área queda fuera del rango de su régimen |
+
+Los 400 m son el radio del rezago espacial. En las 59 parcelas hay 35 con confianza alta, 14 media y 10 baja. Por régimen, el A tiene 27, 6 y 4 y el B tiene 8, 8 y 6. La única parcela marcada por área es AGC_091 (0.35 ha, bajo el mínimo de 0.38 ha del régimen A).
+
+Validamos la marca en la validación anidada, contando los vecinos en el entrenamiento de cada fold externo.
+
+| Vecinos a 400 m | Filas | MAE (t/ha) | Parcelas bajo su p10 |
+|---|---|---|---|
+| 0 | 353 | 0.372 | 0.076 |
+| 1 a 2 | 306 | 0.252 | 0.075 |
+| 3 o más | 31 | 0.215 | 0.129 |
+
+Sin vecinos el error absoluto sube 0.123 t/ha con intervalo [0.022, 0.228]. La marca señala menor precisión y no una cola baja peor, porque la tasa bajo el p10 no empeora sin vecinos. El rango de área casi no aporta en la validación (MAE 0.319 contra 0.311), y lo conservamos como control de extrapolación. La marca no cambia el intervalo. Los resultados quedan en `outputs/confianza_cv.csv`.
+
 ### Margen de azar de una calificación sobre 59 parcelas
 
 La calificación oficial es un solo RMSE sobre 59 parcelas, y con tan pocas parcelas varía por azar aunque el modelo sea el mismo. Para estimar esa variación tomamos los errores fuera de fold del esquema A y sorteamos 5000 grupos de 59 parcelas, con 37 del régimen A y 22 del B como en la predicción oficial. El RMSE medio de los sorteos es 0.455, con desviación de 0.053. El 90 % de los sorteos cae entre 0.369 y 0.541. Es decir que un RMSE oficial entre 0.37 y 0.54 es compatible con el mismo modelo. Es una estimación aproximada, porque los sorteos salen de las mismas 138 parcelas y no de una población nueva. La diferencia entre dos modelos cercanos, como las 0.031 t/ha que ganamos a la media por régimen, es mucho menor que este margen.
@@ -86,7 +124,7 @@ La calificación oficial es un solo RMSE sobre 59 parcelas, y con tan pocas parc
 
 El modelo está pensado para dos usos.
 
-* FIRA, para apoyar decisiones de crédito y de riesgo. La predicción da un rendimiento esperado de referencia. El p10 da un rendimiento conservador que se supera en 9 de cada 10 casos si el intervalo está bien calibrado. La probabilidad bajo 2.5 t/ha marca las parcelas donde el rendimiento podría ser bajo. Conviene usar el intervalo y no solo el valor puntual.
+* FIRA, para apoyar decisiones de crédito y de riesgo. La predicción da un rendimiento esperado de referencia. El p10 da un rendimiento conservador que superan 9 de cada 10 parcelas en condiciones como las de 2025. No cubre la variabilidad entre años. La marca de confianza indica en qué parcelas la predicción tiene menos respaldo local. La probabilidad bajo 2.5 t/ha marca las parcelas donde el rendimiento podría ser bajo. Conviene usar el intervalo y no solo el valor puntual.
 * Productores, para tener una referencia del rendimiento esperado de una parcela cercana a otras ya medidas.
 
 No está pensado para decidir solo un crédito ni para reemplazar la verificación en campo. Tampoco para parcelas fuera de las tres entidades, para otros cultivos ni para otras temporadas, porque se entrenó con una sola temporada. Una parcela sin vecinos cercanos del mismo régimen recibe casi la media de su régimen.
