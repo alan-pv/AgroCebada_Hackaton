@@ -87,3 +87,54 @@ Datos públicos que se usaron en el análisis de los regímenes de etiquetas (`d
 ## Reproducción de los datos del INEGI
 
 - `uv run python scripts/descargar_inegi.py --descargas <directorio fuera del repo>` descarga y prepara todo lo anterior. Con `--solo municipios suelos usv` se elige qué productos procesar. Los archivos crudos se guardan en ese directorio y no se versionan. Si ya están descargados no se vuelven a bajar.
+
+## FIRA AgroCostos, paquete de cebada de temporal
+
+- Fuente: sistema AgroCostos de FIRA, https://www.fira.gob.mx/Nd/Agrocostos.jsp . La aplicación (https://www.fira.gob.mx/agrocostosApp/AgroApp.jsp) carga un CSV público desde https://www.fira.gob.mx/Nd/agrocosto_data_completa.csv (el script que lo llama es https://www.fira.gob.mx/agrocostosApp/js/script.js). El encabezado `Last-Modified` del CSV es del 10 de junio de 2022 y el último ciclo que trae es primavera-verano 2022.
+- Fecha de consulta: 14 de octubre de 2026. No encontramos paquetes de cebada de 2023 en adelante en una fuente pública.
+- Archivo: `fira_agrocostos/cebada_agrocostos_crudo.csv`, las 54 filas de cebada del CSV (ciclos 2016 a 2022, todas las zonas). Es una copia sin cambios de las columnas originales.
+- Paquete usado: ciclo PV 2022, tecnología TEMPORAL-MEJORADA-FERTILIZADA, modalidad TRADICIONAL, estatus Autorizado. Por estado hay estas zonas.
+
+| Municipios | Zona AgroCostos | Cultivo del paquete | Rend. probable (t/ha) | Costo total 2022 ($/ha) |
+|---|---|---|---|---|
+| Almoloya, Apan, Chignahuapan, Cuautepec de Hinojosa, Emiliano Zapata, Singuilucan, Tepeapulco | AGENCIAS HIDALGO | Cebada alta productividad | 3.5 | 24,736 |
+| Calpulalpan, Nanacamilpa | AGENCIAS DE TLAXCALA | Cebada | 4.0 | 21,594 |
+| Chignahuapan (alternativa) | SIERRA NORTE PUEBLA | Cebada alta productividad | 5.5 | 31,128 |
+
+- Hidalgo tiene una sola zona de cebada de temporal en 2022 (Agencias Hidalgo). En ciclos anteriores se llamó Altiplano de Hidalgo. Puebla tiene dos en 2022, Sierra Norte Puebla y Agencia Teziutlán. Asignamos Chignahuapan al paquete de Agencias Hidalgo por defecto, pues es el mismo altiplano cebadero. El paquete de Sierra Norte Puebla es de alta productividad (5.5 t/ha), supone un precio de 8,000 $/t e incluye 4,000 $/ha de renta de la tierra, lo que lo vuelve inconsistente con el precio del SIAP de 5,149 $/t. Queda como alternativa en las columnas `zona_alternativa`, `costo_total_2025_alt`, `costo_credito_2025_alt`, `pe_total_alt` y `pe_credito_alt` de la tabla municipal (vacías en los otros municipios). Ambas son supuestos nuestros, el CSV y el catálogo de zonas no dicen qué municipios cubre cada zona.
+- Campos usados. `Rendimiento probable`, `Precio probable`, `CostoTotal`, `TotalFinanciable`, `TotalNoFinanciable`, `AportacionN1/N2`, `TasaN1/N2`, `TotalCredito*UDIS`, `TotalAportacion*UDIS`, `TotalIntereses*UDIS`, `Total*UDIS`. Los campos `AvioInteres` y `CostoDirecto` no son pesos (son proporciones o factores) y no los usamos.
+- Lectura de los campos de crédito (comprobada con los datos). Para cada paquete se cumple
+
+  `Total*UDIS = TotalCredito + TotalAportacion + TotalIntereses + TotalNoFinanciable`
+
+  El crédito y la aportación suman lo financiable. El interés se calcula sobre el crédito a la tasa `TasaN` por el plazo de siembra a vencimiento. Hay una versión para acreditados menores a cierto monto en UDIS (`MenorUDIS`, con `AportacionN1` y `TasaN1`) y otra para mayores (`MayorUDIS`, con `N2`). El monto en UDIS no viene en el CSV, la relación entre N1 y menores es lectura de los datos. Usamos la versión de menores. En Hidalgo y Puebla las dos versiones casi no cambian. En Tlaxcala el crédito de menores es de 5,240 y el de mayores de 6,550.
+- Fórmulas.
+  - `costo_total_2022 = TotalMenorUDIS` (incluye el interés del avío).
+  - `costo_credito_2022 = TotalCreditoMenorUDIS + TotalInteresesMenorUDIS` (lo que se debe pagar de lo financiado, capital más interés).
+  - `pe_total_t_ha = costo_total_2025 / precio` y `pe_credito_t_ha = costo_credito_2025 / precio`, con el precio en $/t.
+- Cobertura del crédito. Por la parte no financiable y la aportación del productor, el crédito es 53 % del costo en Hidalgo, 27 % en Tlaxcala y 62 % en Sierra Norte Puebla.
+- Tabla de las zonas usadas, con los campos originales y el costo del crédito: `fira_agrocostos/zonas_usadas.csv`.
+
+## INEGI, INPC para actualizar los costos a 2025
+
+- Fuente: Índice Nacional de Precios al Consumidor (INPC) general, base segunda quincena de julio de 2018 = 100, tomado de los boletines mensuales de INEGI (ver la columna `boletin_url`). Página del programa, https://www.inegi.org.mx/temas/inpc/ . Fecha de consulta, 14 de octubre de 2026.
+- Archivo: `inegi_inpc/inpc_mensual.csv`, los 12 meses de 2022 y de 2025 con los niveles de las dos quincenas.
+- El boletín de 2025 publica el nivel mensual. Los boletines de 2022 publican solo los niveles de las dos quincenas, y el mensual lo calculamos como su promedio. Con los datos de 2025 comprobamos que el promedio de las quincenas reproduce el mensual publicado con una diferencia máxima de 0.001.
+- Periodo: promedio de 2022 contra promedio de 2025. Son los años del paquete y de la predicción.
+
+| | INPC |
+|---|---|
+| Promedio 2022 | 122.5075 |
+| Promedio 2025 | 140.5422 |
+| Factor | 1.147213 |
+
+- Resultado en `inegi_inpc/factor_inpc.csv`. Para comparar, de mayo de 2022 (inicio de siembra del paquete, nivel 121.022) a diciembre de 2025 (143.042) el factor sería 1.182, 3 % más alto.
+- Limitación. El INPC general no es un índice de insumos agrícolas. El fertilizante y las labores pueden haber subido distinto. Es una aproximación y el costo debe poderse editar.
+
+## Tabla económica por municipio
+
+- Archivo: `economia_municipal.csv`, una fila por municipio del reto (CVEGEO de 5 dígitos). Se construye con `uv run python scripts/capa_economica.py`, que además escribe `outputs/capa_economica.csv` (capa de las 197 parcelas).
+- Precio. Del SIAP (`siap/cebada_temporal_pv_municipal.csv`), precio medio rural 2023 a 2025 ponderado por la producción de cada año (`precio_2023_2025`), con el mínimo y el máximo anuales de esos tres años. El cruce es por estado y nombre exacto del SIAP y después por CVEGEO. Emiliano Zapata existe en Hidalgo (13021) y en Tlaxcala (29046). El precio 2025 del de Hidalgo es 6,282 $/t. El 5,370 que se mencionaba en el issue era el promedio de ambos.
+- Siniestralidad. Superficie siniestrada entre sembrada, acumulada de 2003 a 2025 y de 2013 a 2025. `anios_perdida_20` y `anios_perdida_50` cuentan los años de los 23 con más de 20 % y de 50 % de la superficie sembrada siniestrada. La pérdida se concentra en 2008 a 2011 y es casi nula desde 2013.
+- Rendimiento SIAP. Media, desviación estándar (n − 1) y percentil 10 de producción entre superficie sembrada (incluye pérdidas), 2003 a 2025. `siap_frac_rend_repetido` es la fracción de años en que el mismo rendimiento, a dos decimales, aparece en otro municipio del estado y año. El SIAP copia cifras entre municipios de un mismo distrito, así que esos años no son mediciones independientes.
+- Diccionario de columnas en `docs/capa_economica.md`.
