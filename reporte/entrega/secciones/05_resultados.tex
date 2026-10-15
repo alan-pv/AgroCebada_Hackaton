@@ -34,11 +34,12 @@ Puebla y Tlaxcala, más fresco en verano, tiene el mayor rendimiento esperado.
 \textbf{Por qué el clima no ayudó en las parcelas.} En los nueve municipios del reto la Tmax solo va de 23.3 a
 23.9\,$^\circ$C. A esa escala casi no varía, así que no puede distinguir una parcela de otra. A escala regional sí.
 
-\textbf{Preguntas guía.} Como el modelo final usa solo tres entradas, medimos la importancia con un bosque aleatorio
-auxiliar~\cite{doc_modelo}. Sin el régimen, el índice más importante es el NDVI y la variable climática más
-importante es la lluvia, pero ambos funcionan como indicadores de zona. Con el régimen y los vecinos, el índice de
-sequía NDDI~\cite{gu2007} es el que más aporta, aunque apenas 0.004\,t/ha. A escala regional la variable climática de
-mayor peso es la Tmax de julio y agosto. La mejor combinación es régimen más rezago
+\textbf{Preguntas guía.} Las bases plantean tres preguntas~\cite{bases}. Como el modelo final no usa índices ni
+clima, las respondimos con un bosque aleatorio auxiliar, midiendo cuánto sube su error al revolver cada variable
+(anexo técnico, Fig.~\ref{A-fig:indices}). Primero, el índice satelital más importante. Sin el régimen es el NDVI,
+porque su historia identifica la zona, y con régimen y vecinos es el índice de sequía NDDI~\cite{gu2007}, aunque apenas
+aporta 0.004\,t/ha. Segundo, la variable climática de mayor peso. En las parcelas ninguna aporta una vez conocido el
+régimen, y a escala regional es la Tmax de julio y agosto. Tercero, la mejor combinación, que es régimen más rezago
 espacial.
 
 \textbf{Qué significa el error para un productor.} Con el precio del SIAP, un error de 0.46\,t/ha equivale a unos

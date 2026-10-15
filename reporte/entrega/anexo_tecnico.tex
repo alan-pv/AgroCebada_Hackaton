@@ -159,15 +159,6 @@ del punto crece con la superficie sembrada.]{\includegraphics[width=0.41\textwid
 \caption{Modelo municipal con datos públicos.}
 \end{figure*}
 
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=0.60\textwidth]{g5_mapas}
-\caption{Modelo municipal. (a) Rendimiento esperado en 2025. (b) Probabilidad de quedar bajo 2\,t/ha en un año
-cualquiera. El rayado marca confianza media (puntos) y baja (líneas). En gris, municipios con un ambiente distinto al
-de los datos.}
-\label{fig:mapas}
-\end{figure*}
-
 \section{Confiabilidad del error}
 
 La Tabla~\ref{tab:error} separa lo que mide cada cifra. La validación anidada repite la elección entre 12 variantes
@@ -201,13 +192,39 @@ Variación por azar con 59 parcelas (90\,\% de 5000 sorteos) & 0.35 a 0.56 \\
 
 \section{Preguntas guía}
 
-Como el modelo final solo tiene tres entradas, medimos la importancia con un bosque aleatorio de análisis, revolviendo
-cada índice y viendo cuánto sube su RMSE~\cite{doc_modelo}. Sin el régimen, el NDVI y la lluvia pesan más, pero
-identifican la zona. Con régimen y rezago, el índice de sequía NDDI~\cite{gu2007} es el mayor, con apenas 0.004\,t/ha.
-La mejor combinación es régimen más rezago.
+Las bases del reto plantean tres preguntas guía~\cite{bases}, qué índice satelital es más importante, qué variable
+climática tiene mayor peso y qué combinación de variables funciona mejor. El modelo final no usa índices ni clima, así
+que no puede ordenarlos. Para responder usamos un bosque aleatorio de análisis con todas las variables y medimos cuánto
+sube su RMSE al revolver los valores de cada índice (Fig.~\ref{fig:indices}). Si sube mucho, el modelo dependía de él.
 
+\textbf{Índice satelital.} Sin el régimen, el NDVI es el más importante, porque su historia identifica la zona y
+sustituye al régimen. Con régimen y rezago presentes, el índice de sequía NDDI~\cite{gu2007} es el mayor, con apenas
+0.004\,t/ha.
 
-\section{Modelo municipal con datos públicos}
+\textbf{Variable climática.} En las parcelas ninguna aporta una vez conocido el régimen. A escala regional la de mayor
+peso es la Tmax de julio y agosto (Sección~\ref{sec:municipal}).
+
+\textbf{Combinación.} Régimen más rezago espacial. Ningún bloque adicional pasó la regla de decisión
+(Fig.~\ref{fig:bloques}).
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{f11_indices}
+\caption{Aumento del RMSE al revolver cada índice en el bosque de análisis, sin régimen (izquierda) y con régimen y
+rezago (derecha). Las escalas horizontales son distintas.}
+\label{fig:indices}
+\end{figure}
+
+\section{Modelo municipal con datos públicos}\label{sec:municipal}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=0.60\textwidth]{g5_mapas}
+\caption{Modelo municipal. (a) Rendimiento esperado en 2025. (b) Probabilidad de quedar bajo 2\,t/ha en un año
+cualquiera. El rayado marca confianza media (puntos) y baja (líneas). En gris, municipios con un ambiente distinto al
+de los datos.}
+\label{fig:mapas}
+\end{figure*}
 
 El modelo de parcelas solo sirve donde hay parcelas con rendimiento cerca. Para estimar en toda la región usamos el
 rendimiento municipal del SIAP de 2003 a 2025 en Hidalgo, México, Puebla y Tlaxcala, con 100 municipios con
