@@ -1,0 +1,436 @@
+Bueno, tenemos otra en el chat que dice, respecto a los entregables, ¿qué se espera del modelo
+predictivo? ¿Se usará para futuras parcelas? Pues, si lleguen a ser uno de los finalistas,
+el punto es que esta información pueda utilizarse para las aplicaciones ya reales. O sea,
+estaríamos hablando de una colaboración con los autores. Sería muy interesante. No sé si
+respondemos a la pregunta. Sí, bueno, pues el objetivo sería que después pudieran colaborar
+para extender el estudio a nuevas parcelas. Quiero pensar. Tenemos otra pregunta que dice,
+¿existe información disponible sobre la dosis de siembra utilizada en cada parcela? Por ejemplo,
+kilogramos de semilla por hectárea. No tenemos información. Lo que podrían consultar,
+perdón, Pablo, lo podrían consultar en ese caso es y en la página de Fira hay una sección
+que se llama agrocostos. Ahí puede haber algunos paquetes tecnológicos que se llaman.
+Justo lo pueden buscar para los estados o la zona cercana donde están sus datos y ahí
+vienen algunos de estos paquetes tecnológicos en cuanto a dosis o qué es lo que se llega
+a utilizar para la siembra. Eso es lo que podrían hacer en ese caso. Y bueno,
+veo una vez de Víctor si la ruina se está grabando. Sí, ya se está grabando.
+A ver, se tira con la pregunta de Gerardo. Nos comenta que si las personas tienen su
+parcela y que coinciden con una edición, ¿cierto? En dos ediciones se generaron
+como aleatorios. Lo único que tienen ahí es la ubicación de la parcela.
+Bueno, hay otra pregunta que dice de Ricardo Díaz. Buscamos un modelo regularizado hacia
+la generalidad de la región o específico a estas parcelas. Y también pregunta,
+¿cuánto podemos extendernos con insumos externos para alimentar al modelo predictivo?
+Pues bueno, lo ideal sería que en cuanto a la escala se acerquen en donde están localizadas
+las parcelas parcelas. Y bueno, de los insumos externos, pues todo lo que sea de dominio público
+o de consulta pública pues está adelante, ¿no? Siempre cuando esté bien referenciado,
+setado. Y pues justifiquen su uso y va adelante. Todo lo que sea público pueden agarrar.
+Complementando lo que acaba de decir Pablo, como ustedes vieron pues los rendimientos son
+muy similares. Entonces el comportamiento es muy similar, muy parecido en toda la región.
+Entonces al final lo que se busca con sus modelos es que represente a todos estos estados.
+Y de los insumos, exacto, no hay un límite. Pueden usar cualquier información que encuentren.
+Bueno, otra pregunta dice, ¿en qué fecha y con cuánta anticipación a la cosecha esperan
+que esté disponible la estimación? ¿Debemos usar únicamente información que ya estuviera
+publicada en esa fecha? A ver, no. Ustedes tienen un, voy a repetir el objetivo del reto
+nada más. Ustedes tienen un, pues un data set, ¿no? De un cultivo en cosecha que ya pasó,
+que es del 5 de abril a octubre de 2025. Y ustedes tienen que predecir las partes
+las que les pusimos ahí en el conjunto de previsión. O sea, eso ya pasó. Entonces
+tienen que predecir esa parte. No sé si por ahí va la pregunta.
+Tal vez si quisieran participar para exponernos bien su pregunta. A lo mejor no la estamos
+entendiendo adecuadamente. No sé, Daphne, si nos quisieras comentar cuál es tu duda.
+No sé si quieres que sigamos. Creo que se quedó clara la respuesta de Pablo.
+¿Nos podemos seguir con el proceso de recolección de datos?
+¿Cómo? ¿Cómo?
+José nos pregunta cómo fue el proceso de recolección de datos.
+Las otras ideas les habíamos comentado que fue algo que se tomó de parte directamente de los
+productores. Sí, así es, así es. Sí, fue una solicitud que se estuvo haciendo justamente en
+esas en esas zonas donde están los datos y fueron datos que nos reportaron los productores.
+Bueno, vamos a darle la palabra a Leonardo, por favor.
+Buenas tardes. Perdón, respecto a esa última pregunta. Dijo que son datos
+proporcionados por los productores. Es decir, no fueron recolectados así por una organización
+o autoridad que lo recolecta de forma estandarizada. O sea, es lo que dijo el
+productor de la parcela que produjo.
+Ay, si me permiten. Sí, complementando lo que había dicho Angie, fue mixto la fuente.
+En la mayoría de los datos se obtuvo a través de una, la llamamos nosotros para
+financiera, pero es las empresas a las cuales los productores, los pequeños productores,
+le venden el producto. Entonces fue esta empresa la que compró, la comercializadora por así decirlo,
+la que reportó el dato. Y para una muy pequeña parte de la población se reportó
+el dato directamente del producto. Ok, muchas gracias. Y aprovechando ya otra
+pregunta. El tipo de grano que se siembra, ¿es el mismo en todas las parcelas y en todas
+las zonas? O cada una puede variar del tipo de grano de ese barco?
+Es el mismo tipo de grano, pero déjanos confirmarlo con nuestra oficina regional
+y si quieren en un correo les mandamos este dato ya en específico.
+Ok, muchas gracias. No sé Luis, si continuamos entonces con
+las preguntas, ya no sé en cuál nos quedamos de las del chat.
+Sí, nos quedamos en la que dice, las estadísticas por parcela usan todos
+los píxeles que tocan el polígono, solo los que quedan completamente dentro o aplicaron
+un margen interno para quitar los gordes. Puedes dar respuesta, por favor.
+A ver, las estadísticas... No, o sea, todos los píxeles que... ¿te refieres al rendimiento,
+a la parte satelital o a las otras variables filosóficas? Daniela por ahí.
+Al rendimiento, hola, al rendimiento por favor.
+Al rendimiento, no, o sea, eso está perfectamente contemplado por cada polígono, o sea, cada
+polígono se pide el rendimiento de esa parcela.
+Bueno, la siguiente pregunta en el chat dice, para la parte de nubosidad, ¿qué plataforma
+o página nos recomiendan para que sepamos de dónde nos podemos guiar para sacar
+de esos climas? La parte de nubosidad, ¿te refieres a lo que
+está reportado en los datos satelitales? ¿O quieren meter otra variable?
+No sé si Omar Flores quiera abrir su micrófono o ponerlo en el chat.
+Ah, bien, pues, bueno, la parte de nubosidad solo es como un filtro de calidad, lo pusimos
+ahí en la explicación del dataset, o sea, cuando pasa el satélite y hay muchas nubes,
+pues hay que tener cuidado con los datos que nos arrojan ahí, porque no es tan
+fiable el dato. Entonces, simplemente es para contemplarlo ahí en cuanto corran
+Pablo, ¿me permite complementar un poco esa respuesta?
+Sí, justamente, Omar, este dato de nubosidad sería básicamente un criterio para decidir
+la calidad de la imagen o de los datos que están reportados en el dataset.
+Únicamente con ese fin se ha reportado como para hacer un análisis de calidad de
+información. ¿Quieren, Luis, para confirmar que quedó clara la duda, si no podemos
+ahondar más que quien escribió, si no quiere participar, o abrir su micrófono o tiene
+complicaciones, al menos con un, no sé, un sticker o algo, nos diga que le quedó clara
+la duda, para continuar con la siguiente pregunta.
+Bueno, si no, seguimos a la siguiente pregunta de Felipe, que pregunta, ¿el rendimiento
+de cebada corresponde a grano o forraje de cebada cosechada?
+Sí, el rendimiento se refiere a la cosecha ya.
+De acuerdo, la siguiente pregunta es, ¿la estimación puede darse en un intervalo
+de confianza o debemos proporcionar números exactos?
+Bueno, pregunta. Ahorita nos regresamos con tío Felipe. La estimación hay que
+darla en un número cerrado, digamos, y en el correo terminando esta sesión,
+que pongamos los acuerdos, yo creo que les voy a pedir cuatro decimales máximos,
+¿no? Entonces, así, bueno, ahorita que terminamos las preguntas también les
+voy a pedir cuatro decimales, ¿no? Como deberían los resultados que nos van a
+entregar y ya, porque no, no sé, Felipe, no sé, creo que quedó una duda de la
+pregunta anterior.
+Sí, de hecho, bueno, perdón, buenas tardes. Sí me quedó la duda,
+porque realmente mi duda real era, ¿el rendimiento de cebada sí corresponde
+a grano o a forraje? ¿A cuál de las dos? O sea, ese realmente es mi
+duda, o las dos.
+O sea, el rendimiento que buscamos es el rendimiento que tiene la parcela,
+es decir, siembras la cantidad y se logra cosechar el producto, ¿no?, de
+cualquier cultivo, ¿no? Logras obtener una cosecha, a eso se refiere la
+cosecha. El tema que sea forraje o que sea un maíz o el producto que
+tengas de cualquier cultivo se va a considerar su rendimiento, el hecho de
+que sembraste tanto y cuánto estás esperando recibir de tu producto, ¿no?,
+tu cosecha.
+Sí, si la cebada lo ves como un forraje, pues será el resultado de
+tu producción.
+Sí, Fer.
+Ahí Felipe Maslin preguntarte si con forraje te refieres a que incluya
+hojas y tallos o si solo es el grano. ¿Es esto tu pregunta?
+Sí, justo esa es mi pregunta.
+Ah, perfecto. Déjanos confirmarlo con nuestra oficina regional que fue quien
+recolectó el dato y regresamos contigo con esa respuesta.
+Vale, muchas gracias.
+Bueno, de nuevo Omar Flores hace otra pregunta, dice, no sé si ya
+respondieron con exactitud la duda, pero respecto a los datos vacíos
+del dataset, ¿no se toman en cuenta ya que el sensor no capturó nada
+ese día o qué se hace en ese aspecto o calcular nosotros?
+No se toman en cuenta.
+Bueno, esos no son necesarios que los calculen, los índices
+data vitales, pero si no se toman en cuenta, no sé si mal,
+pero hay que extender un poquito de la explicación.
+Por supuesto, para este caso hay dos tipos de datos nulos,
+por así decirlo, uno que corresponderían cuando el sensor
+pasa y hay un 100 por ciento de nubosidad.
+Bueno, estos datos no se pueden medir,
+pero también hay otros asociados al tipo de sensor.
+Por ahí viene el dataset.
+Si pueden observar, hay una clasificación que dice Sentinel
+o Landsat, entonces esos datos vacíos cuando dado que los
+satélites pasen en diferente fecha, es muy probable que no
+que no pasen en el mismo día y por lo tanto no haya esa información.
+Y bueno, básicamente esa sería la explicación
+por qué habría datos nulos y que se consideren esas dos fuentes
+de posibilidad. Bueno, otra pregunta que dice mi equipo
+ya no puede participar.
+¿Cómo nos damos de baja?
+Bueno, ahí sería bueno explicar si hay que hacer algo
+o simplemente pues no pasa nada si no envían algo.
+No, no es necesario.
+Ahí lo hizo. O sea, está bien.
+A lo mejor dentro de la plataforma, el usuario y contraseña
+que les compartimos para acceder, pues ponen justo esta justificación
+y ya o con un correo es suficiente.
+Y de acuerdo.
+Cualquiera de las dos, yo creo que creo que es una buena opción
+para quienes no pueden concluir.
+La siguiente pregunta dice
+cada rendimiento corresponde a una medición independiente
+de esa parcela.
+Cómo se obtuvo? Pesaje, muestreo, declaración de producto?
+Bueno, creo que ya habían respondido un poco de eso.
+Puedo una misma medición haberse asignado a varias parcelas?
+Y justo ya lo habíamos comentado con lo que preguntaban
+la fuente de la información.
+El rendimiento es por parcela
+y esta parte, la fuente es la empresa comercializadora
+a la cual le vendieron el producto.
+Y puede una misma medición haberse asignado a varias parcelas? No.
+No puede.
+Bueno, siguiente pregunta es cómo fueron seleccionadas
+las parcelas de entrenamiento?
+Se seleccionaron de manera aleatoria, o sea, del conjunto de datos
+de los que pudimos recolectar la información de rendimiento.
+La seleccionamos de manera aleatoria, como tratando de
+de representar especialmente la mayor parte del entrenamiento
+y de predicciones que estuvieran como bien distribuidas
+para que no tuvieran como manchones que se agregaran.
+No sé si eso te refería.
+Ok, pero pasamos a las sencillas.
+Sí, pasamos a la siguiente.
+En los años de 2022 a 2024, lo único que se sembró en las parcelas
+fue cebada o hubo rotación de cultivos.
+Ese dato se desconoce Luis, no tenemos esa información.
+Ok, de acuerdo.
+Siguiente pregunta sería cómo se trazó cada contorno con GPS en campo
+sobre imagen satelital o desde un registro del productor o la aseguradora?
+Pues ese trazo literalmente puede venir de
+de las tres opciones que pones ahí.
+Muchas veces el productor nos manda sus coordenadas en GPS
+y ya nosotros hacemos el polígono.
+Pero bueno, eso está validado tanto en campo como
+como con imágenes satelitales.
+Ok, bueno, la siguiente pregunta de Ricardo.
+Luis, antes, complementando la respuesta de Pablo,
+todas las opciones que comenta Daphne son válidas
+y son las que actualmente utilizan los productores.
+Cualquiera de estas es admisible para Fira
+porque es un requisito que los productores entreguen su georreferencia.
+Y para este caso en específico, quien realizó
+el trazado de los polígonos es una empresa
+que se llama NAX que se dedica al monitoreo satelital de
+de predios y fueron ellos quienes las construyeron.
+Perfecto. Bueno, vamos a la siguiente pregunta
+que es de Ricardo Díaz referente al aplicativo.
+Cuál es el objetivo real de esto?
+Análisis técnico en remote sensing o una herramienta offline
+focalizada a productores?
+De este punto, el objetivo de la herramienta tecnológica
+es hacer esta información útil para los productores, no?
+Tener un, o sea, ya se desarrolló toda la parte matemática
+estadística técnica del modelo y es hacerlo
+que sea conocimiento fácil de entender para el productor.
+Ese es el objetivo final del herramienta.
+Entonces, así sea un dashboard o no lo sé,
+cualquier sistema que desarrollen pensando en ese objetivo.
+Perfecto. La siguiente pregunta de Diana Karen es
+¿Pueden orientarnos sobre la fecha de siembra típica
+o dar fechas reales de siembra de alguna parcela?
+Les podemos proporcionar a lo mejor algunas fechas reales.
+Como saben, pues cada uno inicia inicia su fecha de siembra,
+dependiendo a sus cuestiones culturales, al riego, etcétera.
+Entonces, un mes de referencia y ver si podemos obtener
+el dato para algunas cuantas parcelas en específico.
+Creo que se te cortó un poco, Fer.
+No sé si fui yo nada más o si le escucharon bien.
+No, no, no, se cortó un poquito nada más.
+Sí se cortó, Fer, si nos quieres repetir este
+lo que comentabas de la siembra.
+Ah, sí, sí, perdón.
+Qué bueno que me avisaron. Gracias.
+Eh, de la fecha de siembra, pues varía para cada productor.
+No va a ser una única.
+Lo que les comentaba es que podemos darles pues el mes general,
+como en la cual normalmente se inicia la siembra,
+pero pues ya una fecha exacta va a variar de productor en productor.
+Lo que podemos intentar obtener
+ya de primera mano con los productores es
+pues alguna semana tal vez de referencia si les es útil.
+Por ahí es perdón, Adelante, Adelante.
+Por ahí creo que como de referencia,
+pues generalmente este está este cultivo es del primero
+al 15 de mayo al 15 de junio.
+Por ahí para que lo tengan en mente, pero si se puede conseguir
+información para precisar, súper bien.
+De acuerdo.
+La siguiente pregunta de Ana Echel sería bueno,
+regresando al tema de la muestra de las parcelas de entrenamiento, dice
+no me quedó claro, fue aleatoria o representativa
+la muestra para el entrenamiento?
+Bueno, se hizo de forma representativa, digamos, no por por parcelas.
+Bueno, no por horario en el que se encontraban ubicadas las parcelas.
+Se retiraron, digamos,
+del rendimiento del conjunto de parcelas que teníamos.
+Y pues fue un muestreo de certificados, no?
+En donde se trató de estar, pues.
+Como muy regulado la parte,
+la parte que tienen que predecir ustedes para no para no tener
+esa alimentación, no hay en las parcelas que las pusieron.
+No sé si ya quedó mejor.
+Bueno, ya no hay más preguntas en el chat,
+pero Abelardo tiene la mano levantada, entonces por favor,
+Abelardo, si puedes abrir tu micrófono.
+Gracias.
+Esta pregunta creo que ya siempre han el mismo tipo de
+de cultivo o.
+Varía no año tras año o de de cosecha a cosecha.
+Ahí se cortó un poquito Abelardo, no sé si nos puede repetir la pregunta, por favor.
+Ah, perdón, este debe ser mi Internet.
+Este preguntaba que si en las parcelas siempre se siempre el mismo tipo
+de cultivo o año a año con año o cosecha a cosecha, este van variando.
+Justo fue una pregunta que también hacía si había rotación de cultivo.
+Es algo que no tenemos información, se desconoce.
+Tenemos el puede asumir con los valores
+o bueno, se pueden hacer inferencias con los valores de los
+índices de desempeño productivo, pero el dato como tal no se tiene,
+más que bueno, aseguramos que para el periodo que les estamos
+compartiendo de abril a octubre, pues.
+Pues se va.
+Ok. Bueno, muchas gracias.
+Si de nada.
+Y bueno, acaban de poner una pregunta en el chat que dice alguna parcela
+tuvo siniestros en 20 y cinco, por ejemplo, graniza, helada
+o alguna plaga o pérdida parcial reportada, por ejemplo, en registro de seguro.
+Tampoco lo sabemos.
+Si no se sabe.
+De acuerdo.
+La siguiente pregunta dice la métrica será
+la raíz del error cuadrático medio
+error absoluto,
+el coeficiente de determinación o una combinación.
+Cada parcela pesa igual o se pondera por superficie.
+Qué parte del 70 por ciento corresponde al error
+y cuál a la justificación técnica?
+Entonces, si si quieren, vamos pregunta por pregunta
+primero lo de la métrica principal.
+Pues esto lo va a definir el Comité Organizador
+y no se cree que algún día de estos respondió a una pregunta así.
+Eso, pues es independiente al resultado de.
+De lo que ustedes nos arrosen en el modelo, ustedes van a definir
+no la la métrica con la que.
+Con la que van a medir el error de su
+de su modelo y ustedes nos van a dar
+los datos de previsión y nosotros con eso vamos a definir
+las técnicas con las que vamos a medir el error, no?
+Con los datos reales que tenemos nosotros resguardados
+y pues no, no hay una ponderación por superficie.
+Va a ser el error de evaluación, va a ser en el conjunto de
+de las 59 parcelas que ustedes tienen que predecir.
+Eso es claro.
+Bueno, no sé, no sé si alguien más tenga alguna pregunta.
+En el chat ya no hay más preguntas.
+Si alguien quiere levantar la mano para que le demos la palabra
+y si no, para que podamos ir pasando a la siguiente parte,
+que es sobre una muestra del archivo
+CSV que se tiene que enviar y de cómo se tienen que ver
+sus documentos en la plataforma.
+Vamos a esperar un minuto o dos minutos a ver si alguien más
+tiene alguna pregunta y si no, pasamos a la siguiente parte.
+Gracias.
+Bueno, acaban de poner una pregunta en el chat que dice
+la aplicación debe enfocarse en que un productor pueda consultar
+y entender fácilmente a las predicciones de rendimiento
+o también esperan que explique en lenguaje sencillo
+cómo funciona el modelo detrás de ella.
+Ahí sería ambas.
+O sea, principalmente el punto que menciona de que se
+enfoque en que el productor pueda consultar
+y entender fácilmente las predicciones.
+Y claro, que pues una nota donde se especifica
+de forma sencilla cómo se llega a ese dato
+sería de de utilidad.
+Y creo que podamos a la a la otra sección.
+Sí, yo creo que sí pasamos a la siguiente parte, por favor.
+Ah, bueno, sólo rápidamente antes de ello,
+preguntan a que si podían poner el nombre por escrito
+de la empresa que definían los contamos en las parcelas.
+Listo, ya ya responde ahí.
+Perfecto, muchas gracias.
+Ya pueden ver mi pantalla.
+Creo que nos pusieron otra pregunta.
+Sí se ve.
+Ya le estoy ya estoy respondiendo la pregunta, Pablo.
+Entonces, mientras avanzar en la explicación y yo respondo en el chat.
+Ah, gracias.
+Pues lo que les queríamos hacer un poquito nada más era ver que
+estamos como en el mismo canal de cuando vayan a subir sus resultados.
+Pero aquí pueden poner su introducción,
+que sean objetivos si ustedes comiencen escribir,
+pero se les va restando como las palabras.
+Entonces no les voy a poner más palabras de las que pueden por campo.
+Lo más importante que les quería comentar aquí es
+esto, esto por ejemplo, que cuando ustedes quieren cargar sus anexos,
+por ejemplo, la bibliografía,
+la vamos a rasgar del escritorio que debe estar en PDF y va a salir así.
+Ahorita, como yo guardé mi avance, ya sale así, no?
+Pero ustedes lo tienen que ver en.
+Me lo vamos a cambiar ahí.
+El documento que se va a poner aquí los anexos arriba
+y les va a salir así, no?
+Cuando cuando lo han guardado para guardar sus avances,
+es es importante que se les estén dando click aquí
+y tienen que ver este enlace, digamos, este en azul, no?
+Con el nombre de su documento y eso mismo para para los anexos.
+Entonces eso es como lo más,
+lo más vital para que guarden toda su captura.
+Igual con la introducción.
+Aquí pues pueden dejar un solo enlace
+para para subir ahí el dashboard o algún video
+a la plataforma que ya no se ha desarrollado.
+Igual si necesitan poner otra cosa, pues nos las mandan al correo.
+Pero antes, no antes de la fecha, que es el 19 de octubre.
+O sea, entonces ya vamos a recibir los anexos, no?
+Que se pudieran llegar a complementar sus modelos.
+Entonces no sé si esta parte queda clara.
+Sí, parece que no hay preguntas.
+Va, vale.
+Y bueno, no se olviden de darle en publicar.
+Si no tienen, pues dirían a todos estos campos,
+el sistema no los deja publicar, no?
+No es posible publicar porque no han llenado los campos.
+Entonces en lo posible traten de llenar todo.
+Y pues otra cosa importante que les quería mencionar
+era esta parte de la.
+De lo que nos tienen que mandar al correo,
+igualmente antes de la fecha de cierre de los envíos,
+ya que les mandamos el data set y traen como están
+estos identificadores que son para para definir el conjunto de previsión.
+Entonces lo que esperamos con su resultado principal.
+Bueno, parte de todo lo que tienen que escribir en el reporte técnico
+es esta parte, no?
+El rendimiento en toneladas sobre hectárea de lo que ustedes
+predicaron con su modelo.
+Entonces esto es lo que vamos a necesitar que nos manden.
+Estos 59 celdas, no?
+Correspondientes a los polígonos que tienen que predecir.
+Y bueno, ya en ahí les pusimos que pongan como
+el nombre de su equipo bien bajo y predicción para nosotros.
+Así identificar el rendimiento que ustedes nos están dando
+y los documentos para poder medir el error.
+Y bueno, como pudieron ver en la convocatoria,
+pues es de los principales medidas que se van a tomar
+para para evaluar los proyectos.
+No sé si tengan duda en esta parte.
+Pues parece que no, Pablo.
+Reservar que alguien manda algo en el chat o levante su mano, que el problema.
+No se les olvide, esta tablita es
+como el primer paso para empezar a evaluar sus modelos.
+Si quieren agregar algo feo.
+No, pues agradecer mucho el tiempo de todos
+para asumarse a la sesión y aclarar todas las dudas.
+Igual si van surgiendo más preguntas,
+pues todavía queda una semana.
+Ahí al correo que les hemos estado manteniendo la comunicación.
+Pueden hacerlas y vamos a estar pendientes para responder.
+Por ahí nos llevamos de tarea.
+No sé si esté todavía la persona que hacía la pregunta
+respecto, no sé si era de la variedad o de la semilla
+que pudiera ponernos la en el chat para
+investigarla y mandarle la respuesta vía correo.
+Fuera de eso, pues nada, agradecer su participación
+y pues cualquier cosa, seguimos pendientes.
+Muchísimas gracias a todos. Gracias, Luis.
+Ahí Felipe sí, sí te respondí.
+Corresponde a grano, únicamente, no forraje.
+Y la de la variedad sí me quedó pendiente,
+pero si no le envían por correo y ahí lo resolvemos.
+Muchas gracias.
+Gracias Luis también por moderar las preguntas.
+Bonita tarde y buen fin de semana.
+Muchas gracias a ustedes por responder
+y muchas gracias a todos los equipos que se conectaron.
+Y pues nada, cualquier cosa, igual por correo.
+Muchas gracias.
+Ah, disculpen, antes de que se vayan,
+podrían enviar el video de la sesión?
+Sí, sí, Ricardo, lo
+lo enviamos con las preguntas que quedaron ahí, ¿vale?
+Vale, muchas gracias.
+Gracias.
+Muy bien.
+Igualmente bien, chao.
