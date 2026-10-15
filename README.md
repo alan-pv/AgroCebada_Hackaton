@@ -125,7 +125,7 @@ Archivos de entrega
 
 | Archivo | Contenido |
 |---|---|
-| `outputs/equipo_buap_fcc_prediccion.csv` | CSV para FIRA, `ID_POLIGONO` y `RENDIMIENTO_T_HA` de las 59 parcelas (el nombre sale de `config.NOMBRE_EQUIPO`) |
+| `outputs/los_bien_dotados_prediccion.csv` | CSV para FIRA, `ID_POLIGONO` y `RENDIMIENTO_T_HA` de las 59 parcelas (el nombre sale de `config.NOMBRE_EQUIPO`) |
 | `outputs/predicciones_finales.csv` | Las 59 con p10, p90 y probabilidad de rendimiento bajo 2.5 t/ha |
 | `outputs/predicciones.parquet` | Las 197 parcelas con observado, predicción (fuera de fold en las de entrenamiento) e intervalo, para la app |
 | `outputs/controles_entrega.csv` | Resultado de los controles. Si alguno falla, `predict` termina con error |

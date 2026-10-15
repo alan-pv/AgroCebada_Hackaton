@@ -13,8 +13,8 @@ REPORTE = RAIZ / "reporte"
 
 SEED = 2026
 
-# Nombre provisional del equipo para los archivos de entrega; confirmar antes de enviar.
-NOMBRE_EQUIPO = "equipo_buap_fcc"
+# Nombre del equipo registrado en la plataforma del reto, en minúsculas y con guiones bajos.
+NOMBRE_EQUIPO = "los_bien_dotados"
 
 CRS_GEO = "EPSG:4326"
 CRS_METRICO = "EPSG:6372"  # México ITRF2008 / LCC, el mismo de la topografía
