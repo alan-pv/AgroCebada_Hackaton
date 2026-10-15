@@ -2,12 +2,12 @@
 A partir de la revisión planteamos cinco hipótesis, ordenadas de la más probable a la más incierta. Para cada una
 indicamos cómo comprobarla y qué haríamos con el resultado.
 
-\textbf{H1. El régimen de medición explica buena parte del rendimiento.} Usar el régimen como variable base debería
+\textbf{H1. El régimen de registro explica buena parte del rendimiento.} Usar el régimen como variable base debería
 mejorar la predicción frente a usar el estado. Para comprobarlo comparamos, con validación cruzada, un modelo que
 predice la media de cada régimen contra uno que predice la media de cada estado. Si se confirma, el régimen será el
 punto de partida de todos los modelos y reportaremos el error por régimen.
 
-\textbf{H2. Parte del error es ruido de etiqueta.} Que los rendimientos los declaró el productor ya es un hecho del reto~\cite{preguntas}. Lo que falta comprobar es si el redondeo del régimen B y los valores extremos de las parcelas pequeñas son errores que el modelo no debe tratar de reproducir. Para comprobarlo entrenamos dando
+\textbf{H2. Parte del error es ruido de etiqueta.} Que los rendimientos provienen de fuentes mixtas y no se ajustaron por humedad, impurezas ni mermas ya es un hecho del reto~\cite{preguntas}. Lo que falta comprobar es cuánto ruido hay y si el redondeo del régimen B y los valores extremos de las parcelas pequeñas son errores que el modelo no debe tratar de reproducir. Para comprobarlo entrenamos dando
 menos peso a los valores extremos o más peso a las parcelas grandes, y vemos si baja el error. Si no baja, tratamos a
 todas las parcelas por igual.
 
@@ -18,10 +18,9 @@ la siembra y la uniformidad del cultivo dentro de la parcela. Para comprobarlo a
 aplicamos la prueba de permutación. Si se confirma, es el bloque donde más conviene invertir tiempo.
 
 \textbf{H4. Las parcelas atípicas tienen una causa visible.} Algunas parcelas con un rendimiento muy distinto al de su
-grupo pudieron sufrir acame o una cosecha tardía por la lluvia de septiembre y octubre. El radar de Sentinel-1
+grupo pudieron sufrir acame, encharcamiento o una cosecha tardía por la lluvia de la temporada. El radar de Sentinel-1
 atraviesa las nubes y su señal cambia cuando el cultivo se tumba~\cite{chauhan2020}. Para comprobarlo revisamos las
-curvas de las parcelas atípicas y probamos variables de radar. Si no aparece una causa, esas parcelas se tratan como
-ruido, como en H2.
+curvas de las parcelas atípicas y probamos variables de radar. Si no aparece una causa, las llamamos parcelas sin causa identificada. No las consideramos datos malos, porque puede haber factores que no medimos. Solo evaluamos, como en H2, si conviene darles menos peso.
 
 \textbf{H5. El clima importa a escala de parcela, no de zona.} En un año sin falta de agua, la lluvia mensual de
 5 kilómetros debería distinguir poco entre parcelas. Lo que sí podría importar es la lluvia en las semanas previas a

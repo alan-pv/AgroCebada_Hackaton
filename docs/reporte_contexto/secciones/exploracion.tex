@@ -3,10 +3,10 @@ Antes de construir un modelo revisamos los datos con cálculos sencillos. Lo que
 preliminares. Antes de usarlas para decidir algo, alguien que no las haya calculado debe reproducirlas desde los
 archivos originales (Tabla~\ref{tab:verificar}).
 
-\subsection{Dos formas de medir el rendimiento}
+\subsection{Dos formas de registrar el rendimiento}
 La Fig.~\ref{fig:regimenes} muestra el rendimiento de cada parcela por municipio. En cuatro municipios los valores
 tienen dos decimales, como 4.47 o 4.52, y rondan 4.5~t/ha. En los otros cinco están redondeados a escalones de media
-tonelada, como 2.5, 3.0 o 3.5, y rondan 3~t/ha. Llamamos \emph{régimen A} al primer grupo y \emph{régimen B} al
+tonelada, como 2.5, 3.0 o 3.5, y rondan 3~t/ha. Por los decimales no sabemos si el rendimiento se midió de forma distinta, solo que se registró distinto. Llamamos \emph{régimen A} al primer grupo y \emph{régimen B} al
 segundo (Tabla~\ref{tab:regimenes}).
 
 \begin{figure*}[!t]
@@ -35,10 +35,9 @@ Tepeapulco se parecen a Puebla, y Singuilucan, Emiliano Zapata y Apan se parecen
 mezcla dos poblaciones dentro de Hidalgo. El municipio también se conoce para las 59 parcelas de predicción, así que
 el régimen se puede usar como variable.
 
-\textbf{La causa todavía no es clara.} La diferencia puede ser real o puede deberse a la forma de medir. Como el rendimiento lo declaró cada productor~\cite{preguntas}, el redondeo podría venir de cómo se recogieron las declaraciones en cada municipio. La estadística oficial de 2025 va en sentido contrario a las etiquetas (Tabla~\ref{tab:siap}), lo que apunta a la forma
-de medir. Por otro lado, las curvas de verdor sugieren que en el régimen B el ciclo es más corto, lo que podría
+\textbf{La causa todavía no es clara.} La diferencia puede ser real o puede deberse a la forma de registrar. Como la fuente del rendimiento es mixta, comercializadora y productor~\cite{preguntas}, una posible explicación, que no hemos confirmado, es que el redondeo dependa de quién reportó el dato en cada municipio. FIRA no entregará la fuente por parcela, así que no podremos comprobarlo. La estadística oficial de 2025 (SIAP) no compara lo mismo que las parcelas, porque es un promedio municipal de toda la superficie y no el rendimiento de parcelas puntuales. Aun así, la comparación deja dos observaciones. Considerando los nueve municipios, de los cuales la Tabla~\ref{tab:siap} muestra cinco, las etiquetas del reto superan al SIAP en 7, con 1.1~t/ha más en promedio, y el SIAP apenas separa los regímenes (3.0 contra 3.2~t/ha, ponderado por parcelas, frente a 4.49 contra 3.05 en las etiquetas). La correlación de rangos entre ambas series es de $-0.30$ con los cinco municipios de la tabla, y con $n=5$ no es concluyente. Además, Calpulalpan y Nanacamilpa tienen exactamente 4.00 en 2025 y entre 2.4 y 2.6 en 2023 y 2024, lo que podría indicar una cifra repetida para varios municipios. Por tanto, el SIAP sirve de contexto y no de validación. Por otro lado, las curvas de verdor sugieren que en el régimen B el ciclo es más corto, lo que podría
 reflejar otra variedad o fecha de siembra. Para predecir, la causa importa poco, porque las 59 parcelas se califican
-con etiquetas medidas igual que las de su municipio. Para interpretar los resultados sí importa, y conviene
+con etiquetas registradas, probablemente, igual que las de su municipio. Para interpretar los resultados sí importa, y conviene
 preguntarlo a los organizadores.
 
 \begin{table}[!t]
@@ -58,9 +57,9 @@ Singuilucan & B & 3.08 & 1.88 \\
 \end{table}
 
 \subsection{Valores extremos en parcelas pequeñas}
-De los cinco rendimientos más altos, todos de 5.4~t/ha o más, cuatro son de parcelas de menos de 1.5 hectáreas
-(Fig.~\ref{fig:area}). Con mediciones de campo se ha documentado que los productores sobreestiman el rendimiento
-sobre todo en parcelas pequeñas~\cite{gourlay2019}. Aquí el rendimiento también lo declaró el productor~\cite{preguntas}, así que es probable que parte de esos valores sea ruido de etiqueta y no algo que el satélite pueda explicar.
+De los cinco rendimientos más altos (5.45 a 5.59~t/ha), cuatro son de parcelas de menos de 1.5 hectáreas
+(Fig.~\ref{fig:area}), que son el 12\% de las parcelas de entrenamiento. Las cinco están en Chignahuapan. En general las parcelas más pequeñas rinden más, con una correlación de rangos de $-0.25$ con el área. Con mediciones de campo se ha documentado que los productores sobreestiman el rendimiento
+sobre todo en parcelas pequeñas~\cite{gourlay2019,lobell2020}. Aquí una parte de los registros también viene del productor~\cite{preguntas}, así que parte de esos valores podría ser ruido de etiqueta. También podrían ser reales, por ejemplo por más manejo e insumos por hectárea en parcelas pequeñas. Con estos datos no podemos distinguir ambas posibilidades. Las parcelas pequeñas no muestran mayor dispersión que las demás.
 
 \begin{figure}[!t]
 \centering
@@ -70,24 +69,21 @@ sobre todo en parcelas pequeñas~\cite{gourlay2019}. Aquí el rendimiento tambi�
 \end{figure}
 
 \subsection{Error por redondeo}
-Redondear a la media tonelada más cercana agrega por sí solo un error típico de unos 0.14~t/ha, si el valor real
-puede caer en cualquier punto del escalón. En el régimen B ningún modelo podría bajar de ese error, aunque fuera
-perfecto.
+Redondear a la media tonelada más cercana agrega un error típico de unas 0.14~t/ha, si el valor real
+cae con igual probabilidad en cualquier punto del escalón. En el régimen B, 44 de las 51 etiquetas de entrenamiento son múltiplos de 0.5 y las otras 7 de 0.1. Con paso de 0.1 el error típico sería de 0.029~t/ha, y para la mezcla real del régimen B resulta 0.134~t/ha. Es una cota aproximada del orden de magnitud del error que un modelo perfecto no podría eliminar, no un piso exacto. El valor verdadero no tiene por qué ser uniforme dentro del escalón, y las etiquetas pueden tener otros errores mayores.
 
 \subsection{La lluvia de 2025}
-A nivel nacional, 2025 fue el año más lluvioso desde 1941. En la zona de las parcelas el total de junio a octubre fue
-parecido al de 2024, y lo que cambió fue el momento de la lluvia (Fig.~\ref{fig:lluvia} y Tabla~\ref{tab:lluvia}).
+A nivel nacional, 2025 fue el año más lluvioso desde 1941. En la zona de las parcelas el total de mayo a octubre fue
+parecido al de 2024 (951 contra 920~mm, frente a una normal de 679~mm), y lo que cambió fue el momento de la lluvia (Fig.~\ref{fig:lluvia} y Tabla~\ref{tab:lluvia}). La normal es el promedio de 2003 a 2024 de la misma fuente~\cite{funk2015}.
 \begin{enumerate}
-  \item \textbf{Mayo y junio fueron muy lluviosos}, con el doble de lluvia que cualquiera de los tres años
-        anteriores. Eso favorece sembrar a tiempo, pero puede encharcar las parcelas recién sembradas.
-  \item \textbf{Julio y agosto fueron normales}, sin exceso durante el llenado de grano.
-  \item \textbf{Septiembre y octubre volvieron a ser lluviosos}, en la madurez y la cosecha. En esa etapa la lluvia
+  \item \textbf{Mayo y junio fueron excepcionales}, con 384~mm, más del doble de lo normal (183~mm) y el máximo de 2003 a 2025. Eso favorece sembrar a tiempo, pero puede encharcar las parcelas recién sembradas.
+  \item \textbf{Julio y agosto fueron normales} (281~mm contra 275~mm), sin exceso durante el llenado de grano.
+  \item \textbf{Septiembre y octubre fueron altos pero no excepcionales}, con 286~mm, igual que en 2024 (287~mm) y 29\% sobre lo normal (221~mm). En esa etapa la lluvia
         puede tumbar el cultivo, lo que se conoce como \emph{acame}, o retrasar la cosecha.
-  \item \textbf{La temperatura máxima fue más fresca} que en 2023 y 2024, lo que suele favorecer el llenado del
-        grano.
+  \item \textbf{La temperatura máxima fue más fresca} que en 2023 y 2024. Las temperaturas altas durante el llenado reducen el peso del grano~\cite{passarella2002}, así que una temperatura menor suele favorecerlo.
 \end{enumerate}
-Esto sugiere que los efectos del exceso de agua fueron de parcela, en zonas bajas o en parcelas cosechadas tarde, y
-no de zona. El clima mensual de 5 kilómetros difícilmente los detecta.
+Una posibilidad, que no hemos probado, es que los efectos del exceso de agua fueran de parcela, en zonas bajas o en parcelas sembradas o cosechadas tarde, y
+no de zona. El clima mensual de 5 kilómetros difícilmente los detectaría.
 
 \begin{figure}[!t]
 \centering
@@ -96,23 +92,22 @@ no de zona. El clima mensual de 5 kilómetros difícilmente los detecta.
 \end{figure}
 
 \begin{table}[!t]
-\caption{Lluvia por etapa y temperatura máxima, promedio sobre las parcelas}\label{tab:lluvia}
+\caption{Lluvia por etapa y temperatura máxima, promedio sobre las parcelas. La normal es el promedio de 2003 a 2024}\label{tab:lluvia}
 \centering\footnotesize
-\begin{tabular}{@{}lrrrr@{}}
+\begin{tabular}{@{}lrrrrr@{}}
 \toprule
- & 2022 & 2023 & 2024 & 2025 \\
+ & 2022 & 2023 & 2024 & 2025 & Normal \\
 \midrule
-Mayo y junio (mm) & 106 & 122 & 207 & \textbf{384} \\
-Julio y agosto (mm) & 246 & 231 & 427 & 281 \\
-Septiembre y octubre (mm) & 148 & 154 & 287 & \textbf{286} \\
-Tmax de mayo a sep. (°C) & 23.7 & 24.7 & 25.0 & 23.6 \\
+Mayo y junio (mm) & 106 & 122 & 207 & \textbf{384} & 183 \\
+Julio y agosto (mm) & 246 & 231 & 427 & 281 & 275 \\
+Septiembre y octubre (mm) & 148 & 154 & 287 & 286 & 221 \\
+Tmax de mayo a sep. (°C) & 23.7 & 24.7 & 25.0 & 23.6 & - \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{Verificación}
-La Tabla~\ref{tab:verificar} indica cómo comprobar cada observación. Si los números de quien las reproduce coinciden,
-la observación pasa a ser un hecho.
+La Tabla~\ref{tab:verificar} indica cómo comprobar cada observación. Distinguimos dos cosas. El dato es la cifra, y se confirma cuando otra persona reproduce el cálculo desde los archivos originales y obtiene los mismos números. La explicación de por qué ocurre es otra cosa y sigue sin probarse aunque el dato se confirme. Por ejemplo, que el redondeo dependa del municipio es un dato, y que se deba a la fuente del registro es una explicación pendiente.
 
 \begin{table}[!t]
 \caption{Observaciones preliminares y cómo comprobarlas}\label{tab:verificar}
@@ -121,12 +116,12 @@ la observación pasa a ser un hecho.
 \toprule
 Observación & Cómo comprobarla \\
 \midrule
-Dos regímenes de medición por municipio & Contar por municipio los rendimientos con dos decimales y calcular la
+Dos regímenes de registro por municipio & Contar por municipio los rendimientos con dos decimales y calcular la
   media de cada grupo \\
 El régimen separa mejor que el estado & Comparar la varianza explicada por cada agrupación \\
 Valores extremos en parcelas pequeñas & Graficar rendimiento contra área y revisar las cinco parcelas más altas \\
-Lluvia de 2025 concentrada en siembra y cosecha & Extraer CHIRPS por parcela y sumar por bimestre y año \\
-Más observaciones limpias en 2025 & Contar por año las fechas con nubosidad baja entre mayo y octubre \\
+Lluvia de 2025 excepcional en mayo y junio & Extraer CHIRPS por parcela, sumar por bimestre y año y comparar con la normal \\
+Más observaciones limpias en 2025 & Contar por año las fechas con nubosidad de 20\% o menos entre mayo y octubre \\
 Planet cubre todo 2025 & Convertir las fechas con formato día, mes y año y revisar el rango \\
 Ciclo más corto en el régimen B & Estimar inicio y fin del verdor por parcela y comparar entre regímenes \\
 \bottomrule

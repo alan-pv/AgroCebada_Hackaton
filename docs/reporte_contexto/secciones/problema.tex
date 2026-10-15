@@ -9,15 +9,15 @@ Las parcelas de predicción están mezcladas con las de entrenamiento. En la mit
 entrenamiento más cercana está a menos de 400 metros. Los organizadores confirmaron que la división se hizo al azar, pero estratificada para que cada zona quedara representada en ambos conjuntos~\cite{preguntas}.
 
 \subsection{Conceptos que usamos}
-\textbf{Raíz del error cuadrático medio (RMSE).} Es la métrica principal. Mide cuántas t/ha se equivoca la predicción en
+\textbf{RMSE.} Es la raíz cuadrada del promedio de los errores al cuadrado y es la métrica principal. Mide cuántas t/ha se equivoca la predicción en
 promedio y castiga más los errores grandes. Equivocarse por una tonelada pesa cuatro veces más que equivocarse por
 media.
 
 \textbf{Validación cruzada.} Como no conocemos los 59 rendimientos ocultos, separamos una parte de las 138 parcelas,
 entrenamos con el resto y medimos el error con las separadas. Repetimos esto con otras particiones. Como la división oficial se hizo al azar y estratificada por zona, nuestras particiones también deben ser al azar y estratificadas. Separar por zonas mediría otra cosa y
-penalizaría información que sí se puede usar~\cite{wadoux2021}.
+penalizaría información que sí se puede usar~\cite{wadoux2021}. Esta validación aleatoria imita la partición del reto, pero no prueba que el modelo funcione igual en municipios o regiones nuevas. Su resultado vale solo para parcelas rodeadas de parcelas conocidas.
 
-\textbf{Ruido de etiqueta.} Es el error que ya trae el rendimiento entregado, por ejemplo por redondeos o por estimaciones del productor. En este reto todos los rendimientos los declaró el productor, así que este ruido existe con seguridad. Ningún modelo puede predecirlo, así que pone un piso al error.
+\textbf{Ruido de etiqueta.} Es el error que ya trae el rendimiento entregado, por ejemplo por redondeos, por la mezcla de fuentes o por falta de ajuste por humedad. En este reto el rendimiento no se ajustó por humedad, impurezas ni mermas, y proviene de más de una fuente. Por eso suponemos que existe cierto ruido de etiqueta. Todavía no lo hemos medido. Si existe, ningún modelo puede predecirlo y pondría un piso al error. Medirlo requeriría una submuestra de parcelas con rendimiento obtenido de forma independiente, como cortes de cosecha, o conocer la fuente de cada registro.
 
 \textbf{Prueba de permutación.} Sirve para saber si un grupo de variables aporta información. Se revuelven sus valores
 entre parcelas, lo que rompe su relación con el rendimiento, y se vuelve a medir el error. Si el modelo sale igual

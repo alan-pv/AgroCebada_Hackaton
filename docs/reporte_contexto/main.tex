@@ -1,6 +1,6 @@
 % Documento de contexto del Reto AgroCebada FIRA 2026 para el equipo.
 % Formato de artículo de conferencia IEEE (IEEEtran) con portada propia.
-% Compilar desde docs/reporte_dataset (dos veces, para las referencias cruzadas):
+% Compilar desde docs/reporte_contexto (dos veces, para las referencias cruzadas):
 %   xelatex -interaction=nonstopmode main.tex && xelatex -interaction=nonstopmode main.tex
 % IEEEtran.cls va en esta carpeta porque no viene en el TeX Live instalado.
 % Las figuras se regeneran con: python figuras/generar_figuras.py (desde esta carpeta).
@@ -32,7 +32,7 @@
 \newcommand{\integranteC}{Vicente Josimar López Martinez}
 \newcommand{\correo}{pv202351433@alm.buap.mx}
 \newcommand{\asesor}{Luis Gustavo Olivares Soto}
-\newcommand{\fecha}{4 de octubre de 2026}
+\newcommand{\fecha}{15 de octubre de 2026}
 
 % Encabezado de la portada. Si existen figuras/logo_buap.png y figuras/logo_fcc.png se usan, si no queda un recuadro.
 \newcommand{\logo}[2]{%
@@ -73,8 +73,8 @@
 temporal, en toneladas de grano por hectárea (t/ha), de 59 parcelas de Hidalgo, Puebla y Tlaxcala, a partir de otras 138 con rendimiento conocido,
 imágenes satelitales, clima y topografía. Este documento reúne el contexto del reto, del cultivo y de los datos, y
 describe qué tipo de problema estadístico es. En una primera revisión de los datos encontramos que los rendimientos
-parecen venir de dos formas distintas de medir, separadas por municipio, que las parcelas pequeñas tienen los valores
-más extremos y que en 2025 la lluvia se concentró en la siembra y en la cosecha. Los organizadores confirmaron que los rendimientos los declaró cada productor, sin validación oficial. Las demás observaciones son preliminares. A partir de ellas planteamos cinco hipótesis, cada una con la forma de comprobarla, y una regla para
+parecen registrarse de dos formas distintas, separadas por municipio, que las parcelas pequeñas tienen los valores
+más extremos y que en 2025 la lluvia fue excepcional al inicio de la temporada, en mayo y junio. Los organizadores confirmaron que los rendimientos los reportó principalmente la comercializadora que compró el grano y, en menor proporción, el productor, sin ajuste por humedad, impurezas ni mermas. Las demás observaciones son preliminares. A partir de ellas planteamos cinco hipótesis, cada una con la forma de comprobarla, y una regla para
 decidir qué cambios aceptar en el modelo.\par\mdseries
 
 \smallskip
