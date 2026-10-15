@@ -92,6 +92,8 @@ Antes de ver los resultados fijamos un criterio. Se usa el Mondrian por régimen
 
 El CV+ cubre algo más que el conformal con residuos guardados, con 0.849 contra 0.826 de forma global, sobre todo en el régimen B (0.93). Su ventaja es teórica, pues requiere conservar un modelo por fold. Para producción es más simple guardar los residuos, y la cobertura medida con ese método es la que reportamos.
 
+Una auditoría independiente reportó 0.76 de cobertura en B. Esa cifra es una sola repetición de 51 parcelas con los desplazamientos ya entregados. Con esos mismos desplazamientos la cobertura de B va de 0.67 a 0.94 entre repeticiones. La cifra de validación anidada, 0.886 con intervalo [0.816, 0.949], es la que reportamos. La cola baja (parcelas bajo el p10) es 0.099 en A y 0.043 en B, y la medición completa está en `docs/model_card.md` y `outputs/calibracion_p10.csv`. Los residuos son de un solo año, así que el intervalo describe la dispersión entre parcelas y no la variabilidad entre años.
+
 Método elegido. Conformal con residuos guardados y Mondrian por régimen. Es el más simple de los que quedan cerca de la meta en ambos regímenes. La escala por área queda documentada como alternativa si FIRA prioriza que las parcelas chicas no queden subcubiertas.
 
 ### Probabilidad de rendimiento bajo un umbral

@@ -1,0 +1,4 @@
+grupo,parcelas,filas,ancho,cobertura,cobertura_ic_inf,cobertura_ic_sup,cola_baja,cola_baja_ic_inf,cola_baja_ic_sup,cola_alta,cola_alta_ic_inf,cola_alta_ic_sup,pinball_modelo,pinball_modelo_ic_inf,pinball_modelo_ic_sup,pinball_base,pinball_base_ic_inf,pinball_base_ic_sup,pinball_dif,pinball_dif_ic_inf,pinball_dif_ic_sup
+A,87,435,1.1685,0.7908,0.7103,0.869,0.0989,0.0414,0.1632,0.1103,0.0506,0.1793,0.1079,0.0796,0.1471,0.1215,0.0807,0.1751,-0.0136,-0.0394,0.0043
+B,51,255,1.0638,0.8863,0.8157,0.9491,0.0431,0.0,0.098,0.0706,0.0275,0.1255,0.0686,0.0543,0.0866,0.0667,0.0518,0.0849,0.0019,-0.0036,0.0088
+global,138,690,1.1298,0.8261,0.7681,0.8812,0.0783,0.0391,0.1203,0.0957,0.0551,0.1406,0.0934,0.0736,0.1194,0.1012,0.0754,0.1345,-0.0079,-0.0252,0.004
