@@ -1,10 +1,16 @@
 \section{Introducción}\label{sec:intro}
 
 El reto AgroCebada de FIRA 2026 pide estimar el rendimiento de cebada de temporal, en toneladas por hectárea (t/ha),
-de 59 parcelas de Hidalgo, Puebla y Tlaxcala. Para entrenar tenemos 138 parcelas del mismo ciclo de 2025 con su
-rendimiento declarado, imágenes de Sentinel-2 y de Planet, clima y topografía. El jurado califica primero el error de
-las 59 predicciones con la raíz del error cuadrático medio (RMSE), que se mide en t/ha y castiga más los errores
-grandes.
+de 59 parcelas de Hidalgo, Puebla y Tlaxcala. Estas tres entidades se cuentan entre las cuatro principales productoras
+de cebada grano del país~\cite{sader2025}. Para entrenar tenemos 138 parcelas del mismo ciclo de 2025 con su
+rendimiento declarado, imágenes de los satélites Sentinel-2~\cite{drusch2012} y PlanetScope~\cite{frazier2021},
+clima~\cite{funk2015,verdin2020} y topografía. El jurado califica primero el error de las 59 predicciones con el RMSE,
+que se mide en t/ha y castiga más los errores grandes.
+
+La predicción de rendimiento con aprendizaje automático y teledetección es un tema muy estudiado~\cite{vanklompenburg2020,weiss2020}.
+En este reto las parcelas son pequeñas y su rendimiento es declarado, no medido, y la literatura reporta que ese tipo
+de dato contiene error considerable~\cite{lobell2020}. Por eso el reporte se centra en qué información aporta de
+verdad a la predicción y en qué tan confiable es el error que estimamos.
 
 Este reporte explica cómo construimos el modelo y por qué tomamos cada decisión. La Fig.~\ref{fig:flujo} resume el
 proceso. Partimos de un hallazgo en las etiquetas (Sección~\ref{sec:datos}), fijamos cómo íbamos a evaluar cada idea
