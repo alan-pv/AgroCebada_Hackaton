@@ -1,0 +1,124 @@
+% Anexos del reporte técnico final, Reto AgroCebada FIRA 2026 (máximo 4 cuartillas).
+% Compilar con: xelatex anexos.tex
+\documentclass[10pt,letterpaper]{article}
+\usepackage[margin=2.54cm]{geometry}
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Termes}
+\usepackage{polyglossia}
+\setdefaultlanguage{spanish}
+\usepackage{booktabs,array,tabularx,longtable}
+\usepackage{fancyhdr}
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Los Bien Dotados}
+\fancyhead[R]{Reto AgroCebada FIRA 2026}
+\fancyfoot[C]{\thepage}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt}
+\setlength{\emergencystretch}{2em}
+\usepackage{titlesec}
+\titleformat{\section}{\normalsize\bfseries}{Anexo \Alph{section}.}{0.5em}{}
+\titlespacing*{\section}{0pt}{8pt}{3pt}
+\renewcommand{\arraystretch}{1.05}
+\begin{document}
+\begin{center}{\large\bfseries Anexos}\end{center}
+
+\section{Actividades y aportaciones de cada integrante}
+Las actividades marcadas con [por confirmar] son propuestas que el equipo debe validar antes de la entrega.
+
+\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.1cm}X@{}}
+\toprule
+Integrante & Actividades y aportaciones \\
+\midrule
+José Alán Pomares Valdés (modelado y análisis) &
+Preparación y limpieza de los datos satelitales y climáticos e ingeniería de las 91 variables por parcela. Análisis de las etiquetas y hallazgo de los dos regímenes de registro. Diseño de la validación (esquemas A y B, validación anidada), de la regla de decisión y de las pruebas de permutación. Modelado con proceso gaussiano, rezago espacial e intervalos conformales. Capa de crédito y modelo municipal con el SIAP. Análisis de las preguntas guía. Redacción de los reportes técnicos. \\
+\addlinespace
+Vicente Josimar López Martínez (aplicación web) &
+Desarrollo de la aplicación web con mapa de parcelas, predicción con intervalo, probabilidad bajo un umbral elegido por el usuario y ejecución del modelo en vivo. Levantamiento de necesidades de analistas y productores [por confirmar]. Pruebas de uso y corrección de errores de la interfaz [por confirmar]. Despliegue y publicación del enlace público [por confirmar]. Aportación de ideas en reuniones y revisión cruzada de resultados [por confirmar]. \\
+\addlinespace
+Luis Emmanuel Ramiro Luna (video) &
+Elaboración del video de presentación del proyecto. Guion del video a partir de los resultados del reporte [por confirmar]. Grabación y edición [por confirmar]. Revisión de que el mensaje sea claro para productores y analistas [por confirmar]. Aportación de ideas en reuniones y revisión cruzada de resultados [por confirmar]. \\
+\addlinespace
+Luis Gustavo Olivares Soto (asesor) &
+Revisión crítica de la metodología y de los reportes, con observaciones sobre la validación, el modelo municipal y la redacción. \\
+\bottomrule
+\end{tabularx}
+\normalsize
+
+\section{Uso de inteligencia artificial}
+Usamos Claude Code, un asistente de modelos Claude de Anthropic, como apoyo de programación, auditoría de código y redacción. Lo empleamos para generar código base, auditar el modelo y los experimentos, preparar documentos y proponer redacciones. El equipo revisó cada resultado, lo contrastó con los datos y decidió qué incorporar. Las cifras del reporte salen de código ejecutado por el equipo. La tabla presenta síntesis formales de los prompts principales, no su texto original. Las fechas están en hora del centro de México.
+
+\small
+\begin{center}\textbf{Síntesis de los prompts principales}\end{center}
+\vspace{-4pt}
+\begin{longtable}{@{}r >{\raggedright\arraybackslash}p{1.2cm} >{\raggedright\arraybackslash}p{2.7cm} >{\raggedright\arraybackslash}p{4.1cm} >{\raggedright\arraybackslash}p{4.5cm}@{}}
+\toprule
+N & Fecha & Objetivo & Síntesis del prompt & Resultado y uso por el equipo \\
+\midrule
+\endhead
+1 & 4 oct 2026 & Diagnosticar la escasez del dataset y explorar datos públicos complementarios. & Solicitamos revisar la documentación, los issues y el trabajo público de otro equipo para identificar el problema central del dataset y proponer cómo mejorarlo, con datos públicos aprovechables, sin modificar nada todavía. & Se obtuvo un diagnóstico del problema del dataset (tamaño, ruido y estructura de las etiquetas) y un panorama de fuentes públicas. El equipo contrastó las afirmaciones con los datos y lo documentó en el repositorio. \\
+2 & 4 oct 2026 & Cuestionar las expectativas de desempeño y entender la problemática de fondo. & Expresamos escepticismo ante la cota estimada de RMSE y pedimos un plan sólido para acercarnos al mejor resultado, con una explicación progresiva del problema, referencias y los conceptos clave definidos antes de usarse. & Se obtuvo una explicación del problema y un plan de experimentación y validación. Decidimos probar sistemáticamente las alternativas y basar la validación en particiones que respetaran la estructura de los datos, y verificamos las referencias citadas. \\
+3 & 5 oct 2026 & Planear e implementar de forma ordenada los issues asignados al equipo. & Indicamos que la estructura de issues estaba lista y pedimos entrar en modo de planeación y luego implementar los issues propios, y los de otros integrantes solo si eran indispensables, con orden por entregas y agentes paralelos. & Se generó el código base (entorno, variables satelitales, climáticas y topográficas, validación cruzada, modelos, interpretabilidad y predicciones de entrega) en PRs apilados. El equipo revisó los PRs y los integró a main. \\
+4 & 7 oct 2026 & Auditar el código del modelo y documentarlo en un reporte técnico. & Pedimos ejecutar la auditoría del modelo y, al terminar, elaborar un reporte técnico con el formato LaTeX de nuestra plantilla. Después autorizamos aplicar las correcciones y propagarlas. & La auditoría detectó errores, entre ellos un rezago espacial que usaba la propia etiqueta. Se corrigieron y se repitieron los experimentos, y el RMSE reportado cambió de 0.4525 a 0.458. El equipo validó la corrección y se generó el reporte técnico. \\
+5 & 9 oct 2026 & Obtener una auditoría independiente del código ante la ausencia de patrones claros. & Tras preguntar si no había variables dominantes en la siembra de cebada ni mejora al usar datos de todo México, solicitamos que un modelo Opus auditara todo el código implementado. & Se obtuvo una revisión adicional del código y de las conclusiones. Su resultado motivó incorporar datos públicos del SIAP, datos externos y un modelo generalizable de rendimiento municipal, cuyas conclusiones revisó el equipo. \\
+6 & 9 oct 2026 & Reforzar el reporte con métricas y visualizaciones. & Pedimos identificar qué partes del reporte transmitirían mejor su mensaje con gráficas, como la comparación de modelos, de variables y de rendimiento, y agregarlas. & Se añadieron figuras y métricas al reporte. El equipo revisó que cada gráfica respaldara la afirmación correspondiente. \\
+7 & 9 oct 2026 & Verificar el alcance de la comparación de modelos y la transferencia del modelo generalizable. & Cuestionamos si solo se habían probado dos modelos, por qué no existía una gráfica con todos los comparados, qué respaldaba que Tmax fuera la mejor variable y si podía estimarse la cosecha en zonas sin parcela. Preguntamos también cómo se desempeñaba sobre los datos de evaluación del dataset. & Se obtuvo una figura comparativa única, aclaraciones sobre los límites de transferencia entre el modelo generalizable y el del dataset de FIRA, y ajustes de redacción. El equipo decidió reflejar esas limitaciones en las conclusiones. \\
+8 & 14 oct 2026 & Validar que los rendimientos del SIAP distinguieran las técnicas de cultivo. & Pedimos verificar si, al extraer el rendimiento municipal de los datos del gobierno, se separó la técnica de cultivo (riego o temporal), pues compararlas invalidaría la investigación y el modelo. & Se obtuvo una revisión de cómo se había construido la referencia municipal y de su separación por modalidad. El equipo verificó la respuesta contra los datos y documentó la decisión. \\
+9 & 14 oct 2026 & Interpretar los regímenes de etiquetas y extraer lo útil de la segunda sesión de preguntas. & Señalamos que el rendimiento de unos 4.5 t/ha en Puebla e Hidalgo no cuadraba con temporal y pedimos investigar qué técnica explicaría el régimen A frente al B. Solicitamos además extraer de la segunda sesión lo que modificara la investigación o el modelado. & Se obtuvo un análisis de hipótesis sobre cada régimen y una lista de precisiones de la segunda sesión (fuente mixta de rendimiento y báscula sin ajuste de humedad). El equipo las incorporó como limitaciones y preguntas pendientes. \\
+10 & 14 oct 2026 & Aclarar el objetivo del modelo para FIRA y cómo orientarlo. & Preguntamos si el modelo debía identificar zonas de mejor rendimiento para productores o para expansión, y después cómo mejorar el modelo con ese objetivo, o si convenía agregar datos financieros. & Se obtuvo la lectura del objetivo de FIRA como apoyo al crédito y la gestión de riesgo, y se crearon issues de seguimiento. El equipo decidió orientar el modelo a una aplicación financiera. \\
+11 & 14 oct 2026 & Diseñar la capa de crédito con precios, costos y calibración del cuantil p10. & Pedimos resolver dos issues, uno de precio, costos, punto de equilibrio y siniestralidad por municipio y otro de calibración del p10 con marca de confianza, orientados al uso financiero de FIRA. Solicitamos analizar las consideraciones, investigar vacíos y coordinar agentes en paralelo. & Se obtuvo una capa de crédito con costo, precio y umbral de pérdida, y la calibración del intervalo. El equipo revisó los supuestos y aprobó los PRs correspondientes. \\
+12 & 14 oct 2026 & Preparar la sesión de revisión con el asesor. & Pedimos puntos del proceso de modelado donde la opinión de un experto en inteligencia artificial resultara más útil, y un resumen del contexto para confirmar que entendíamos el proyecto igual. & Se obtuvo una lista de puntos de atención metodológicos y un resumen del contexto. El equipo los usó como guion de la sesión. \\
+13 & 14 oct 2026 & Hacer comprensible el modelo generalizable en su documentación. & Preguntamos qué variables usa el modelo generalizable, qué significan Tmax y kriging y si el documento los explica. Pedimos redactar con claridad cada variable en el método. & Se amplió la sección de método con la definición de cada variable. El equipo verificó que la explicación fuera correcta y entendible. \\
+14 & 15 oct 2026 & Incorporar las observaciones del profesor y comenzar el reporte final. & Solicitamos leer las observaciones del profesor sobre la documentación (texto subrayado con comentarios), ejecutar primero las acciones urgentes y luego redactar el reporte final conforme a las indicaciones del reto. & Se obtuvo una lectura de las observaciones y un orden de trabajo para el reporte. El equipo valida y decide cada cambio. \\
+
+\bottomrule
+\end{longtable}
+\normalsize
+
+\par\vspace{8pt}\noindent\begin{minipage}{\textwidth}
+\textbf{Anexo C. Predicciones de las 59 parcelas}\par\vspace{3pt}
+Rendimiento predicho en t/ha con el intervalo del percentil 10 al 90 (p10 y p90).
+
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}llrrr@{\hspace{10pt}}llrrr@{}}
+\toprule
+ID & Municipio & Pred. & p10 & p90 & ID & Municipio & Pred. & p10 & p90 \\
+\midrule
+AGC\_003 & Singuilucan & 3.66 & 3.11 & 4.14 & AGC\_107 & Almoloya & 4.54 & 4.03 & 5.12 \\
+AGC\_011 & Chignahuapan & 4.54 & 4.03 & 5.11 & AGC\_113 & Singuilucan & 3.25 & 2.70 & 3.73 \\
+AGC\_016 & Chignahuapan & 4.57 & 4.06 & 5.14 & AGC\_116 & Chignahuapan & 4.54 & 4.03 & 5.12 \\
+AGC\_025 & Calpulalpan & 2.98 & 2.43 & 3.46 & AGC\_118 & Singuilucan & 3.02 & 2.47 & 3.50 \\
+AGC\_027 & Calpulalpan & 3.02 & 2.47 & 3.50 & AGC\_120 & Nanacamilpa & 3.02 & 2.47 & 3.50 \\
+AGC\_028 & Chignahuapan & 4.54 & 4.03 & 5.12 & AGC\_126 & Chignahuapan & 4.57 & 4.06 & 5.14 \\
+AGC\_029 & Calpulalpan & 3.02 & 2.47 & 3.50 & AGC\_128 & Almoloya & 4.56 & 4.05 & 5.13 \\
+AGC\_030 & Singuilucan & 3.02 & 2.47 & 3.50 & AGC\_129 & Singuilucan & 3.02 & 2.47 & 3.50 \\
+AGC\_031 & Chignahuapan & 3.88 & 3.37 & 4.45 & AGC\_130 & Cuautepec & 4.54 & 4.03 & 5.11 \\
+AGC\_036 & Chignahuapan & 4.55 & 4.04 & 5.12 & AGC\_136 & Chignahuapan & 4.57 & 4.06 & 5.14 \\
+AGC\_039 & Calpulalpan & 3.02 & 2.47 & 3.50 & AGC\_142 & Chignahuapan & 4.56 & 4.04 & 5.13 \\
+AGC\_042 & Singuilucan & 3.25 & 2.70 & 3.73 & AGC\_143 & Chignahuapan & 4.58 & 4.07 & 5.15 \\
+AGC\_043 & Chignahuapan & 4.57 & 4.06 & 5.14 & AGC\_147 & Calpulalpan & 3.02 & 2.47 & 3.50 \\
+AGC\_050 & Calpulalpan & 3.02 & 2.47 & 3.50 & AGC\_149 & Cuautepec & 4.54 & 4.03 & 5.12 \\
+AGC\_052 & Cuautepec & 4.56 & 4.05 & 5.14 & AGC\_153 & Chignahuapan & 4.54 & 4.03 & 5.11 \\
+AGC\_061 & Calpulalpan & 3.02 & 2.47 & 3.50 & AGC\_154 & Chignahuapan & 4.58 & 4.07 & 5.15 \\
+AGC\_063 & Chignahuapan & 4.54 & 4.03 & 5.11 & AGC\_156 & Singuilucan & 3.02 & 2.47 & 3.50 \\
+AGC\_065 & Almoloya & 4.54 & 4.03 & 5.11 & AGC\_158 & Chignahuapan & 4.50 & 3.99 & 5.07 \\
+AGC\_071 & Calpulalpan & 3.08 & 2.53 & 3.56 & AGC\_173 & Calpulalpan & 3.02 & 2.47 & 3.50 \\
+AGC\_075 & Calpulalpan & 2.98 & 2.43 & 3.46 & AGC\_174 & Cuautepec & 4.54 & 4.03 & 5.11 \\
+AGC\_076 & Chignahuapan & 4.54 & 4.03 & 5.11 & AGC\_175 & Chignahuapan & 4.58 & 4.07 & 5.15 \\
+AGC\_082 & Almoloya & 4.54 & 4.03 & 5.11 & AGC\_177 & Chignahuapan & 3.72 & 3.21 & 4.29 \\
+AGC\_085 & Chignahuapan & 3.72 & 3.21 & 4.29 & AGC\_182 & Chignahuapan & 4.58 & 4.07 & 5.15 \\
+AGC\_086 & Calpulalpan & 3.02 & 2.47 & 3.50 & AGC\_183 & Calpulalpan & 3.02 & 2.47 & 3.50 \\
+AGC\_087 & Calpulalpan & 2.75 & 2.20 & 3.23 & AGC\_186 & Chignahuapan & 4.54 & 4.03 & 5.11 \\
+AGC\_088 & Chignahuapan & 4.45 & 3.94 & 5.02 & AGC\_188 & Chignahuapan & 4.58 & 4.07 & 5.15 \\
+AGC\_091 & Chignahuapan & 4.55 & 4.04 & 5.13 & AGC\_190 & Chignahuapan & 4.47 & 3.95 & 5.04 \\
+AGC\_093 & Calpulalpan & 2.98 & 2.43 & 3.46 & AGC\_191 & Chignahuapan & 4.56 & 4.04 & 5.13 \\
+AGC\_094 & Chignahuapan & 4.56 & 4.05 & 5.13 & AGC\_192 & Chignahuapan & 4.54 & 4.03 & 5.11 \\
+AGC\_095 & Chignahuapan & 4.58 & 4.07 & 5.15 &  & & & &  \\
+
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{document}
