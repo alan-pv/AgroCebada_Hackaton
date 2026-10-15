@@ -15,18 +15,18 @@ espacial mejoró el error en 9 de 10 repeticiones y pasó la prueba de permutaci
 satelitales, climáticas o topográficas pasó la regla (Fig.~\ref{A-fig:bloques}). El clima, por ejemplo, viene en celdas
 de unos 5\,km y solo distingue zonas, algo que ya hacen el régimen y los vecinos. Entre algoritmos, los de árboles
 quedaron peor que la media por régimen y el proceso gaussiano obtuvo el menor error, aunque no superó de forma
-significativa a un modelo lineal (Fig.~\ref{A-fig:algoritmos}).
+significativa a un modelo lineal~\cite{doc_modelo}.
 
 \textbf{El modelo no aprende de las etiquetas por error.} Con los rendimientos revueltos el RMSE nunca baja de 0.485,
 contra 0.467 con los reales. Si hubiera fuga de información, ambos serían parecidos.
 
 \textbf{Los intervalos cumplen.} El intervalo del percentil 10 al 90 contiene el rendimiento real en 83\,\% de los
-casos, cerca de la meta de 80\,\% (Fig.~\ref{A-fig:cobertura}). En 18 parcelas, todas del régimen B, la probabilidad de
+casos, cerca de la meta de 80\,\%~\cite{doc_modelo}. En 18 parcelas, todas del régimen B, la probabilidad de
 quedar bajo 2.5\,t/ha supera 10\,\%. La tabla con las 59 predicciones está en el anexo técnico.
 
 \textbf{El modelo municipal funciona donde no hay datos.} En municipios sin datos del SIAP a menos de 50\,km obtiene un
 RMSE de 0.44\,t/ha, contra 0.57 del kriging de vecinos, que no usa clima, y gana en las 10 repeticiones (anexo técnico,
-Fig.~\ref{A-fig:municipal_modelos}). Como elegimos la Tmax viendo resultados, repetimos esa elección de forma anidada y la
+Fig.~\ref{A-fig:municipal_modelos})~\cite{doc_generalizable}. Como elegimos la Tmax viendo resultados, repetimos esa elección de forma anidada y la
 ventaja baja a unos 0.07\,t/ha, todavía a favor. Con vecinos cerca ambos empatan. Cada grado más de Tmax se asocia con
 0.79\,t/ha menos (Fig.~\ref{A-fig:dispersion}). El mapa regional (Fig.~\ref{A-fig:mapas}) muestra que el oriente de
 Puebla y Tlaxcala, más fresco en verano, tiene el mayor rendimiento esperado.
@@ -35,7 +35,7 @@ Puebla y Tlaxcala, más fresco en verano, tiene el mayor rendimiento esperado.
 23.9\,$^\circ$C. A esa escala casi no varía, así que no puede distinguir una parcela de otra. A escala regional sí.
 
 \textbf{Preguntas guía.} Como el modelo final usa solo tres entradas, medimos la importancia con un bosque aleatorio
-auxiliar (Fig.~\ref{A-fig:indices}). Sin el régimen, el índice más importante es el NDVI y la variable climática más
+auxiliar~\cite{doc_modelo}. Sin el régimen, el índice más importante es el NDVI y la variable climática más
 importante es la lluvia, pero ambos funcionan como indicadores de zona. Con el régimen y los vecinos, el índice de
 sequía NDDI~\cite{gu2007} es el que más aporta, aunque apenas 0.004\,t/ha. A escala regional la variable climática de
 mayor peso es la Tmax de julio y agosto. La mejor combinación es régimen más rezago

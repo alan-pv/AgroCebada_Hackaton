@@ -74,7 +74,7 @@ def a_texto(tex, numero, anexo):
     t = re.sub(r"\\begin\{figure\}.*?\\end\{figure\}", "", tex, flags=re.S)
     t = re.sub(r"\\section\{[^}]*\}(\\label\{[^}]*\})?", "", t)
     t = re.sub(r"\\ref\{A-([^}]+)\}", lambda m: anexo[m.group(1)], t)
-    t = re.sub(r"~?\\cite\{([^}]+)\}", lambda m: " [" + ", ".join(str(numero[c.strip()]) for c in m.group(1).split(",")) + "]", t)
+    t = re.sub(r"~?\\cite\{([^}]+)\}", lambda m: " [" + ", ".join(str(n) for n in sorted(numero[c.strip()] for c in m.group(1).split(","))) + "]", t)
     t = re.sub(r"\\(textbf|emph|url)\{([^}]*)\}", r"\2", t)
     t = t.replace("\\begin{enumerate}", "").replace("\\end{enumerate}", "")
     n = iter(range(1, 50))

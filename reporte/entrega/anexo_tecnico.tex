@@ -1,5 +1,6 @@
 % Anexo técnico del Reto AgroCebada FIRA 2026. Máximo 4 cuartillas, con la tabla de ID y rendimiento predicho.
 % Sigue la plantilla oficial de IEEE para conferencias (bare_conf.tex de IEEEtran v1.8b).
+% cite.sty e IEEEtran.cls van en esta carpeta porque no vienen en el TeX Live instalado.
 % Compilar desde reporte/entrega (dos veces):
 %   xelatex -interaction=nonstopmode anexo_tecnico.tex && xelatex -interaction=nonstopmode anexo_tecnico.tex
 % Las citas usan la numeración de la bibliografía entregada (referencias.tex, que genera plataforma.py).
@@ -8,6 +9,7 @@
 \setmainfont{TeX Gyre Termes}
 \usepackage{polyglossia}
 \setdefaultlanguage{spanish}
+\usepackage{cite}
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
 \usepackage[caption=false,font=footnotesize]{subfig}
@@ -62,7 +64,8 @@ Este anexo del equipo Los Bien Dotados reúne las figuras, ecuaciones y tablas q
 de parcelas es un proceso gaussiano con el régimen de registro y el rendimiento de las parcelas vecinas, con raíz del
 error cuadrático medio (RMSE) esperada de 0.46 a 0.49\,t/ha. El modelo municipal usa datos públicos de 2003 a 2025 para
 estimar toda la región. La Tabla~\ref{tab:predicciones} lista el ID y el rendimiento predicho de las 59 parcelas.
-Las citas remiten a la bibliografía entregada.
+Las citas remiten a la bibliografía entregada. El detalle completo está en los reportes del
+equipo~\cite{doc_contexto,doc_modelo,doc_generalizable} y el código en su repositorio~\cite{repo}.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -136,13 +139,6 @@ parcela $i$ del régimen $g$ es
 donde $r_g$ son los 1380 errores fuera de grupo con signo, $r = y - \hat y$, de las 10 repeticiones, y $q_\alpha$ su
 cuantil. Calibramos por régimen porque sus errores se distribuyen distinto.
 
-\begin{figure}[!t]
-\centering
-\includegraphics[width=\columnwidth]{f5_algoritmos}
-\caption{RMSE de cada algoritmo con régimen y rezago como entradas. La línea punteada es la media por régimen.}
-\label{fig:algoritmos}
-\end{figure}
-
 \section{Por qué cada pieza}
 
 Una idea entra solo si baja el RMSE en al menos 7 de 10 repeticiones y pasa una prueba de permutación con
@@ -150,7 +146,7 @@ $p\le0.05$~\cite{ojala2010}. Ningún bloque satelital, climático o topográfico
 El clima viene en celdas de unos 5\,km y solo distingue zonas, algo que ya hacen el régimen y los vecinos.
 
 
-Con las entradas fijas comparamos algoritmos (Fig.~\ref{fig:algoritmos}). Los árboles quedan peor que la media por
+Con las entradas fijas comparamos algoritmos~\cite{doc_modelo}. Los árboles quedan peor que la media por
 régimen porque con tres entradas y 138 parcelas sus cortes no tienen dónde apoyarse. El proceso gaussiano obtiene el
 menor error, aunque frente a un modelo lineal con las mismas entradas la diferencia no es significativa ($p=0.38$).
 
@@ -179,7 +175,7 @@ La Tabla~\ref{tab:error} separa lo que mide cada cifra. La validación anidada r
 dentro de cada grupo externo~\cite{varma2006}, así que incluye el costo de haber elegido el mejor
 modelo~\cite{cawley2010}. Frente a la media por régimen la diferencia es de $-0.029$\,t/ha, con intervalo de confianza
 del 95\,\% de $-0.079$ a $+0.022$ en la prueba de Nadeau y Bengio~\cite{nadeau2003}, así que no es significativa. El
-intervalo del percentil 10 al 90 cubre 0.826 de las evaluaciones, cerca de la meta de 0.80 (Fig.~\ref{fig:cobertura}).
+intervalo del percentil 10 al 90 cubre 0.826 de las evaluaciones, cerca de la meta de 0.80~\cite{doc_modelo}.
 
 \textbf{No hay fuga de información.} Si la etiqueta se filtrara a las variables, el modelo predeciría bien aun con las
 etiquetas revueltas~\cite{kaufman2012}. Con los rendimientos revueltos dentro de cada régimen el RMSE nunca baja de
@@ -204,26 +200,10 @@ Variación por azar con 59 parcelas (90\,\% de 5000 sorteos) & 0.35 a 0.56 \\
 \end{table}
 
 
-\begin{figure}[!t]
-\centering
-\includegraphics[width=\columnwidth]{f10_cobertura}
-\caption{Cobertura del intervalo p10 a p90 en validación anidada, con su intervalo de confianza del 95\,\%, en total,
-por régimen y por cuartil de área. La línea punteada es la meta de 0.80.}
-\label{fig:cobertura}
-\end{figure}
-
-\begin{figure}[!t]
-\centering
-\includegraphics[width=\columnwidth]{f11_indices}
-\caption{Aumento del RMSE al revolver cada índice en el bosque de análisis, sin régimen (izquierda) y con régimen y
-rezago (derecha). Las escalas horizontales son distintas.}
-\label{fig:indices}
-\end{figure}
-
 \section{Preguntas guía}
 
 Como el modelo final solo tiene tres entradas, medimos la importancia con un bosque aleatorio de análisis, revolviendo
-cada índice y viendo cuánto sube su RMSE (Fig.~\ref{fig:indices}). Sin el régimen, el NDVI y la lluvia pesan más, pero
+cada índice y viendo cuánto sube su RMSE~\cite{doc_modelo}. Sin el régimen, el NDVI y la lluvia pesan más, pero
 identifican la zona. Con régimen y rezago, el índice de sequía NDDI~\cite{gu2007} es el mayor, con apenas 0.004\,t/ha.
 La mejor combinación es régimen más rezago.
 

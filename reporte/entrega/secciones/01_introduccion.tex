@@ -23,7 +23,7 @@ Al revisar las etiquetas encontramos que cada municipio registra el rendimiento 
 técnico, Fig.~\ref{A-fig:regimenes}). En cuatro municipios los valores tienen dos decimales y promedian 4.49\,t/ha. Lo
 llamamos régimen A. En los otros cinco están redondeados y promedian 3.05\,t/ha. Lo llamamos régimen B. La diferencia entre ambos, 1.4\,t/ha, es casi tres veces la variación dentro de cada uno,
 así que conocer el régimen ya explica buena parte del rendimiento. No sabemos si
-el rendimiento se midió distinto o solo se anotó distinto. FIRA pidió tratar todos los registros como una sola variable,
+el rendimiento se midió distinto o solo se anotó distinto, y ninguna de las variables ambientales que probamos explica la diferencia~\cite{doc_regimenes}. FIRA pidió tratar todos los registros como una sola variable,
 así que usamos el régimen como una característica del municipio y no como dos problemas separados.
 
 Por eso nuestro trabajo no se limita a buscar el algoritmo con menor error. Buscamos responder qué información predice
@@ -35,4 +35,6 @@ rendimiento de las parcelas vecinas, y esperamos que su RMSE sea de 0.46 a 0.49\
 conjunto de datos del reto. Con estadísticas públicas del SIAP de 2003 a 2025 y datos de clima, estima el rendimiento
 esperado de cada municipio de los cuatro estados, incluidos los que no tienen parcelas en el reto. Así responde dónde
 rinde más la cebada de temporal y por qué, algo que 138 parcelas de nueve municipios no permiten ver. Ambos se
-acompañan de intervalos, una traducción del error a pesos y una aplicación web.
+acompañan de intervalos, una traducción del error a pesos y una aplicación web. El detalle de cada
+análisis está en nuestros reportes técnicos~\cite{doc_contexto,doc_modelo,doc_regimenes,doc_generalizable} y el código
+en su repositorio~\cite{repo}.
