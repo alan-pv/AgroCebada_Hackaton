@@ -1,12 +1,20 @@
 \section{Limitaciones}\label{sec:discusion}
 
 \begin{itemize}
-\item \textbf{El modelo aprende la cifra del SIAP.} Esa cifra a veces se copia entre municipios de un distrito y
-puede diferir de lo que obtiene un productor.
+\item \textbf{El modelo aprende la cifra que publica el SIAP.} Esa cifra a veces se estima por distrito y se copia
+entre municipios, y puede diferir de lo que obtiene un productor. La zona de exclusión no impide que una cifra
+repetida quede en el entrenamiento y en la prueba, aunque quitarlas cambia el error en menos de 0.005\,t/ha.
+\item \textbf{Pocas unidades independientes.} El modelo usa 100 promedios municipales, y 10 de ellos concentran la
+mitad del peso en el error. Las 10 repeticiones comparten esos municipios, así que los intervalos por remuestreo
+son más fiables que el conteo de repeticiones ganadas.
 \item \textbf{Asociación, no causa.} La temperatura también refleja la altura, la tradición cebadera y el manejo. El
 modelo ordena lugares, pero no dice cuánto cambiaría el rendimiento si cambiara el clima.
 \item \textbf{La elección de Tmax sola se hizo viendo resultados.} El contendiente fijado de antemano era Tmax con
-lluvia, que queda casi empatado y es mejor con vecinos cerca. Confirmarlo requiere datos nuevos.
+lluvia, que queda casi empatado y es mejor con vecinos cerca. La selección anidada reduce la ventaja sobre el
+kriging de 0.13 a cerca de 0.07\,t/ha. Como trabajo futuro, la prueba más limpia es validar el modelo con datos del
+SIAP de otros estados productores de cebada, que ni los datos ni la elección de variables hayan visto.
+\item \textbf{Los intervalos y las probabilidades son aproximados.} La cobertura de 81.5\,\% es marginal y baja a
+64.7\,\% en 2025. La probabilidad no está calibrada, y por eso la presentamos solo como apoyo preliminar.
 \item \textbf{Municipios frescos sin cebada.} Un municipio fresco puede salir alto aunque ahí no se siembre cebada o
 su suelo sea forestal. Por eso lleva confianza baja.
 \end{itemize}
