@@ -1,0 +1,97 @@
+% Documento de contexto del Reto AgroCebada FIRA 2026 para el equipo.
+% Formato de artículo de conferencia IEEE (IEEEtran) con portada propia.
+% Compilar desde docs/reporte_dataset (dos veces, para las referencias cruzadas):
+%   xelatex -interaction=nonstopmode main.tex && xelatex -interaction=nonstopmode main.tex
+% IEEEtran.cls va en esta carpeta porque no viene en el TeX Live instalado.
+% Las figuras se regeneran con: python figuras/generar_figuras.py (desde esta carpeta).
+\documentclass[conference,letterpaper]{IEEEtran}
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Termes}
+\usepackage{polyglossia}
+\setdefaultlanguage{spanish}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage[caption=false,font=footnotesize]{subfig}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue!50!black}
+\graphicspath{{figuras/}}
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+% ---------------------------------------------------------------- datos de la portada
+\newcommand{\universidad}{Benemérita Universidad Autónoma de Puebla}
+\newcommand{\facultad}{Facultad de Ciencias de la Computación}
+\newcommand{\carrera}{Ingeniería en Ciencias de la Computación}
+\newcommand{\materia}{Reto AgroCebada FIRA 2026}
+\newcommand{\integranteA}{José Alán Pomares Valdés}
+\newcommand{\integranteB}{Luis Emmanuel Ramiro Luna}
+\newcommand{\integranteC}{Vicente Josimar López Martinez}
+\newcommand{\correo}{pv202351433@alm.buap.mx}
+\newcommand{\asesor}{Luis Gustavo Olivares Soto}
+\newcommand{\fecha}{4 de octubre de 2026}
+
+% Encabezado de la portada. Si existen figuras/logo_buap.png y figuras/logo_fcc.png se usan, si no queda un recuadro.
+\newcommand{\logo}[2]{%
+  \IfFileExists{figuras/#1}{\includegraphics[height=2.4cm]{#1}}%
+  {\fbox{\parbox[c][2.2cm][c]{2.2cm}{\centering\footnotesize\textcolor{gray}{#2}}}}}
+
+\begin{document}
+
+% ---------------------------------------------------------------- portada
+\begin{titlepage}
+  \centering
+  \begin{tabular}{@{}m{2.6cm}@{}m{\dimexpr\textwidth-5.2cm}@{}m{2.6cm}@{}}
+    \logo{logo_buap.png}{Logo BUAP} &
+    \centering{\Large\bfseries \universidad}\\[4pt]{\large \facultad} &
+    \hfill\logo{logo_fcc.png}{Logo FCC}
+  \end{tabular}\par
+  \vspace{4pt}\rule{\textwidth}{1.2pt}\par
+  \vspace{1.2cm}
+  {\large \carrera}\par\vspace{4pt}
+  {\large \materia}\par
+  \vspace{3cm}
+  {\Huge\bfseries El Reto AgroCebada 2026\\[6pt] en contexto}\par
+  \vspace{0.8cm}
+  {\Large Lo que sabemos, lo que suponemos\\[2pt] y lo que falta comprobar}\par
+  \vfill
+  \begin{tabular}{@{}r@{\hspace{1em}}l@{}}
+    \textbf{Integrantes} & \integranteA \\
+                         & \integranteB \\
+                         & \integranteC \\[4pt]
+    \textbf{Asesor}      & \asesor \\[4pt]
+    \textbf{Contacto}    & \href{mailto:\correo}{\correo} \\
+  \end{tabular}\par
+  \vspace{1.5cm}
+  {\large Puebla, Pue., \fecha}\par
+\end{titlepage}
+
+\noindent\textbf{\textit{Resumen.}} \bfseries El Reto AgroCebada 2026 pide estimar el rendimiento de cebada de
+temporal, en toneladas de grano por hectárea (t/ha), de 59 parcelas de Hidalgo, Puebla y Tlaxcala, a partir de otras 138 con rendimiento conocido,
+imágenes satelitales, clima y topografía. Este documento reúne el contexto del reto, del cultivo y de los datos, y
+describe qué tipo de problema estadístico es. En una primera revisión de los datos encontramos que los rendimientos
+parecen venir de dos formas distintas de medir, separadas por municipio, que las parcelas pequeñas tienen los valores
+más extremos y que en 2025 la lluvia se concentró en la siembra y en la cosecha. Los organizadores confirmaron que los rendimientos los declaró cada productor, sin validación oficial. Las demás observaciones son preliminares. A partir de ellas planteamos cinco hipótesis, cada una con la forma de comprobarla, y una regla para
+decidir qué cambios aceptar en el modelo.\par\mdseries
+
+\smallskip
+\noindent\textbf{\textit{Palabras clave.}} \bfseries rendimiento de cebada, percepción remota, ruido de etiqueta,
+validación cruzada, hipótesis de trabajo.\par\mdseries
+
+\input{secciones/introduccion}
+\input{secciones/reto}
+\input{secciones/cultivo}
+\input{secciones/datos}
+\input{secciones/problema}
+\input{secciones/exploracion}
+\input{secciones/hipotesis}
+\input{secciones/supuestos}
+\input{secciones/datos_externos}
+\input{secciones/decision}
+\input{secciones/conclusiones}
+
+\input{secciones/referencias}
+\end{document}

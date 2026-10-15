@@ -1,0 +1,64 @@
+\section{Los datos}\label{sec:datos}
+Los organizadores entregaron cinco fuentes de información (Tabla~\ref{tab:fuentes}).
+
+\begin{table*}[!t]
+\caption{Fuentes de información entregadas}\label{tab:fuentes}
+\centering\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.2cm}X>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{2.4cm}@{}}
+\toprule
+Fuente & Contenido & Resolución & Periodo \\
+\midrule
+Parcelas & 197 polígonos con identificador, área, municipio, estado y conjunto & Exacta & Ciclo 2025 \\
+Conjunto Básico & 23 índices de vegetación por parcela y fecha, con media, desviación estándar, máximo y mínimo dentro de la parcela, de Sentinel-2 y Landsat & 10 a 30 m, cada 5 a 16 días & 2022 a 2025 \\
+Conjunto PRO & NDVI, EVI, LAI y MSAVI por parcela y fecha, de Planet & Unos 3 m, casi diario & 2025 completo \\
+Clima & Precipitación mensual (CHIRPS~\cite{funk2015}) y temperatura mínima y máxima mensual (CHIRTS-ERA5~\cite{chirts}) & Unos 5 km & 2022 a 2025 \\
+Topografía & Elevación y pendiente del Continuo de Elevaciones Mexicano~\cite{inegi} & 120 m & Estática \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\textbf{Parcelas.} Las 197 parcelas están en nueve municipios, dentro de un área de unos 42 por 50 kilómetros.
+Chignahuapan, en Puebla, concentra 100. La parcela típica mide alrededor de 5 hectáreas y la más chica menos de media hectárea. Todas son de temporal. El rendimiento lo declaró cada productor, sin una validación oficial, y está en t/ha~\cite{preguntas}. No se sabe si el grano se destinó a malta o a forraje.
+
+\textbf{Imágenes satelitales.} Cada satélite mide con su propio sensor, así que sus índices no se deben mezclar sin
+ajustarlos. Por ejemplo, Planet da valores de NDVI más altos que Sentinel-2 sobre el mismo suelo. El campo de
+nubosidad vale casi siempre 0 o 100, y cuando vale 100 los índices vienen vacíos. Aun así, la cobertura es buena.
+Entre mayo y octubre de 2025 cada parcela tiene entre 19 y 34 observaciones limpias de Sentinel-2, más que en
+cualquiera de los tres años anteriores. Además, el LAI de Planet se calcula con su banda de borde rojo
+(\emph{red-edge}), así que de él se puede recuperar el índice NDRE, que la literatura señala como uno de los más
+útiles para estimar rendimiento.
+
+
+\begin{table}[!t]
+\caption{Índices del conjunto Básico que son transformaciones de otro}\label{tab:duplicados}
+\centering\footnotesize
+\begin{tabular}{@{}lll@{}}
+\toprule
+Índice & Equivale a & Bandas \\
+\midrule
+STI & NDTI & B11, B12 \\
+MSI & NDWI & B08, B11 \\
+EMSI & ENDWI & B08, B12 \\
+DSWI3 & NDSVI & B04, B11 \\
+DSWI2 & MCRC & B03, B11 \\
+LAI & SAVI & B04, B08 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Cómo se calculan los índices.} Los organizadores publicaron las ecuaciones de cada índice~\cite{ecuaciones}. De ellas salen cuatro consecuencias prácticas, que comprobamos con los datos.
+\begin{enumerate}
+  \item El LAI de Sentinel-2 es una función del SAVI, así que no aporta información nueva. Además da valores negativos sobre suelo desnudo, cuando el SAVI es menor que 0.10, lo que ocurre en el 42\% de las observaciones. Esos negativos no son errores.
+  \item Varios índices son transformaciones de otros (Tabla~\ref{tab:duplicados}). Cada pareja usa las mismas dos bandas, y su correlación de rangos supera 0.998. De los 23 índices del conjunto Básico, unos 17 son independientes.
+  \item El VI6T de Landsat combina la banda verde con la temperatura de superficie, por lo que casi no varía (alrededor de $-0.62$) y en la práctica mide temperatura. El MRA es prácticamente una función del NDVI.
+  \item El LAI de Planet se calcula con la banda de borde rojo como $5.405\cdot\mathrm{NDRE}-0.114$, así que el NDRE se recupera de forma exacta.
+\end{enumerate}
+Esto importa para la pregunta guía sobre el índice más importante. Si se dejan los dos índices de una pareja, la importancia se reparte entre ambos y ninguno sobresale. Conviene conservar uno de cada pareja.
+
+\textbf{Fechas.} Las fechas vienen en formato día, mes y año. Si se ordenan como texto y no como fechas, Planet
+parece terminar el 31 de agosto, cuando en realidad llega al 30 de diciembre de 2025.
+
+\textbf{Clima y topografía.} El clima es mensual, así que no permite medir lo que pasó en una semana concreta, como
+la de la floración. Sus celdas miden unos 5 kilómetros y las 197 parcelas caen en sólo 26 celdas, por lo que el
+clima funciona casi como una etiqueta de zona. La topografía se entregó a 120 metros, aunque la descripción oficial
+habla de 15, y una parcela típica cubre apenas unas tres celdas.
