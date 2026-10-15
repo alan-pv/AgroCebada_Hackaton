@@ -1,44 +1,34 @@
-% Tabla de las 59 predicciones, tomada de outputs/predicciones_finales.csv.
+% Tabla obligatoria del anexo técnico. ID de la parcela y rendimiento predicho (t/ha), de outputs/predicciones_finales.csv.
 \begin{table*}[!t]
 \centering
-\caption{Rendimiento predicho (Pred.), intervalo p10 a p90 (t/ha) y probabilidad de rendimiento menor que 2.5\,t/ha de las 59 parcelas. R es el régimen y $P$ la probabilidad.}
+\caption{ID de la parcela, régimen (R), rendimiento predicho (Pred.) e intervalo p10 a p90, en t/ha, de las 59 parcelas.}
 \label{tab:predicciones}
 \scriptsize
-\setlength{\tabcolsep}{3.5pt}
-\begin{tabular}{@{}llcrrrr@{\hspace{1.6em}}llcrrrr@{}}
+\setlength{\tabcolsep}{3.2pt}
+\begin{tabular}{@{}lcrrr@{\hspace{2em}}lcrrr@{\hspace{2em}}lcrrr@{}}
 \toprule
-ID & Municipio & R & Pred. & p10 & p90 & $P$ & ID & Municipio & R & Pred. & p10 & p90 & $P$ \\
+ID & R & Pred. & p10 & p90 & ID & R & Pred. & p10 & p90 & ID & R & Pred. & p10 & p90 \\
 \midrule
-AGC\_003 & Singuilucan & B & 3.66 & 3.11 & 4.14 & 0.000 & AGC\_107 & Almoloya & A & 4.54 & 4.03 & 5.12 & 0.001 \\
-AGC\_011 & Chignahuapan & A & 4.54 & 4.03 & 5.11 & 0.001 & AGC\_113 & Singuilucan & B & 3.25 & 2.70 & 3.73 & 0.031 \\
-AGC\_016 & Chignahuapan & A & 4.57 & 4.06 & 5.14 & 0.001 & AGC\_116 & Chignahuapan & A & 4.54 & 4.03 & 5.12 & 0.001 \\
-AGC\_025 & Calpulalpan & B & 2.98 & 2.43 & 3.46 & 0.225 & AGC\_118 & Singuilucan & B & 3.02 & 2.47 & 3.50 & 0.196 \\
-AGC\_027 & Calpulalpan & B & 3.02 & 2.47 & 3.50 & 0.196 & AGC\_120 & Nanacamilpa & B & 3.02 & 2.47 & 3.50 & 0.196 \\
-AGC\_028 & Chignahuapan & A & 4.54 & 4.03 & 5.12 & 0.001 & AGC\_126 & Chignahuapan & A & 4.57 & 4.06 & 5.14 & 0.001 \\
-AGC\_029 & Calpulalpan & B & 3.02 & 2.47 & 3.50 & 0.196 & AGC\_128 & Almoloya & A & 4.56 & 4.05 & 5.13 & 0.001 \\
-AGC\_030 & Singuilucan & B & 3.02 & 2.47 & 3.50 & 0.196 & AGC\_129 & Singuilucan & B & 3.02 & 2.47 & 3.50 & 0.196 \\
-AGC\_031 & Chignahuapan & A & 3.88 & 3.37 & 4.45 & 0.023 & AGC\_130 & Cuautepec & A & 4.54 & 4.03 & 5.11 & 0.001 \\
-AGC\_036 & Chignahuapan & A & 4.55 & 4.04 & 5.12 & 0.001 & AGC\_136 & Chignahuapan & A & 4.57 & 4.06 & 5.14 & 0.001 \\
-AGC\_039 & Calpulalpan & B & 3.02 & 2.47 & 3.50 & 0.196 & AGC\_142 & Chignahuapan & A & 4.56 & 4.04 & 5.13 & 0.001 \\
-AGC\_042 & Singuilucan & B & 3.25 & 2.70 & 3.73 & 0.031 & AGC\_143 & Chignahuapan & A & 4.58 & 4.07 & 5.15 & 0.001 \\
-AGC\_043 & Chignahuapan & A & 4.57 & 4.06 & 5.14 & 0.001 & AGC\_147 & Calpulalpan & B & 3.02 & 2.47 & 3.50 & 0.196 \\
-AGC\_050 & Calpulalpan & B & 3.02 & 2.47 & 3.50 & 0.196 & AGC\_149 & Cuautepec & A & 4.54 & 4.03 & 5.12 & 0.001 \\
-AGC\_052 & Cuautepec & A & 4.56 & 4.05 & 5.14 & 0.001 & AGC\_153 & Chignahuapan & A & 4.54 & 4.03 & 5.11 & 0.001 \\
-AGC\_061 & Calpulalpan & B & 3.02 & 2.47 & 3.50 & 0.196 & AGC\_154 & Chignahuapan & A & 4.58 & 4.07 & 5.15 & 0.001 \\
-AGC\_063 & Chignahuapan & A & 4.54 & 4.03 & 5.11 & 0.001 & AGC\_156 & Singuilucan & B & 3.02 & 2.47 & 3.50 & 0.196 \\
-AGC\_065 & Almoloya & A & 4.54 & 4.03 & 5.11 & 0.001 & AGC\_158 & Chignahuapan & A & 4.50 & 3.99 & 5.07 & 0.001 \\
-AGC\_071 & Calpulalpan & B & 3.08 & 2.53 & 3.56 & 0.049 & AGC\_173 & Calpulalpan & B & 3.02 & 2.47 & 3.50 & 0.196 \\
-AGC\_075 & Calpulalpan & B & 2.98 & 2.43 & 3.46 & 0.225 & AGC\_174 & Cuautepec & A & 4.54 & 4.03 & 5.11 & 0.001 \\
-AGC\_076 & Chignahuapan & A & 4.54 & 4.03 & 5.11 & 0.001 & AGC\_175 & Chignahuapan & A & 4.58 & 4.07 & 5.15 & 0.001 \\
-AGC\_082 & Almoloya & A & 4.54 & 4.03 & 5.11 & 0.001 & AGC\_177 & Chignahuapan & A & 3.72 & 3.21 & 4.29 & 0.024 \\
-AGC\_085 & Chignahuapan & A & 3.72 & 3.21 & 4.29 & 0.024 & AGC\_182 & Chignahuapan & A & 4.58 & 4.07 & 5.15 & 0.001 \\
-AGC\_086 & Calpulalpan & B & 3.02 & 2.47 & 3.50 & 0.196 & AGC\_183 & Calpulalpan & B & 3.02 & 2.47 & 3.50 & 0.196 \\
-AGC\_087 & Calpulalpan & B & 2.75 & 2.20 & 3.23 & 0.235 & AGC\_186 & Chignahuapan & A & 4.54 & 4.03 & 5.11 & 0.001 \\
-AGC\_088 & Chignahuapan & A & 4.45 & 3.94 & 5.02 & 0.002 & AGC\_188 & Chignahuapan & A & 4.58 & 4.07 & 5.15 & 0.001 \\
-AGC\_091 & Chignahuapan & A & 4.55 & 4.04 & 5.13 & 0.001 & AGC\_190 & Chignahuapan & A & 4.47 & 3.95 & 5.04 & 0.002 \\
-AGC\_093 & Calpulalpan & B & 2.98 & 2.43 & 3.46 & 0.225 & AGC\_191 & Chignahuapan & A & 4.56 & 4.04 & 5.13 & 0.001 \\
-AGC\_094 & Chignahuapan & A & 4.56 & 4.05 & 5.13 & 0.001 & AGC\_192 & Chignahuapan & A & 4.54 & 4.03 & 5.11 & 0.001 \\
-AGC\_095 & Chignahuapan & A & 4.58 & 4.07 & 5.15 & 0.001 & \multicolumn{7}{c}{} \\
+AGC\_003 & B & 3.66 & 3.11 & 4.14 & AGC\_076 & A & 4.54 & 4.03 & 5.11 & AGC\_142 & A & 4.56 & 4.04 & 5.13 \\
+AGC\_011 & A & 4.54 & 4.03 & 5.11 & AGC\_082 & A & 4.54 & 4.03 & 5.11 & AGC\_143 & A & 4.58 & 4.07 & 5.15 \\
+AGC\_016 & A & 4.57 & 4.06 & 5.14 & AGC\_085 & A & 3.72 & 3.21 & 4.29 & AGC\_147 & B & 3.02 & 2.47 & 3.50 \\
+AGC\_025 & B & 2.98 & 2.43 & 3.46 & AGC\_086 & B & 3.02 & 2.47 & 3.50 & AGC\_149 & A & 4.54 & 4.03 & 5.12 \\
+AGC\_027 & B & 3.02 & 2.47 & 3.50 & AGC\_087 & B & 2.75 & 2.20 & 3.23 & AGC\_153 & A & 4.54 & 4.03 & 5.11 \\
+AGC\_028 & A & 4.54 & 4.03 & 5.12 & AGC\_088 & A & 4.45 & 3.94 & 5.02 & AGC\_154 & A & 4.58 & 4.07 & 5.15 \\
+AGC\_029 & B & 3.02 & 2.47 & 3.50 & AGC\_091 & A & 4.55 & 4.04 & 5.13 & AGC\_156 & B & 3.02 & 2.47 & 3.50 \\
+AGC\_030 & B & 3.02 & 2.47 & 3.50 & AGC\_093 & B & 2.98 & 2.43 & 3.46 & AGC\_158 & A & 4.50 & 3.99 & 5.07 \\
+AGC\_031 & A & 3.88 & 3.37 & 4.45 & AGC\_094 & A & 4.56 & 4.05 & 5.13 & AGC\_173 & B & 3.02 & 2.47 & 3.50 \\
+AGC\_036 & A & 4.55 & 4.04 & 5.12 & AGC\_095 & A & 4.58 & 4.07 & 5.15 & AGC\_174 & A & 4.54 & 4.03 & 5.11 \\
+AGC\_039 & B & 3.02 & 2.47 & 3.50 & AGC\_107 & A & 4.54 & 4.03 & 5.12 & AGC\_175 & A & 4.58 & 4.07 & 5.15 \\
+AGC\_042 & B & 3.25 & 2.70 & 3.73 & AGC\_113 & B & 3.25 & 2.70 & 3.73 & AGC\_177 & A & 3.72 & 3.21 & 4.29 \\
+AGC\_043 & A & 4.57 & 4.06 & 5.14 & AGC\_116 & A & 4.54 & 4.03 & 5.12 & AGC\_182 & A & 4.58 & 4.07 & 5.15 \\
+AGC\_050 & B & 3.02 & 2.47 & 3.50 & AGC\_118 & B & 3.02 & 2.47 & 3.50 & AGC\_183 & B & 3.02 & 2.47 & 3.50 \\
+AGC\_052 & A & 4.56 & 4.05 & 5.14 & AGC\_120 & B & 3.02 & 2.47 & 3.50 & AGC\_186 & A & 4.54 & 4.03 & 5.11 \\
+AGC\_061 & B & 3.02 & 2.47 & 3.50 & AGC\_126 & A & 4.57 & 4.06 & 5.14 & AGC\_188 & A & 4.58 & 4.07 & 5.15 \\
+AGC\_063 & A & 4.54 & 4.03 & 5.11 & AGC\_128 & A & 4.56 & 4.05 & 5.13 & AGC\_190 & A & 4.47 & 3.95 & 5.04 \\
+AGC\_065 & A & 4.54 & 4.03 & 5.11 & AGC\_129 & B & 3.02 & 2.47 & 3.50 & AGC\_191 & A & 4.56 & 4.04 & 5.13 \\
+AGC\_071 & B & 3.08 & 2.53 & 3.56 & AGC\_130 & A & 4.54 & 4.03 & 5.11 & AGC\_192 & A & 4.54 & 4.03 & 5.11 \\
+AGC\_075 & B & 2.98 & 2.43 & 3.46 & AGC\_136 & A & 4.57 & 4.06 & 5.14 &  &  &  &  &  \\
 \bottomrule
 \end{tabular}
 \end{table*}
