@@ -2,4 +2,4 @@ FIRA canaliza financiamiento al sector agropecuario, y sus decisiones productiva
 
 Los datos de campo son escasos y costosos, mientras que las imágenes de satélite y los datos climáticos son públicos y cubren cualquier parcela. Por eso es útil saber cuánta información del rendimiento contienen esas fuentes y cuánta proviene del propio registro de los productores. Con 138 parcelas de entrenamiento y etiquetas con fuente mixta, también es útil medir con rigor qué tan confiable es el error y no solo reportar el mejor valor observado.
 
-Este trabajo aporta una estimación auditable, con un error calculado de forma conservadora, una traducción a pesos por hectárea y una aplicación web para analistas y productores. También documenta las ideas que no funcionaron, para que otros equipos no repitan pruebas sin resultado.
+Este trabajo aporta una estimación auditable, con un error calculado de forma conservadora, una traducción a pesos por hectárea y una aplicación web para analistas y productores. También documenta las ideas que no funcionaron, para que trabajos futuros no repitan pruebas sin resultado.
