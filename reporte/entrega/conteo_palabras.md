@@ -4,12 +4,12 @@ Palabras separadas por espacios en el texto de plataforma/, que es el que se peg
 
 | Sección | Límite | Palabras | Cumple |
 |---|---|---|---|
-| Introducción | 400 a 550 | 546 | Sí |
-| Justificación | 100 a 200 | 185 | Sí |
-| Objetivos | máximo 200 | 169 | Sí |
-| Metodología | 600 a 700 | 675 | Sí |
-| Resultados y discusión | máximo 800 | 781 | Sí |
-| Uso de la ciencia de datos en la inclusión financiera del sector agro | máximo 300 | 300 | Sí |
-| Conclusiones | máximo 400 | 359 | Sí |
+| Introducción | 400 a 550 | 434 | Sí |
+| Justificación | 100 a 200 | 136 | Sí |
+| Objetivos | máximo 200 | 164 | Sí |
+| Metodología | 600 a 700 | 645 | Sí |
+| Resultados y discusión | máximo 800 | 513 | Sí |
+| Uso de la ciencia de datos en la inclusión financiera del sector agro | máximo 300 | 246 | Sí |
+| Conclusiones | máximo 400 | 273 | Sí |
 
 Todas cumplen: sí.

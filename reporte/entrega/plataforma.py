@@ -40,8 +40,10 @@ def bibitems():
 
 def orden_citas():
     orden = []
-    for clave, *_ in SECCIONES:
-        texto = (AQUI / "secciones" / f"{clave}.tex").read_text(encoding="utf-8")
+    # Primero las secciones del reporte y después el anexo técnico, que comparte la numeración.
+    archivos = [AQUI / "secciones" / f"{clave}.tex" for clave, *_ in SECCIONES] + [AQUI / "anexo_tecnico.tex"]
+    for archivo in archivos:
+        texto = archivo.read_text(encoding="utf-8")
         for grupo in re.findall(r"\\cite\{([^}]+)\}", texto):
             for c in grupo.split(","):
                 c = c.strip()
@@ -60,10 +62,18 @@ def escribir_referencias(orden, items):
         "\\begin{thebibliography}{99}\n\n" + cuerpo + "\n\n\\end{thebibliography}\n", encoding="utf-8")
 
 
-def a_texto(tex, numero, figuras):
+def etiquetas_anexo():
+    """Números de figuras, tablas y ecuaciones del anexo técnico, leídos de su .aux."""
+    aux = AQUI / "anexo_tecnico.aux"
+    if not aux.exists():
+        raise SystemExit("Compila primero anexo_tecnico.tex")
+    return dict(re.findall(r"\\newlabel\{([^}]+)\}\{\{([^}]*)\}", aux.read_text(encoding="utf-8")))
+
+
+def a_texto(tex, numero, anexo):
     t = re.sub(r"\\begin\{figure\}.*?\\end\{figure\}", "", tex, flags=re.S)
     t = re.sub(r"\\section\{[^}]*\}(\\label\{[^}]*\})?", "", t)
-    t = re.sub(r"\s*\(Fig\.~\\ref\{[^}]+\}\)", "", t)
+    t = re.sub(r"\\ref\{A-([^}]+)\}", lambda m: anexo[m.group(1)], t)
     t = re.sub(r"~?\\cite\{([^}]+)\}", lambda m: " [" + ", ".join(str(numero[c.strip()]) for c in m.group(1).split(",")) + "]", t)
     t = re.sub(r"\\(textbf|emph|url)\{([^}]*)\}", r"\2", t)
     t = t.replace("\\begin{enumerate}", "").replace("\\end{enumerate}", "")
@@ -81,11 +91,12 @@ def main():
     orden = orden_citas()
     escribir_referencias(orden, items)
     numero = {c: i + 1 for i, c in enumerate(orden)}
+    anexo = etiquetas_anexo()
     salida = AQUI / "plataforma"
     salida.mkdir(exist_ok=True)
     filas, todo = [], True
     for clave, nombre, lo, hi in SECCIONES:
-        texto = a_texto((AQUI / "secciones" / f"{clave}.tex").read_text(encoding="utf-8"), numero, None)
+        texto = a_texto((AQUI / "secciones" / f"{clave}.tex").read_text(encoding="utf-8"), numero, anexo)
         (salida / f"{clave}.txt").write_text(texto, encoding="utf-8")
         n = len(texto.split())
         ok = n <= hi and (lo is None or n >= lo)

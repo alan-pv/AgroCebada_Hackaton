@@ -1,25 +1,19 @@
 \section{Uso de la ciencia de datos en la inclusión financiera del sector agro}\label{sec:inclusion}
 
-\textbf{De un rendimiento por zona a uno por parcela.} La capa de crédito sustituye el rendimiento esperado del
-paquete tecnológico por la predicción de cada parcela con su incertidumbre. Calcula la probabilidad de no cubrir el crédito o el
-costo total. La probabilidad combina los errores del modelo con
-la fracción de superficie que el municipio pierde históricamente, porque si la cosecha se pierde el ingreso es cero. Un
-semáforo la resume en verde bajo 10\,\%, amarillo de 10 a 30\,\% y rojo desde 30\,\%. Con el crédito, 23 de las 59
-parcelas salen en verde, 30 en amarillo y 6 en rojo. Con el costo total salen 55 en rojo, porque el paquete incluye
-conceptos no financiados, como la renta.
+\textbf{Del rendimiento de la zona al de la parcela.} Los paquetes tecnológicos de AgroCostos, que FIRA sugirió consultar
+en la segunda sesión de preguntas~\cite{preguntas}, suponen un rendimiento esperado por zona~\cite{agrocostos}. Nuestra
+capa de crédito usa en su lugar la predicción de cada parcela con su incertidumbre. Con ella calcula la probabilidad de
+no cubrir el crédito o el costo de producción (anexo técnico, ecuación~\ref{A-eq:credito}). Si la cosecha se pierde el
+ingreso es cero, así que la probabilidad también incluye la pérdida histórica del municipio. Un semáforo la resume en
+verde, amarillo o rojo. Con el crédito, 23 parcelas salen en verde, 30 en amarillo y 6 en rojo. Con el costo total casi
+todas salen en rojo, porque el paquete incluye gastos que el crédito no financia, como la renta de la tierra.
 
-\textbf{A quién sirve.} La comercializadora que compra el grano puede priorizar visitas de campo. El analista ordena
-parcelas por riesgo y el productor ve cuánto debe cosechar para pagar.
+\textbf{A quién sirve.} La comercializadora que compra el grano puede decidir dónde visitar primero. El analista puede
+ordenar parcelas por riesgo y el productor puede ver cuánto necesita cosechar para pagar.
 
-\textbf{Alcance.} La probabilidad describe la incertidumbre de un año parecido a 2025 y no incluye sequías, heladas ni
-cambios de precio. Por eso no es una probabilidad de incumplimiento ni sirve para tarificar seguros, que además
-enfrentan riesgo base~\cite{jensen2017}.
+\textbf{Qué no hace.} La probabilidad describe un año parecido a 2025 y no incluye sequías, heladas ni cambios de precio.
+Por eso no es una probabilidad de incumplimiento ni sirve para fijar el precio de un seguro~\cite{jensen2017}.
 
-\textbf{Momento de uso.} El modelo usa rendimientos de vecinas de la misma temporada, que existen solo después de su
-cosecha. Es una estimación de cierre de temporada. Para usarlo antes de cosechar harían falta rendimientos de ciclos
-anteriores, que el reto no incluye.
-
-\textbf{Escala municipal.} Con el SIAP de 2003 a 2025 ajustamos un modelo municipal~\cite{siap2026}. En
-municipios a más de 50\,km de los de entrenamiento, la temperatura máxima de julio y agosto más kriging de residuos
-obtuvo un RMSE de 0.44\,t/ha contra 0.57 del kriging solo. Al repetir de forma anidada
-la elección de esa variable, la ventaja baja a unos 0.07\,t/ha.
+\textbf{Cuándo se puede usar.} El modelo usa el rendimiento de parcelas vecinas de la misma temporada, que solo existe
+después de su cosecha. Es una estimación de cierre de temporada. Para usarlo antes de cosechar harían falta rendimientos
+de ciclos anteriores.

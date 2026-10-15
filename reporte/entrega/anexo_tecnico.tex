@@ -1,0 +1,301 @@
+% Anexo técnico del Reto AgroCebada FIRA 2026. Máximo 4 cuartillas, con la tabla de ID y rendimiento predicho.
+% Sigue la plantilla oficial de IEEE para conferencias (bare_conf.tex de IEEEtran v1.8b).
+% Compilar desde reporte/entrega (dos veces):
+%   xelatex -interaction=nonstopmode anexo_tecnico.tex && xelatex -interaction=nonstopmode anexo_tecnico.tex
+% Las citas usan la numeración de la bibliografía entregada (referencias.tex, que genera plataforma.py).
+\documentclass[conference,letterpaper]{IEEEtran}
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Termes}
+\usepackage{polyglossia}
+\setdefaultlanguage{spanish}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{etoolbox}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue!50!black}
+\graphicspath{{figuras/}}
+\gappto\captionsspanish{\renewcommand{\figurename}{Fig.}\renewcommand{\tablename}{Tabla}}
+\renewcommand{\IEEEkeywordsname}{Palabras clave}
+
+\begin{document}
+
+\title{Anexo técnico. Rendimiento de cebada de temporal\\con régimen de registro y rezago espacial}
+
+\author{\IEEEauthorblockN{José Alán Pomares Valdés}
+\IEEEauthorblockA{Facultad de Ciencias de la Computación\\
+Benemérita Universidad Autónoma de Puebla\\
+Puebla, México\\
+pv202351433@alm.buap.mx}
+\and
+\IEEEauthorblockN{Vicente Josimar López Martínez}
+\IEEEauthorblockA{Facultad de Ciencias de la Computación\\
+Benemérita Universidad Autónoma de Puebla\\
+Puebla, México}
+\and
+\IEEEauthorblockN{Luis Emmanuel Ramiro Luna}
+\IEEEauthorblockA{Facultad de Ciencias de la Computación\\
+Benemérita Universidad Autónoma de Puebla\\
+Puebla, México}
+\and
+\IEEEauthorblockN{Luis Gustavo Olivares Soto (asesor)}
+\IEEEauthorblockA{Facultad de Ciencias de la Computación\\
+Benemérita Universidad Autónoma de Puebla\\
+Puebla, México}}
+
+\maketitle
+
+% Registra la numeración de la bibliografía entregada sin imprimirla, para que las citas coincidan con ella.
+\setbox0\vbox{\input{referencias}}
+
+\begin{abstract}
+Este anexo del equipo Los Bien Dotados complementa la metodología del reporte técnico con las figuras, ecuaciones y
+tablas que sustentan cada decisión del modelo. Estimamos el rendimiento de 59 parcelas con un proceso gaussiano que usa
+el régimen de registro del municipio y el rendimiento de las parcelas vecinas del mismo régimen. Su raíz del error
+cuadrático medio (RMSE) en validación cruzada es 0.458\,t/ha y esperamos de 0.46 a 0.49\,t/ha en las 59 parcelas. Las
+citas remiten a la bibliografía entregada.
+\end{abstract}
+
+\begin{IEEEkeywords}
+rendimiento de cebada, régimen de registro, rezago espacial, proceso gaussiano, predicción conformal, crédito agrícola.
+\end{IEEEkeywords}
+
+\section{Dos formas de registrar el rendimiento}
+
+Cada municipio registra el rendimiento de una sola forma (Fig.~\ref{fig:regimenes}). En el régimen A los valores
+tienen dos decimales y promedian 4.49\,t/ha. En el B tienen un decimal y promedian 3.05\,t/ha. La diferencia entre
+medias, 1.4\,t/ha, es casi tres veces la desviación estándar dentro de cada régimen. Por eso el régimen es la primera
+pieza del modelo. No sabemos si el rendimiento se midió distinto o solo se anotó distinto, así que lo tratamos como una
+observación por municipio.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{f1_regimenes}
+\caption{Rendimiento de las 138 parcelas de entrenamiento por municipio. Cada municipio cae en un solo régimen. Las
+líneas punteadas son la media de cada régimen.}
+\label{fig:regimenes}
+\end{figure}
+
+\textbf{El régimen supera a cualquier agrupación geográfica.} La Fig.~\ref{fig:bases} compara medias por grupo. La media
+por municipio se acerca a la del régimen cuando hay parcelas de entrenamiento cerca (esquema A), pero cuando la
+validación deja fuera zonas completas (esquema B) sube a 0.955\,t/ha. El régimen se conoce para toda parcela y no tiene
+ese problema.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{f2_bases}
+\caption{RMSE de modelos sencillos en los dos esquemas de validación. La media por régimen es la única que no empeora
+cuando se dejan zonas completas fuera.}
+\label{fig:bases}
+\end{figure}
+
+\section{Modelo}
+
+\textbf{Rezago espacial.} Parcelas cercanas tienden a rendir parecido~\cite{tobler1970}. El rezago de la parcela $i$ es
+\begin{equation}
+\ell_i = \frac{\sum_{j\in\mathcal{N}_i} y_j / d_{ij}}{\sum_{j\in\mathcal{N}_i} 1 / d_{ij}},
+\label{eq:rezago}
+\end{equation}
+donde $\mathcal{N}_i$ son hasta 10 parcelas de entrenamiento del mismo régimen a 400\,m o menos, $y_j$ su rendimiento y
+$d_{ij}$ la distancia. Sin vecinos, $\ell_i$ es la media del régimen en el entrenamiento. La parcela evaluada nunca
+entra en su propio rezago. Elegimos 400\,m porque es el radio con menor error (Fig.~\ref{fig:radio}).
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{f3_radio}
+\caption{RMSE según el radio de búsqueda de vecinos, con la fracción de parcelas que tiene al menos un vecino. Con
+radios chicos casi nadie tiene vecinos y con radios grandes el promedio mezcla parcelas que ya no se parecen.}
+\label{fig:radio}
+\end{figure}
+
+\textbf{Proceso gaussiano.} Las entradas son el régimen en dos columnas indicadoras y el rezago estandarizado. La
+covarianza entre dos parcelas es
+\begin{equation}
+k(\mathbf{x},\mathbf{x}') = \sigma_f^2 \exp\!\left(-\frac{\lVert\mathbf{x}-\mathbf{x}'\rVert^2}{2\lambda^2}\right) +
+\sigma_n^2\,\delta_{\mathbf{x}\mathbf{x}'},
+\label{eq:kernel}
+\end{equation}
+donde $\lambda$ es la escala de parecido, $\sigma_f^2$ la variación explicada y $\sigma_n^2$ el ruido~\cite{rasmussen2006}.
+Los tres se ajustan por máxima verosimilitud dentro de cada grupo de validación. Con las 138 parcelas quedan en 0.77,
+1.57 y 0.26, así que el modelo atribuye cerca de una cuarta parte de la variación a ruido.
+
+\textbf{Intervalo de predicción.} Con predicción conformal de Mondrian~\cite{vovk2005,lei2018}, el intervalo de la
+parcela $i$ del régimen $g$ es
+\begin{equation}
+\left[\,\hat y_i + q_{0.10}(r_g),\; \hat y_i + q_{0.90}(r_g)\,\right],
+\label{eq:intervalo}
+\end{equation}
+donde $r_g$ son los 1380 errores fuera de grupo con signo, $r = y - \hat y$, de las 10 repeticiones, y $q_\alpha$ su
+cuantil. Calibramos por régimen porque sus errores se distribuyen distinto.
+
+\section{Por qué cada pieza}
+
+Una idea entra solo si baja el RMSE en al menos 7 de 10 repeticiones y pasa una prueba de permutación con
+$p\le0.05$~\cite{ojala2010}. Ningún bloque satelital, climático o topográfico pasó esa regla (Fig.~\ref{fig:bloques}).
+El clima viene en celdas de unos 5\,km y solo distingue zonas, algo que ya hacen el régimen y los vecinos.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{f4_bloques}
+\caption{RMSE al agregar cada bloque de variables al modelo con régimen y rezago (línea punteada). Ninguno mejora de
+forma que pase la regla de decisión, y juntar todos los satelitales empeora el error.}
+\label{fig:bloques}
+\end{figure}
+
+Con las entradas fijas comparamos algoritmos (Fig.~\ref{fig:algoritmos}). Los árboles quedan peor que la media por
+régimen porque con tres entradas y 138 parcelas sus cortes no tienen dónde apoyarse. El proceso gaussiano obtiene el
+menor error, aunque frente a un modelo lineal con las mismas entradas la diferencia no es significativa ($p=0.38$).
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{f5_algoritmos}
+\caption{RMSE de cada algoritmo con régimen y rezago como entradas. La línea punteada es la media por régimen.}
+\label{fig:algoritmos}
+\end{figure}
+
+\section{Confiabilidad del error}
+
+La Tabla~\ref{tab:error} separa lo que mide cada cifra. La validación anidada repite la elección entre 12 variantes
+dentro de cada grupo externo~\cite{varma2006}, así que incluye el costo de haber elegido el mejor
+modelo~\cite{cawley2010}. Frente a la media por régimen la diferencia es de $-0.029$\,t/ha, con intervalo de confianza
+del 95\,\% de $-0.079$ a $+0.022$ en la prueba de Nadeau y Bengio~\cite{nadeau2003}, así que no es significativa. El
+intervalo del percentil 10 al 90 cubre 0.826 de las evaluaciones, cerca de la meta de 0.80 (Fig.~\ref{fig:cobertura}).
+
+\textbf{No hay fuga de información.} Si la etiqueta se filtrara a las variables, el modelo predeciría bien aun con las
+etiquetas revueltas~\cite{kaufman2012}. Con los rendimientos revueltos dentro de cada régimen el RMSE nunca baja de
+0.485, contra 0.467 con los reales (Fig.~\ref{fig:permutacion}). El rezago capta una relación real entre vecinos.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{f8_permutacion}
+\caption{RMSE en 20 sorteos con los rendimientos revueltos dentro de cada régimen (barras) contra el RMSE con los
+rendimientos reales (línea azul). Ningún sorteo se acerca al valor real.}
+\label{fig:permutacion}
+\end{figure}
+
+\begin{table}[!t]
+\centering
+\caption{Qué mide cada cifra de error (t/ha)}
+\label{tab:error}
+\footnotesize
+\begin{tabular}{@{}p{5.6cm}r@{}}
+\toprule
+Qué se mide & RMSE \\
+\midrule
+Modelo elegido, validación cruzada repetida & 0.458 \\
+Procedimiento completo de elegir, validación anidada & 0.490 \\
+Media por régimen, mismas particiones & 0.489 \\
+Variación por azar con 59 parcelas (90\,\% de 5000 sorteos) & 0.35 a 0.56 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{f10_cobertura}
+\caption{Cobertura del intervalo p10 a p90 en validación anidada, con su intervalo de confianza del 95\,\%, en total,
+por régimen y por cuartil de área. La línea punteada es la meta de 0.80.}
+\label{fig:cobertura}
+\end{figure}
+
+\section{Preguntas guía}
+
+Como el modelo final solo tiene tres entradas, medimos la importancia con un bosque aleatorio de análisis, revolviendo
+cada índice y viendo cuánto sube su RMSE (Fig.~\ref{fig:indices}). Sin el régimen, el NDVI y la lluvia pesan más, pero
+identifican la zona. Con régimen y rezago, el índice de sequía NDDI~\cite{gu2007} es el mayor, con apenas 0.004\,t/ha.
+La mejor combinación es régimen más rezago.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{f11_indices}
+\caption{Aumento del RMSE al revolver cada índice en el bosque de análisis, sin régimen (izquierda) y con régimen y
+rezago (derecha). Las escalas horizontales son distintas.}
+\label{fig:indices}
+\end{figure}
+
+\section{Capa de crédito}
+
+La probabilidad de no cubrir un umbral $u$, que puede ser el crédito o el costo total por hectárea entre el precio, es
+\begin{equation}
+P = q + (1-q)\,\Pr\!\left(\hat y_i + r_g < u\right),
+\label{eq:credito}
+\end{equation}
+donde $q$ es la fracción de superficie que el municipio pierde históricamente~\cite{siap2026} y la segunda parte usa
+los mismos errores de~\eqref{eq:intervalo}. Si la cosecha se pierde el ingreso es cero, por eso se suma $q$. Los
+costos son los de AgroCostos de FIRA~\cite{agrocostos}.
+
+\section{Predicciones}
+
+La Tabla~\ref{tab:predicciones} lista el ID de cada parcela y su rendimiento predicho en t/ha, con su intervalo y la
+probabilidad de quedar bajo 2.5\,t/ha. La Fig.~\ref{fig:mapa} muestra que las predicciones siguen el patrón espacial
+de los rendimientos observados. Su principal limitación se ve en la Fig.~\ref{fig:obspred}. Las predicciones forman
+una franja por régimen y las parcelas extremas, como las de 5.5\,t/ha, quedan cerca de la media de su régimen.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=0.9\columnwidth]{f6_observado_predicho}
+\caption{Rendimiento declarado contra predicción fuera de grupo de las 138 parcelas de entrenamiento. La diagonal es
+la predicción perfecta.}
+\label{fig:obspred}
+\end{figure}
+
+\input{tabla_predicciones}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=0.95\columnwidth]{f12_mapa}
+\caption{Rendimiento observado en las parcelas de entrenamiento (cuadros) y predicho en las 59 parcelas (círculos con
+borde), con la misma escala de color. Los grupos en tonos oscuros, al oeste, son del régimen B.}
+\label{fig:mapa}
+\end{figure}
+
+\section{Aportaciones del equipo}
+
+\textbf{José Alán Pomares Valdés.} Limpieza de datos, construcción de variables, hallazgo de los regímenes, diseño de la
+validación y de la regla de decisión, modelado, intervalos, capa de crédito, preguntas guía y redacción.
+
+\textbf{Vicente Josimar López Martínez.} Aplicación web con mapa, predicción, intervalo y ejecución del modelo en vivo.
+Levantamiento de necesidades de analistas y productores [por confirmar]. Pruebas de uso [por confirmar]. Despliegue
+[por confirmar].
+
+\textbf{Luis Emmanuel Ramiro Luna.} Video de presentación. Guion a partir de los resultados [por confirmar]. Grabación y
+edición [por confirmar]. Revisión de la claridad del mensaje para productores [por confirmar].
+
+\textbf{Luis Gustavo Olivares Soto, asesor.} Revisión crítica de la metodología y de la redacción.
+
+\section{Uso de inteligencia artificial}
+
+Usamos Claude Code, de Anthropic, como asistente de programación, auditoría y redacción. El equipo verificó cada
+resultado contra los datos y decidió qué incorporar. La Tabla~\ref{tab:ia} resume los prompts principales en una
+síntesis formal, no en su texto original.
+
+\begin{table}[!t]
+\centering
+\caption{Síntesis de los prompts principales}
+\label{tab:ia}
+\scriptsize
+\begin{tabular}{@{}p{0.9cm}p{3.2cm}p{3.6cm}@{}}
+\toprule
+Fecha & Prompt & Resultado y uso \\
+\midrule
+4 oct & Revisar la documentación del reto como investigación previa e identificar el problema central del dataset. &
+Diagnóstico del tamaño y del ruido de las etiquetas. Lo contrastamos con los datos. \\
+4 oct & Proponer un plan de validación y experimentación sólido, con conceptos y referencias. &
+Esquemas de validación y regla de decisión fijados antes de probar ideas. \\
+7 oct & Auditar el código del modelo y documentarlo. &
+Detectó que el rezago usaba la propia etiqueta. Lo corregimos y el RMSE pasó de 0.4525 a 0.458. \\
+9 oct & Auditar de forma independiente todo el código y sus conclusiones. &
+Motivó usar datos públicos del SIAP y un modelo municipal. \\
+14 oct & Investigar qué explica los regímenes A y B con lo dicho en la segunda sesión de preguntas. &
+Hipótesis de fuente mixta, que dejamos como no confirmada. \\
+14 oct & Diseñar la capa de crédito con precio, costos y calibración del p10. &
+Capa de crédito. Revisamos cada supuesto. \\
+15 oct & Atender las observaciones del asesor, primero las posibles fugas. &
+Auditoría sin fuga, correcciones de signo y de redacción. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{document}

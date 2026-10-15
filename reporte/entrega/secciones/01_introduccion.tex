@@ -1,47 +1,35 @@
 \section{Introducción}\label{sec:intro}
 
 El Reto AgroCebada FIRA 2026 pide estimar el rendimiento de grano de cebada de temporal, en toneladas por hectárea
-(t/ha), de 59 parcelas de Hidalgo, Puebla y Tlaxcala~\cite{bases}. Estas tres entidades se cuentan entre las cuatro
-principales productoras de cebada grano del país~\cite{sader2025}. FIRA busca una herramienta que apoye decisiones
-productivas, de planeación y eventualmente financieras~\cite{preguntas}.
+(t/ha), de 59 parcelas de Hidalgo, Puebla y Tlaxcala~\cite{bases}. Estas entidades se cuentan entre las principales
+productoras de cebada del país~\cite{sader2025}. FIRA busca que la estimación apoye decisiones productivas, de planeación
+y eventualmente financieras~\cite{preguntas}.
 
-El conjunto de datos reúne 197 parcelas de nueve municipios, todas del ciclo primavera-verano 2025. De ellas, 138 traen
-su rendimiento y sirven para entrenar, y 59 no lo traen y son las que se califican. FIRA hizo la partición al azar,
-estratificada por zona. Para cada parcela hay series de los satélites Sentinel-2~\cite{drusch2012}, Landsat y
-PlanetScope~\cite{frazier2021}, lluvia~\cite{funk2015}, temperatura~\cite{verdin2020} y topografía. El rendimiento es el
-peso en báscula de toda la cosecha, sin ajuste por humedad, impurezas ni mermas. Lo reportó principalmente la
-comercializadora que compró el grano y, en menor proporción, el productor. FIRA no informará la fuente de cada parcela y
-pide tratar todos los registros como una sola variable objetivo~\cite{preguntas}.
+Contamos con 197 parcelas de nueve municipios, todas del ciclo primavera-verano 2025. En 138 conocemos el rendimiento y
+las usamos para entrenar. Las otras 59 son las que se califican, principalmente con la raíz del error cuadrático medio (RMSE), el error absoluto medio y el coeficiente de
+determinación, sin ponderar por superficie~\cite{preguntas}. Para todas hay imágenes de los satélites
+Sentinel-2~\cite{drusch2012}, Landsat y PlanetScope~\cite{frazier2021}, lluvia~\cite{funk2015},
+temperatura~\cite{verdin2020} y topografía.
 
-La predicción de rendimiento con teledetección y aprendizaje automático es un tema muy estudiado~\cite{vanklompenburg2020,weiss2020}.
-Este reto tiene dos rasgos que cambian el problema. El primero es el tamaño de la muestra. Con 138 parcelas, la
-diferencia entre dos modelos suele ser menor que la variación que produce cambiar las particiones de validación. El
-segundo es el registro del rendimiento. La literatura reporta que los rendimientos reportados contienen un error
-considerable~\cite{lobell2020}, y aquí la fuente es mixta.
+El rendimiento es el peso en báscula de toda la cosecha, sin ajuste por humedad ni impurezas. Lo reportó sobre todo la
+comercializadora que compró el grano y, en menor medida, el productor~\cite{preguntas}. Esto importa porque los
+rendimientos reportados suelen traer error~\cite{lobell2020}.
 
-\textbf{Dos formas de registrar el rendimiento.} Al revisar las etiquetas de entrenamiento encontramos que cada
-municipio registra el rendimiento de una sola de dos formas (Fig.~\ref{fig:regimenes}). En cuatro municipios los
-valores tienen dos decimales y promedian 4.49\,t/ha. Lo llamamos régimen A. En los otros cinco todos los valores tienen
-un solo decimal, 44 de 51 son múltiplos de 0.5, y promedian 3.05\,t/ha. Lo llamamos régimen B. La diferencia entre
-medias, 1.4\,t/ha, es casi tres veces la desviación estándar dentro de cada régimen, que es de 0.53\,t/ha en el A y
-0.40 en el B. Por los decimales no sabemos si el rendimiento se midió distinto o solo se anotó distinto. La fuente mixta
-es una explicación posible que no podemos confirmar. Por eso tratamos el régimen como una observación por municipio y
-no como dos variables objetivo.
+Predecir el rendimiento con satélites es un tema muy estudiado~\cite{vanklompenburg2020,weiss2020}. Aquí el problema
+cambia por dos razones. La primera es que 138 parcelas son pocas, y la diferencia entre dos modelos suele ser menor que
+el azar de la validación. La segunda es la forma en que se registró el rendimiento.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{f1_regimenes}
-\caption{Rendimiento de las 138 parcelas de entrenamiento por municipio, con el número de parcelas entre paréntesis.
-Las líneas punteadas son la media de cada régimen.}
-\label{fig:regimenes}
-\end{figure}
+Al revisar las etiquetas encontramos que cada municipio registra el rendimiento de una sola de dos formas (anexo
+técnico, Fig.~\ref{A-fig:regimenes}). En cuatro municipios los valores tienen dos decimales y promedian 4.49\,t/ha. Lo
+llamamos régimen A. En los otros cinco están redondeados y promedian 3.05\,t/ha. Lo llamamos régimen B. La diferencia entre ambos, 1.4\,t/ha, es casi tres veces la variación dentro de cada uno,
+así que conocer el régimen ya explica buena parte del rendimiento. No sabemos si
+el rendimiento se midió distinto o solo se anotó distinto. FIRA pidió tratar todos los registros como una sola variable,
+así que usamos el régimen como una característica del municipio y no como dos problemas separados.
 
-Por estos dos rasgos el trabajo no se limita a buscar el algoritmo con menor error. Responde tres preguntas. Qué
-información predice el rendimiento de parcelas nuevas, qué tan confiable es el error que estimamos y qué significa ese
-error para quien toma una decisión. Para responderlas fijamos la forma de evaluar antes de probar ideas y agregamos las
-piezas del modelo una por una, conservando solo las que mejoraban la validación de forma consistente.
+Por eso nuestro trabajo no se limita a buscar el algoritmo con menor error. Buscamos responder qué información predice
+de verdad el rendimiento, qué tan confiable es el error que estimamos y qué significa ese error para un productor o un
+analista.
 
-El modelo final es un proceso gaussiano con dos entradas, el régimen del municipio y el rendimiento de las parcelas
-vecinas del mismo régimen a 400\,m o menos. Estimamos que su raíz del error cuadrático medio (RMSE) en las 59 parcelas
-será de 0.46 a 0.49\,t/ha. Además entregamos un intervalo de predicción por parcela, una capa que traduce la predicción
-a pesos y a riesgo de crédito, y una aplicación web para consultarla.
+El resultado es un modelo sencillo. Usa el régimen del municipio y el rendimiento de las parcelas vecinas, y esperamos
+que su RMSE en las 59 parcelas sea de 0.46 a 0.49\,t/ha. Lo acompañamos con un
+intervalo por parcela, una traducción del error a pesos y una aplicación web.

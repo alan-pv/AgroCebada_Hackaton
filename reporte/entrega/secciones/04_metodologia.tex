@@ -1,49 +1,45 @@
 \section{Metodología}\label{sec:metodologia}
 
-\textbf{Limpieza de las series.} Consideramos limpia una observación satelital con nubosidad de 20\,\% o menos y con
-valor del índice. Elegimos ese umbral porque la nubosidad casi siempre vale 0 o 100\,\% (86\,\% de los registros) y
-cuando vale 100 los índices vienen vacíos. Así cada parcela conserva de 19 a 34 observaciones de Sentinel-2 entre mayo
-y octubre de 2025, con mediana de 25. Las observaciones descartadas no se imputan. Excluimos el índice de área foliar
-(LAI) de Sentinel-2 porque su fórmula da valores negativos sobre suelo desnudo, sin significado físico, en 42\,\% de los
-registros~\cite{ecuaciones}. Con las series limpias construimos 91 variables por parcela, como el máximo del NDVI de
-2025, la fenología~\cite{zadoks1974}, la historia de 2022 a 2024, el clima y la topografía. Ninguna usa el rendimiento.
+Seguimos seis pasos. En cada uno explicamos qué decidimos y por qué.
 
-\textbf{Régimen.} Asignamos el régimen con una regla fija por nombre de municipio. No usamos el formato de cada
-etiqueta, porque 7 de las 87 parcelas del régimen A tienen un solo decimal y esa regla las habría mandado al B. La regla
-se conoce para las 59 parcelas, porque todas pertenecen a municipios con parcelas de entrenamiento. En seis parcelas de municipios con una a tres parcelas de entrenamiento el régimen se
-dedujo de su propia etiqueta y de la cercanía a municipios del mismo formato. Sin ellas el RMSE pasa de 0.458 a
-0.464\,t/ha, así que el efecto es pequeño.
+\textbf{1. Limpieza de los datos.} Usamos una observación de satélite solo si su nubosidad era de 20\,\% o menos.
+Elegimos ese umbral porque la nubosidad casi siempre vale 0 o 100\,\%, y cuando vale 100 los índices vienen vacíos. Con
+él cada parcela conserva entre 19 y 34 imágenes de Sentinel-2 en la temporada de 2025. No inventamos valores para las
+fechas descartadas. Después marcamos como pico un valor que se aleja mucho de la mediana de sus vecinos en el tiempo y
+suavizamos cada serie, porque un salto aislado suele ser una nube o una sombra que el filtro no detectó. Dejamos fuera el índice de área foliar de Sentinel-2, porque su fórmula da valores negativos sobre
+suelo desnudo, algo sin sentido físico~\cite{ecuaciones}. Con lo demás construimos 91 variables por parcela, como el
+verdor máximo de 2025, las etapas del ciclo~\cite{zadoks1974}, la historia de 2022 a 2024, el clima y el terreno.
 
-\textbf{Esquema de evaluación.} Todo error se mide en parcelas que el modelo no vio. Usamos validación cruzada de 5
-grupos, estratificada por municipio y repetida 10 veces, porque imita la partición oficial. Es el esquema A. Como la
-validación al azar puede ser optimista cuando parcelas cercanas se parecen~\cite{roberts2017,ploton2020}, añadimos un
-esquema B que deja fuera zonas completas, formadas al unir parcelas a menos de 2\,km. Todo lo que usa el rendimiento se
-recalcula dentro de cada grupo con solo las parcelas de entrenamiento.
+\textbf{2. Asignación del régimen.} Asignamos el régimen por el nombre del municipio. No lo hicimos por los decimales de
+cada parcela, porque 7 de las 87 parcelas del régimen A tienen un solo decimal y se habrían clasificado mal. Así el
+régimen se conoce para las 59 parcelas a predecir. En seis parcelas de municipios muy pequeños el régimen se dedujo de
+su propia etiqueta. Sin ellas el error cambia de 0.458 a 0.464\,t/ha, un efecto pequeño.
 
-\textbf{Regla de decisión.} Con 138 parcelas una mejora puede aparecer por azar. Por eso una idea se acepta solo si baja
-el RMSE en al menos 7 de las 10 repeticiones y si pasa una prueba de permutación con $p\le0.05$~\cite{ojala2010}. En la
-prueba revolvemos las variables nuevas dentro de cada régimen y repetimos la validación 50 veces. Si el modelo predice
-igual con ellas revueltas, la mejora no viene de esas variables.
+\textbf{3. Forma de evaluar.} Fijamos la forma de evaluar antes de probar ideas, para no acomodarla a los resultados.
+Medimos el error siempre en parcelas que el modelo no vio, con validación cruzada de cinco grupos repetida 10 veces, que
+imita la partición de FIRA. Como parcelas cercanas se parecen y eso puede volver optimista la
+validación~\cite{roberts2017,ploton2020}, también evaluamos dejando fuera zonas completas. Una idea se acepta solo si
+mejora el error en al menos 7 de las 10 repeticiones y pasa una prueba de permutación~\cite{ojala2010}. Esa prueba
+revuelve las variables nuevas dentro de cada régimen y repite la validación 50 veces. Si el modelo predice igual de bien con ellas revueltas, la mejora era azar.
 
-\textbf{Rezago espacial.} Parcelas cercanas tienden a rendir parecido porque comparten suelo, clima y
-manejo~\cite{tobler1970}. El rezago de una parcela es el promedio del rendimiento de hasta 10 parcelas de entrenamiento
-del mismo régimen a 400\,m o menos, ponderado por el inverso de la distancia. Sin vecinos, recibe la media de su
-régimen en el entrenamiento. Elegimos 400\,m porque a 250\,m solo el 25\,\% de las parcelas tiene vecino, mientras que
-con radios mayores el promedio mezcla parcelas que ya no se parecen y el error sube.
+\textbf{4. Construcción del modelo.} Agregamos piezas de la más simple a la más compleja, y
+cada pieza tuvo que ganarle a la mejor versión aceptada hasta ese momento. Empezamos con la media de cada
+régimen. Después agregamos el rezago espacial, que es el promedio del rendimiento de las parcelas vecinas del mismo
+régimen, porque parcelas cercanas comparten suelo, clima y manejo~\cite{tobler1970}. Usamos vecinas a 400\,m o menos
+porque es el radio con menor error (anexo técnico, Fig.~\ref{A-fig:radio}). Luego probamos bloques de variables
+satelitales, climáticas y topográficas, y al final comparamos algoritmos. El modelo elegido es un proceso
+gaussiano~\cite{rasmussen2006}, cuyos parámetros se ajustan solo con las parcelas de entrenamiento de cada grupo (anexo
+técnico, ecuaciones~\ref{A-eq:rezago} y~\ref{A-eq:kernel}).
 
-\textbf{Algoritmo.} Comparamos modelos lineales, de árboles y un proceso gaussiano~\cite{rasmussen2006} con núcleo de
-base radial y término de ruido. Sus tres parámetros se ajustan por máxima verosimilitud dentro de cada grupo.
+\textbf{5. Confiabilidad.} Probar muchas variantes y quedarse con la mejor infla el resultado~\cite{cawley2010}. Para
+medir ese efecto repetimos toda la elección dentro de cada grupo, lo que se llama validación anidada~\cite{varma2006}.
+Todo lo que usa el rendimiento, como el rezago, se recalcula en cada grupo solo
+con las parcelas de entrenamiento, para que una parcela nunca influya en su propia predicción. Comparamos modelos con una
+prueba que corrige que las repeticiones comparten parcelas~\cite{nadeau2003}. Para cada
+parcela calculamos un intervalo del percentil 10 al 90 con predicción conformal~\cite{vovk2005,lei2018}, por separado
+en cada régimen porque sus errores son distintos (anexo técnico, ecuación~\ref{A-eq:intervalo}). Una prueba automatizada verifica que cambiar las etiquetas de prueba no
+cambia las predicciones~\cite{kaufman2012}.
 
-\textbf{Intervalos.} Usamos predicción conformal de Mondrian~\cite{vovk2005,lei2018}, que calibra cada régimen por
-separado porque sus errores se distribuyen distinto. A cada predicción le sumamos los cuantiles 0.10 y 0.90 de los
-errores fuera de grupo de su régimen.
-
-\textbf{Controles.} Probamos 73 variantes sin corregir por comparaciones múltiples, y elegir la mejor entre muchas
-infla su resultado~\cite{cawley2010}. Lo corregimos con validación anidada, que repite la elección entre 12 variantes
-dentro de cada grupo externo~\cite{varma2006}. Comparamos modelos con la prueba $t$ corregida de Nadeau y
-Bengio~\cite{nadeau2003}, porque las repeticiones comparten parcelas. Una prueba automatizada verifica que alterar las
-etiquetas de prueba no cambia las predicciones~\cite{kaufman2012}.
-
-\textbf{Capa económica.} Valuamos la predicción con el precio medio rural del SIAP de 2023 a 2025~\cite{siap2026} y con
-los costos del paquete de FIRA de primavera-verano 2022, el más reciente público, actualizados a 2025 con el índice
-nacional de precios al consumidor~\cite{agrocostos}.
+\textbf{6. Traducción a pesos.} Valuamos la predicción con el precio medio rural del SIAP de 2023 a
+2025~\cite{siap2026} y con los costos de los paquetes de AgroCostos de FIRA~\cite{agrocostos}, actualizados a 2025 con
+la inflación.
