@@ -1,0 +1,14 @@
+Objetivo general. Estimar el rendimiento de cebada de temporal, en t/ha, de las 59 parcelas del reto con el menor RMSE posible en parcelas no vistas, y medir con honestidad qué tan confiable es esa estimación.
+
+Objetivos específicos.
+1. Caracterizar las etiquetas de rendimiento y medir cómo su forma de registro limita lo que un modelo puede predecir.
+
+2. Construir el modelo con una regla de decisión fijada antes de probar ideas, y conservar solo las piezas que mejoren la validación de forma consistente.
+
+3. Estimar el error esperado incluyendo el costo de elegir entre variantes, y entregar por parcela un intervalo del percentil 10 al 90 con cobertura verificada.
+
+4. Responder con evidencia qué índice satelital, qué variable climática y qué combinación de variables pesan más.
+
+5. Traducir el error a pesos por hectárea y a una señal de riesgo de crédito, e indicar en qué momento del ciclo puede usarse la estimación.
+
+6. Publicar una aplicación web que ejecute el modelo y muestre predicciones, intervalos y probabilidades.

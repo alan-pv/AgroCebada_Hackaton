@@ -1,0 +1,62 @@
+\section{Resultados y discusión}\label{sec:resultados}
+
+\textbf{Error del modelo.} En el esquema A el modelo obtiene un RMSE de 0.458\,t/ha, un error absoluto medio (MAE) de
+0.312\,t/ha y un coeficiente de determinación ($R^2$) de 0.71. La media por régimen obtiene 0.489. El modelo la mejora
+en los dos regímenes, de 0.535 a 0.494 en el A y de 0.398 a 0.389 en el B. Con la prueba de Nadeau y Bengio, el RMSE
+del modelo menos el de la media por régimen es $-0.029$\,t/ha, con intervalo de confianza del 95\,\% de $-0.079$ a
+$+0.022$ ($p=0.26$). La dirección favorece al modelo, pero la diferencia no es significativa.
+
+\textbf{Error esperado en las 59 parcelas.} La validación anidada da 0.490. No indica un modelo peor, porque mide todo
+el procedimiento de elegir. En sus mismas particiones el proceso gaussiano fijo obtiene 0.458 y la media por régimen
+0.489. Por eso esperamos un RMSE de 0.46 a 0.49\,t/ha. Además, con 59 parcelas el RMSE calificado varía según cuáles
+toquen. Al sortear 5000 grupos de 37 errores del régimen A y 22 del B, el 90\,\% cae entre 0.35 y 0.56\,t/ha.
+
+\textbf{Por qué el régimen es la base.} La media por municipio se acerca a la del régimen en el esquema A (0.510), pero
+en el esquema B sube a 0.955, porque al dejar zonas fuera muchos municipios se quedan sin entrenamiento. El régimen no
+tiene ese problema.
+
+\textbf{Por qué entra el rezago.} El rezago ganó en 9 de 10 repeticiones (Fig.~\ref{fig:repeticiones}). Al revolver las
+coordenadas dentro de cada régimen, ninguna de 50 permutaciones igualó el error real ($p=0.02$, el mínimo posible con
+50 sorteos). Es decir, la posición de los vecinos aporta información además del régimen. En el esquema B el modelo
+empata con la media por régimen, porque sin vecinos el rezago se vuelve esa media.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{f7_repeticiones}
+\caption{RMSE de cada repetición del esquema A (puntos) y su promedio. Las repeticiones comparten parcelas, por eso la
+comparación formal usa la prueba corregida de Nadeau y Bengio.}
+\label{fig:repeticiones}
+\end{figure}
+
+\textbf{Por qué no usamos satélite ni clima.} Ningún bloque de variables pasó la regla. El más cercano, la
+heterogeneidad del NDVI dentro de la parcela, ganó en 7 de 10 repeticiones por 0.002\,t/ha, pero con sus valores
+revueltos el modelo predijo igual ($p=0.63$). Juntar todos los bloques satelitales empeoró el RMSE a 0.498. El clima
+viene en celdas de unos 5\,km, así que solo distingue zonas, y eso ya lo hacen el régimen y los vecinos.
+
+\textbf{Por qué un proceso gaussiano.} Los modelos de árboles quedaron peor que la media por régimen, porque con tres
+entradas y 138 parcelas sus cortes no tienen dónde apoyarse. Los lineales quedaron cerca de 0.470. El proceso
+gaussiano obtuvo 0.458, con un RMSE por repetición de 0.442 a 0.503. Frente a un modelo lineal con las mismas entradas
+no es significativamente mejor ($p=0.38$). Lo elegimos porque ajusta una relación suave entre rezago y rendimiento y su
+término de ruido absorbe parte del ruido de las etiquetas.
+
+\textbf{Intervalos y predicciones.} El intervalo del percentil 10 al 90 cubre 570 de 690 evaluaciones en validación
+anidada (0.826, intervalo de confianza de 0.765 a 0.883), con ancho medio de 1.13\,t/ha. Las 37 parcelas del régimen A
+tienen predicción media de 4.49\,t/ha y las 22 del B de 3.06. En 18 parcelas, todas del B, la probabilidad de quedar
+bajo 2.5\,t/ha supera 0.10.
+
+\textbf{Preguntas guía.} Como el modelo final solo tiene tres entradas, respondimos con un bosque aleatorio de análisis
+y medimos cuánto sube su RMSE al revolver cada índice o variable. Sin el régimen, el índice más importante es el NDVI
+(0.106\,t/ha) y la variable climática más importante es la lluvia (0.364\,t/ha), pero ambos identifican la zona y
+sustituyen al régimen. Con régimen y rezago presentes, el índice de sequía NDDI~\cite{gu2007} es el mayor, con apenas
+0.004\,t/ha, y ninguna variable climática aporta. La combinación que mejor funciona es régimen más rezago.
+
+\textbf{Error en términos productivos.} Con el precio medio del SIAP en las 59 parcelas, de 5,353\,\$/t en el régimen A
+y 5,693 en el B, un error de 0.46\,t/ha equivale a unos 2,500\,\$/ha, entre 2,000 y 3,300 según el municipio. Es de 7 a
+12\,\% del costo total del paquete y de 13 a 45\,\% del crédito por hectárea.
+
+\textbf{Limitaciones.} El modelo acerca a la media de su régimen las parcelas extremas, como las de 5.5\,t/ha. Las
+predicciones heredan las unidades de la etiqueta, sin ajuste por humedad. Solo hay una temporada, con mayo y junio más
+lluviosos que lo normal. No medimos el ruido de etiqueta.
+
+\textbf{Aplicación.} La aplicación web, en \url{https://agrocebada.alan-pv.com}, muestra el mapa de parcelas, la
+predicción con su intervalo y la probabilidad de quedar bajo un umbral que elige el usuario, y ejecuta el modelo en vivo.

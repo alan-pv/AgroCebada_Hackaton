@@ -1,0 +1,5 @@
+Un crédito de avío financia el ciclo de cultivo y se paga con el ingreso de la cosecha. Para valorar si la cosecha cubrirá el crédito, el analista necesita una estimación del rendimiento de la parcela y de cuánto puede fallar. Los paquetes tecnológicos de FIRA suponen un mismo rendimiento esperado para toda una zona, de 3.5 a 5.5 t/ha según el paquete [11], y no distinguen una parcela de otra.
+
+Las mediciones de campo son escasas y costosas. Las imágenes de satélite y los datos de clima son públicos y cubren cualquier parcela. Por eso conviene saber cuánta información del rendimiento contienen realmente esas fuentes. Con 138 parcelas y un registro heterogéneo del rendimiento, también conviene medir con rigor qué tan confiable es el error, porque un error subestimado haría parecer seguras decisiones que no lo son.
+
+Este trabajo aporta una estimación por parcela con un error medido de forma conservadora, su traducción a pesos por hectárea y una aplicación para analistas y productores. También documenta las ideas que no mejoraron la predicción y por qué, para que trabajos futuros no repitan esas pruebas.
