@@ -92,6 +92,32 @@ uv run app --production  # servidor de producción
 - Al arrancar en producción carga datos y modelo (unos segundos) y luego muestra `Sirviendo en http://127.0.0.1:8090`.
 - Los datos y el modelo quedan en memoria mientras el servicio está arriba, y el navegador reutiliza `/api/parcels` y el JSON de `/api/economics` durante una hora. Si cambian las predicciones, las variables o el modelo hay que reiniciar el servicio.
 
+#### Despliegue en la Pi
+
+La app pública está en https://agrocebada.alan-pv.com. En la Pi (host `server` de `~/.ssh/config`, por Tailscale) el repo vive en `/home/pi/agrocebada`. No se clona desde GitHub, porque el repo es privado: se copia desde una PC con acceso.
+
+Para actualizarla, con los cambios ya en `main`, desde la raíz del repo en la PC:
+
+```bash
+scripts/desplegar.sh
+```
+
+El script clona `main` en una carpeta temporal, la copia con `rsync` (sin `.venv` ni `.env`), corre `uv run app install` en la Pi, reinicia el servicio y espera a que `/health` responda. Lo mismo a mano:
+
+```bash
+rsync -az --delete --exclude .venv --exclude .env <clonación limpia de main>/ server:/home/pi/agrocebada/
+ssh server 'cd ~/agrocebada && ~/.local/bin/uv run app install && sudo systemctl restart agrocebada'
+```
+
+No se copia el directorio de trabajo directamente, porque llevaría `.claude/worktrees` y cambios sin commit.
+
+Cómo quedó montada, por si hay que rehacerla:
+
+- `uv` está en `~/.local/bin`, que no entra al `PATH` de `ssh server '...'`; por eso se llama con la ruta completa.
+- Servicio `/etc/systemd/system/agrocebada.service`, con `User=pi`, `WorkingDirectory=/home/pi/agrocebada`, `ExecStart=/home/pi/agrocebada/.venv/bin/app --production` y `Restart=on-failure`. Arranca solo al prender la Pi. Logs: `journalctl -u agrocebada -f`.
+- Túnel de Cloudflare `memorandum-relay`, que comparte con otros servicios de la Pi. En `/etc/cloudflared/config.yml` hay una regla antes de la de cierre, `hostname: agrocebada.alan-pv.com` hacia `service: http://127.0.0.1:8090`. El DNS se creó con `cloudflared tunnel route dns memorandum-relay agrocebada.alan-pv.com`. Si se cambia la regla hay que correr `sudo systemctl restart cloudflared`, y los demás servicios del túnel se cortan unos segundos.
+- Si el subdominio no resuelve justo después de crearlo, suele ser la caché de DNS de la PC. Se comprueba con `dig +short agrocebada.alan-pv.com @1.1.1.1` y se limpia con `resolvectl flush-caches`.
+
 ## CLI
 
 Un comando por cada archivo de `scripts/`, desde la raíz del repo.
@@ -108,6 +134,7 @@ uv run scripts/ensemble_intervalos.py        # ensemble, intervalos p10 a p90 y 
 uv run scripts/interpretabilidad.py          # preguntas guía, importancias y SHAP (varios minutos)
 uv run scripts/interpretabilidad.py --rapido # lo mismo con menos repeticiones, para probar
 uv run scripts/exportar_serie_ficha.py       # serie NDVI y NDDI para la ficha (unos 50 s)
+scripts/desplegar.sh                         # actualiza la app en la Pi con main (ver "Despliegue en la Pi")
 uv pip install pyshp                         # solo para el diagnóstico; pyshp no es dependencia del proyecto
 uv run scripts/diagnostico_inicial.py        # cifras del diagnóstico inicial del ROADMAP
 ```
