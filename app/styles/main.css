@@ -113,3 +113,189 @@ main {
     justify-content: space-between;
   }
 }
+
+/* Componentes compartidos por las páginas de la app */
+
+:root {
+  --tarjeta: #ffffff;
+  --borde: #d6d3c9;
+  --texto-suave: #52514e;
+  /* Blanco sobre --primario da 4.4:1; por eso los botones usan --primario-oscuro (8.1:1) */
+  --primario: #2a78d6;
+  --primario-oscuro: #184f95;
+  /* Semáforo de riesgo: fondo claro y texto oscuro, con al menos 4.5:1 de contraste */
+  --riesgo-bajo-texto: #14532d;
+  --riesgo-bajo-fondo: #dcf2e1;
+  --riesgo-medio-texto: #5c3b00;
+  --riesgo-medio-fondo: #fdefc3;
+  --riesgo-alto-texto: #7a1a10;
+  --riesgo-alto-fondo: #fbdcd7;
+}
+
+/* Navegación de la barra superior: en fila, y se envuelve en pantallas chicas */
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.nav a {
+  color: var(--primario-oscuro);
+  text-decoration: none;
+}
+
+.nav a:hover {
+  text-decoration: underline;
+}
+
+/* La página actual va en negrita y subrayada, no solo en otro color */
+.nav a[aria-current="page"] {
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+/* Contenedor de cada página: centrado, con margen interior y sin desbordar la pantalla */
+.page {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.card {
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+}
+
+/* Dos columnas en escritorio y una en pantallas de hasta 700px */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 700px) {
+  .grid-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--primario-oscuro);
+  border-radius: 6px;
+  background: var(--tarjeta);
+  color: var(--primario-oscuro);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn:hover {
+  text-decoration: underline;
+}
+
+.btn--primary {
+  background: var(--primario-oscuro);
+  color: #ffffff;
+}
+
+/* Foco visible en enlaces y botones, también al usar el teclado */
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible {
+  outline: 3px solid var(--primario);
+  outline-offset: 2px;
+}
+
+/* La tabla se desplaza dentro de su caja y no mueve la página */
+.table-wrap {
+  overflow-x: auto;
+}
+
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+table.data th,
+table.data td {
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--borde);
+  text-align: left;
+  vertical-align: top;
+}
+
+table.data th {
+  font-weight: 600;
+  border-bottom-width: 2px;
+}
+
+/* Semáforo de riesgo: siempre lleva texto (Bajo, Medio, Alto), nunca solo color */
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge--bajo {
+  background: var(--riesgo-bajo-fondo);
+  color: var(--riesgo-bajo-texto);
+}
+
+.badge--medio {
+  background: var(--riesgo-medio-fondo);
+  color: var(--riesgo-medio-texto);
+}
+
+.badge--alto {
+  background: var(--riesgo-alto-fondo);
+  color: var(--riesgo-alto-texto);
+}
+
+.muted {
+  color: var(--texto-suave);
+}
+
+/* Texto que solo leen los lectores de pantalla */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Recuadro de nota, en lenguaje sencillo */
+.note {
+  margin: 0.75rem 0;
+  padding: 0.75rem 1rem;
+  background: var(--fondo);
+  border: 1px solid var(--borde);
+  border-left: 4px solid var(--primario-oscuro);
+  border-radius: 6px;
+}
+
+/* Las cabeceras de fila del cuerpo usan el borde de 1 px de las celdas, sin escalón entre filas */
+table.data tbody th[scope="row"] {
+  border-bottom-width: 1px;
+}

@@ -24,6 +24,7 @@ En ARM de 64 bits (aarch64) no se instala `exactextract`, que no tiene versión 
 uv run python -m agrocebada.parcelas   # genera data/processed/parcelas.parquet y .gpkg
 uv run python -m agrocebada.validar    # comprueba IDs, duplicados, rangos y fechas del dataset
 uv run python -m agrocebada.build_features   # series, variables satelitales, clima, topografía y features.parquet (~2 min)
+uv run scripts/exportar_serie_ficha.py   # serie NDVI y NDDI para la ficha (unos 50 s)
 uv run pytest                          # pruebas
 uv run scripts/diagnostico_inicial.py   # reproduce las cifras del ROADMAP (requiere pyshp)
 ```
@@ -35,11 +36,11 @@ Los ZIP de rásteres se descomprimen bajo demanda en `data/interim/` (`agrocebad
 Servidor Flask en `app/`. Se ejecuta desde la raíz del repo; el comando está en `scripts/cli.py`.
 
 ```bash
-uv run app install       # una sola vez: crea .env (puerto y host) a partir de .env.example si no existe e instala las dependencias
+uv run app install       # una sola vez: crea .env a partir de .env.example si no existe e instala las dependencias
 uv run app               # servidor de desarrollo en http://127.0.0.1:8090
 uv run app --debug       # igual, pero recarga al guardar y muestra los errores en el navegador
 uv run app --production  # servidor de producción con waitress; carga datos y modelo antes de aceptar peticiones
-uv run app --test        # pruebas de la app
+uv run app --test        # pruebas de la app (tests/test_app*.py)
 ```
 
 `install` ejecuta `[ -f .env ] || cp .env.example .env` y luego `uv sync --inexact`. Con `--inexact` no se quitan paquetes instalados aparte, como el extra `tabpfn`.
@@ -56,15 +57,23 @@ La configuración va en `.env`, que no se versiona; `.env.example` trae los valo
 
 Si falta una variable en `.env` se usa su valor por defecto, y una variable `AGRCBDA_*` definida en la terminal gana sobre el archivo. `install` no agrega variables nuevas a un `.env` que ya existe.
 
-Las plantillas Jinja van en `app/templates`, el JavaScript en `app/scripts` (servido en `/scripts`), los estilos en `app/styles` (servidos en `/styles`) y cada sección de la app en un módulo de `app/modules`.
+Las plantillas Jinja van en `app/templates`, el JavaScript en `app/scripts` (servido en `/scripts`), los estilos en `app/styles` (servidos en `/styles`) y cada sección de la app en un módulo de `app/modules`. Cada página tiene su CSS (`map.css`, `run.css`, `methodology.css` y `parcel.css`), cargado antes de `main.css`, que es común a todas. Su JavaScript, si tiene, es `map.js` (el mapa, con Leaflet desde unpkg) o `run.js` (Ejecutar el modelo); la metodología y la ficha no llevan JavaScript. Las gráficas de la ficha son SVG generados en Python (`app/modules/charts.py`), sin librerías de JavaScript.
 
 | Ruta | Qué devuelve |
 |---|---|
-| `GET /` | Página inicial con el mapa de las parcelas |
+| `GET /` | Página inicial con el mapa de las parcelas, coloreado por conjunto, rendimiento observado, predicción del modelo o riesgo (semáforo de no cubrir costos y de no pagar el crédito). Filtra por estado y municipio; el clic en una parcela abre su ficha. Hay enlaces para descargar en CSV las predicciones (con los filtros de estado y municipio) y la economía de las 197 parcelas |
 | `GET /health` | `{"status": "ok"}`, para comprobar que el servidor está arriba |
 | `GET /api/parcels` | Las 197 parcelas en GeoJSON: ID, estado, municipio, conjunto, rendimiento observado y área |
-| `GET /api/predictions` | Predicción, intervalo p10 a p90 y probabilidad bajo 2.5 t/ha de las 197 parcelas (fuera de fold en las de entrenamiento). Filtros `set`, `state` y `municipality`; con `format=csv` descarga un CSV |
-| `POST /api/predict` | Corre el modelo final en vivo. Cuerpo JSON `{"ids": ["AGC_001", "AGC_002"], "threshold": 2.5}`, con el umbral opcional entre 1 y 6 t/ha. Devuelve la versión del modelo, el umbral y, por parcela, predicción, p10, p90 y probabilidad bajo el umbral. Hasta 59 parcelas por petición |
+| `GET /api/predictions` | Predicción, intervalo p10 a p90, probabilidad bajo 2.5 t/ha y rendimiento observado (`observed`, `null` en las 59 por predecir) de las 197 parcelas (fuera de fold en las de entrenamiento). Filtros `set` (ENTRENAMIENTO o PREDICCION), `state` y `municipality`; con `format=csv` descarga un CSV |
+| `POST /api/predict` | Corre el modelo final en vivo. Cuerpo JSON `{"ids": ["AGC_001", "AGC_002"], "threshold": 2.5}`, con el umbral opcional entre 1 y 6 t/ha. Devuelve la versión del modelo, el umbral y, por parcela, predicción, p10, p90 y probabilidad bajo el umbral. Con `"include_confidence": true` cada parcela añade `confidence` (alta, media o baja), `neighbors_400m`, `nearest_neighbor_m` y `confidence_reason`; sin esa clave, o con `false`, la respuesta no cambia (si el valor no es `true` o `false`, responde 400). Hasta 59 parcelas por petición |
+| `POST /api/predict/new` | Predice parcelas que no están en el conjunto de datos. Cuerpo JSON `{"parcels": [{"lon": -98.37, "lat": 19.82, "area_ha": 5.2, "regime": "A"}]}`, de 1 a 59 parcelas por petición. Cada una puede llevar `id` (de 1 a 40 letras, números, `_` o `-`, sin repetirse ni coincidir con una parcela del conjunto de datos; si falta, se asigna `NUEVA_1`, `NUEVA_2`…). El punto debe quedar en la zona de estudio, el rectángulo de las 197 parcelas con 0.5 grados de margen (con los datos actuales, lon de -99.11 a -97.70 y lat de 19.03 a 20.48). `area_ha` debe ser mayor que 0 y como máximo 1000, y `regime` debe ser `A` o `B`. El umbral opcional va entre 1 y 6 t/ha. Devuelve `model_version`, `threshold` y, por parcela, `id` (el asignado si no se mandó), `lon`, `lat`, `area_ha`, `regime`, `pred`, `p10`, `p90`, `prob_below`, `confidence`, `neighbors_400m`, `nearest_neighbor_m` y `confidence_reason`, siempre (no depende de `include_confidence`) |
+| `GET /ejecutar` | Página «Ejecutar el modelo»: elige parcelas del conjunto de datos (filtros por estado, municipio, conjunto e ID, o «Las 59 por predecir») y las calcula en vivo con `POST /api/predict`. Prueba una parcela nueva con longitud, latitud, superficie y régimen (`POST /api/predict/new`), o varias desde un CSV con las columnas `id` (opcional), `lon`, `lat`, `area_ha` y `regimen`, hasta 59 filas. Descarga los resultados en CSV |
+| `GET /metodologia` | Página de metodología y desempeño: cómo se obtiene la predicción, validación de los esquemas A y B, cobertura del intervalo p10 a p90, confianza frente a error, margen de azar de la calificación y qué pesa en el número. Sus cifras salen del modelo y de `outputs/`; si falta un archivo, su sección muestra un aviso en lugar de la cifra |
+| `GET /parcela/<id>` | Ficha de la parcela en HTML: rendimiento esperado con su intervalo p10 a p90 y el punto de equilibrio, confianza, economía (ingresos, costos, semáforos y probabilidades), contexto municipal, desglose del modelo (solo en las parcelas por predecir), entradas del modelo, serie de NDVI y NDDI, y variables de 2025. Query opcional `price` (en $/t, de 500 a 30000) y `breakeven` (en t/ha, de 0.5 a 15); con un valor fuera de rango, o que no sea número, responde 400 con la economía por defecto y un aviso. ID desconocido: 404 |
+| `GET /api/parcels/<id>` | La misma ficha en JSON: identificación, predicción con su intervalo, umbral, probabilidad bajo el umbral, confianza, `breakdown` (`null` en las parcelas de entrenamiento), entradas del modelo, contexto de 2025 y `series` (`null` si falta `serie_ficha.parquet`). ID desconocido: 404 |
+| `GET /api/economics` | Economía de las 197 parcelas con los valores por defecto del municipio, ordenada por ID: precio, punto de equilibrio, ingresos, margen, probabilidades de no cubrir costos y de no pagar el crédito, y sus semáforos. `format=csv` descarga la misma tabla en CSV; otro formato responde 400 |
+| `GET /api/economics/<id>` | Detalle económico de una parcela con su contexto municipal (siniestralidad, años con pérdidas, rendimiento del SIAP, precios y zona de AgroCostos). Query opcional `price` (en $/t, de 500 a 30000; sustituye el precio del municipio) y `breakeven` (en t/ha, de 0.5 a 15; el costo total es `breakeven × price`). Sin `breakeven`, el punto de equilibrio sale de costo ÷ precio. ID desconocido: 404; un parámetro que no es número o está fuera de rango: 400 |
+| `GET /api/methodology` | Las cifras de `/metodologia` en JSON: modelo (versión, fecha de entrenamiento, parcelas, umbral y nivel del intervalo), validación, cobertura, confianza frente a error, margen de azar, aportes del modelo final y otros grupos de variables. Cada sección vale `null` si falta su archivo o el modelo |
 
 ### En el servidor
 
@@ -75,11 +84,13 @@ uv run app install       # crea .env e instala las dependencias
 uv run app --production  # servidor de producción
 ```
 
-- Solo lee archivos ya generados: `data/processed/parcelas.gpkg` y `features.parquet`, `outputs/predicciones.parquet` y `models/modelo_final.joblib`. No usa `tabpfn` ni `exactextract`, no descarga rásteres y ninguna ruta reentrena el modelo. `tests/test_app.py` corre la app con esos módulos bloqueados.
-- Límites por petición: hasta 59 parcelas y umbral entre 1 y 6 t/ha en `POST /api/predict`, y cuerpo de `AGRCBDA_MAX_CONTENT_LENGTH` bytes como máximo (1 MB por defecto; si se pasa responde 413). Las últimas 256 selecciones se guardan en memoria y una repetida no vuelve a correr el modelo.
+- Solo lee archivos ya generados: `data/processed/parcelas.gpkg`, `data/processed/features.parquet`, `outputs/predicciones.parquet`, `outputs/shap_values.parquet`, `outputs/importancias.parquet`, `outputs/calibracion_p10.csv`, `outputs/confianza_cv.csv`, `outputs/margen_azar.csv`, `data/externos/economia_municipal.csv` y `models/modelo_final.joblib`. No usa `tabpfn` ni `exactextract`, no descarga rásteres y ninguna ruta reentrena el modelo. `tests/test_app.py` corre la app con esos módulos bloqueados.
+- `data/processed/serie_ficha.parquet` lo regenera `.venv/bin/python scripts/exportar_serie_ficha.py` (unos 50 s). No se usa `python -m agrocebada.series` completo, porque sobrescribe `data/processed/calidad_series.parquet`, que sí está versionado. Si el archivo falta, la ficha sale sin gráficas de serie.
+- `pyproj` lo importa `app/modules/run.py` para pasar lon y lat a metros (EPSG:6372). No está en `pyproject.toml`: llega como dependencia de geopandas.
+- Límites por petición: en `POST /api/predict`, hasta 59 parcelas y umbral entre 1 y 6 t/ha; en `POST /api/predict/new`, hasta 59 parcelas nuevas, superficie mayor que 0 y como máximo 1000 ha, coordenadas dentro de la zona de estudio y umbral entre 1 y 6 t/ha. El cuerpo de una petición no puede pasar de `AGRCBDA_MAX_CONTENT_LENGTH` bytes (1 MB por defecto; si se pasa, responde 413). Las últimas 256 selecciones de `POST /api/predict` se guardan en memoria y una repetida no vuelve a correr el modelo; `POST /api/predict/new` corre el modelo en cada petición.
 - Las rutas salen de `url_for` y el JavaScript las toma de la página, así que la app funciona en la raíz del subdominio sin rutas escritas a mano.
 - Al arrancar en producción carga datos y modelo (unos segundos) y luego muestra `Sirviendo en http://127.0.0.1:8090`.
-- Los datos y el modelo quedan en memoria mientras el servicio está arriba, y el navegador reutiliza `/api/parcels` durante una hora. Si cambian las predicciones, las variables o el modelo hay que reiniciar el servicio.
+- Los datos y el modelo quedan en memoria mientras el servicio está arriba, y el navegador reutiliza `/api/parcels` y el JSON de `/api/economics` durante una hora. Si cambian las predicciones, las variables o el modelo hay que reiniciar el servicio.
 
 ## CLI
 
@@ -96,6 +107,7 @@ uv run scripts/experimentos_v1.py            # experimentos del modelo v1, regis
 uv run scripts/ensemble_intervalos.py        # ensemble, intervalos p10 a p90 y candidato_v2.json (~10 min)
 uv run scripts/interpretabilidad.py          # preguntas guía, importancias y SHAP (varios minutos)
 uv run scripts/interpretabilidad.py --rapido # lo mismo con menos repeticiones, para probar
+uv run scripts/exportar_serie_ficha.py       # serie NDVI y NDDI para la ficha (unos 50 s)
 uv pip install pyshp                         # solo para el diagnóstico; pyshp no es dependencia del proyecto
 uv run scripts/diagnostico_inicial.py        # cifras del diagnóstico inicial del ROADMAP
 ```

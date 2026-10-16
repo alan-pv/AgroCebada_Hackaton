@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}Metodología y desempeño | AgroCebada{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='methodology.css') }}">
+{% endblock %}
+
+{% block content %}
+  {% set coverage_names = {"A": "Régimen A", "B": "Régimen B", "global": "Todas"} %}
+  {% set global_row = (methodology.interval_coverage or [])|selectattr("group", "equalto", "global")|first %}
+  <main class="page">
+    <h2>Metodología y desempeño</h2>
+    <p>Cómo se obtiene la predicción de cada parcela, qué tan bien funciona el modelo y qué pesa en el número. Las cifras vienen de la validación del modelo y de los archivos de la entrega.</p>
+    {% if methodology.model %}
+    <p class="note">Modelo versión {{ methodology.model.version }}, entrenado el {{ trained_on }} con {{ methodology.model.n_train }} parcelas medidas de la temporada 2025. Estas mismas cifras están en JSON, en <a href="{{ url_for('methodology.data') }}">{{ url_for('methodology.data') }}</a>.</p>
+    {% else %}
+    <p class="note">El modelo no está disponible en esta copia de la app, así que sus cifras no se muestran.</p>
+    {% endif %}
+
+    <section>
+      <h2>Cómo se obtiene el número</h2>
+      <ol class="steps">
+        <li><strong>Régimen del municipio.</strong> Cada parcela entra con el régimen de su municipio, A o B. Es una variable que construimos al notar que los municipios reportan sus rendimientos de dos formas: el A con dos decimales, y el B redondeado a 0.5 o a 0.1.</li>
+        <li><strong>Parcelas medidas cercanas.</strong> Se toman las parcelas medidas del mismo régimen a 400 m o menos, hasta 10, y se promedian sus rendimientos. Las más cercanas pesan más. Si ninguna queda a esa distancia, se usa el promedio de su régimen.</li>
+        <li><strong>Modelo estadístico.</strong> Un proceso gaussiano combina el régimen y ese promedio para dar la predicción en t/ha. El satélite, el clima y la topografía no entran en la predicción final: ningún bloque de esas variables pasó la regla de decisión del equipo.</li>
+        <li><strong>Intervalo p10 a p90.</strong> Se suman a la predicción los cuantiles 0.1 y 0.9 de los errores de validación del mismo régimen, con una corrección por tamaño de muestra. Así sale el rango que, según la meta del método, contiene el rendimiento real en 8 de cada 10 parcelas.</li>
+        <li><strong>Probabilidad bajo 2.5 t/ha.</strong> Es la fracción de esos mismos errores del régimen que, sumados a la predicción, dan menos de 2.5 t/ha.</li>
+        <li><strong>Marca de confianza.</strong> Cuenta las parcelas medidas del mismo régimen que hay cerca. Sus tres niveles se explican en la sección siguiente.</li>
+      </ol>
+      <p class="note">Las parcelas de entrenamiento ya tienen rendimiento medido. Para ellas la app no usa su propio dato, porque la parcela se contaría como vecina de sí misma. Muestra la predicción que sale sin esa parcela, promediada en las 10 repeticiones de validación.</p>
+    </section>
+
+    <section>
+      <h2>Qué significan p10, p90, la probabilidad y la confianza</h2>
+      <dl class="terms">
+        <dt>Predicción</dt>
+        <dd>Rendimiento esperado de la parcela, en toneladas por hectárea (t/ha). Sirve como referencia para una parcela cercana a otras ya medidas, y conviene leerla junto con el intervalo.</dd>
+        <dt>p10</dt>
+        <dd>Rendimiento conservador. En condiciones como las de 2025, 9 de cada 10 parcelas rinden más que este valor. No incluye los años malos: una sequía, una helada o una plaga afectan a muchas parcelas de un municipio a la vez. Para una cartera de crédito, el p10 subestima ese riesgo común.</dd>
+        <dt>p90</dt>
+        <dd>Extremo alto del intervalo. En condiciones como las de 2025, solo 1 de cada 10 parcelas rinde más que este valor.</dd>
+        <dt>Intervalo p10 a p90</dt>
+        <dd>Rango en el que se espera que caiga el rendimiento real de la parcela. {% if global_row %}En la validación contuvo el rendimiento real en {{ global_row.coverage | percent }} de las parcelas, con meta de 80 %. {% endif %}Conviene usar el intervalo y no solo el valor puntual.</dd>
+        <dt>Probabilidad bajo 2.5 t/ha</dt>
+        <dd>Probabilidad estimada de que el rendimiento de la parcela quede por debajo de 2.5 t/ha, con base en los errores de su mismo régimen. Marca las parcelas donde el rendimiento podría ser bajo.</dd>
+        <dt>Confianza</dt>
+        <dd>Cuánta evidencia medida hay cerca de la parcela, contando solo parcelas del mismo régimen.
+          <ul>
+            <li><strong>Alta:</strong> al menos una parcela medida a 400 m o menos.</li>
+            <li><strong>Media:</strong> ninguna a 400 m, pero la más cercana está a 800 m o menos.</li>
+            <li><strong>Baja:</strong> la más cercana está a más de 800 m, o el área de la parcela queda fuera del rango de su régimen.</li>
+          </ul>
+          La marca señala menor precisión de la predicción. No cambia el intervalo.
+        </dd>
+      </dl>
+    </section>
+
+    <section>
+      <h2>Desempeño en validación</h2>
+      <p>Las cifras salen de validación cruzada: el modelo se ajusta sin una parte de las parcelas y predice esa parte. El <strong>esquema A</strong> reparte las parcelas al azar en 5 grupos, estratificado por municipio, y lo repite 10 veces. Imita la división oficial y es el que decide. El <strong>esquema B</strong> deja grupos espaciales completos fuera. Mide cuánto depende el modelo de tener vecinos cercanos, y no decide.</p>
+
+      <h3>Esquemas A y B</h3>
+      {% if methodology.validation %}
+      <div class="table-wrap" role="region" aria-label="Errores de los esquemas A y B" tabindex="0">
+        <table class="data">
+          <caption>Error del modelo en validación. RMSE y MAE en t/ha</caption>
+          <thead>
+            <tr>
+              <th scope="col">Esquema</th>
+              <th scope="col" class="num">RMSE</th>
+              <th scope="col" class="num">MAE</th>
+              <th scope="col" class="num">R²</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in methodology.validation %}
+            <tr>
+              <th scope="row">{% if row.scheme == "A" %}Esquema A, decide{% else %}Esquema B, no decide{% endif %}</th>
+              <td class="num">{{ row.rmse | number(3) }}</td>
+              <td class="num">{{ row.mae | number(3) }}</td>
+              <td class="num">{{ row.r2 | number(3) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% for row in methodology.validation if row.scheme == "A" %}
+      <p class="muted">RMSE es el error típico de la predicción, en t/ha, y castiga más los errores grandes. MAE es el error absoluto medio, también en t/ha. La desviación del RMSE entre repeticiones del esquema A es {{ row.rmse_sd | number(3) }}.</p>
+      {% endfor %}
+      {% else %}
+      <p class="note">Esta tabla no está disponible en esta copia de la app.</p>
+      {% endif %}
+
+      <p>Como referencia, una predicción que solo da el promedio de su régimen tiene un RMSE de 0.489 t/ha en el esquema A y de 0.488 en el B. El modelo mejora 0.031 t/ha en el A, pero con una prueba t corregida por el traslape de las particiones (Nadeau y Bengio, 2003) esa mejora no es significativa (p = 0.26). Lo que gana sobre la media viene de los vecinos.</p>
+
+      <h3>Cobertura del intervalo p10 a p90</h3>
+      <p>La meta es que el intervalo contenga el rendimiento real en 80 % de las parcelas. Las cifras son de la validación anidada, con 5 repeticiones. Debajo de cada cifra va su intervalo de confianza de 95 %.</p>
+      {% if methodology.interval_coverage %}
+      <div class="table-wrap" role="region" aria-label="Cobertura del intervalo por régimen" tabindex="0">
+        <table class="data wide">
+          <caption>Cobertura, ancho y colas del intervalo p10 a p90</caption>
+          <thead>
+            <tr>
+              <th scope="col">Grupo</th>
+              <th scope="col" class="num">Cobertura (meta 80 %)</th>
+              <th scope="col" class="num">Ancho medio (t/ha)</th>
+              <th scope="col" class="num">Bajo el p10</th>
+              <th scope="col" class="num">Sobre el p90</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in methodology.interval_coverage %}
+            <tr>
+              <th scope="row">{{ coverage_names[row.group] }} ({{ row.parcels }} parcelas)</th>
+              <td class="num">{{ row.coverage | percent(1) }}<span class="ci">IC 95 %: {{ row.coverage_ci95[0] | percent(1) }} a {{ row.coverage_ci95[1] | percent(1) }}</span></td>
+              <td class="num">{{ row.width | number(2) }}</td>
+              <td class="num">{{ row.below_p10 | percent(1) }}<span class="ci">IC 95 %: {{ row.below_p10_ci95[0] | percent(1) }} a {{ row.below_p10_ci95[1] | percent(1) }}</span></td>
+              <td class="num">{{ row.above_p90 | percent(1) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p>Para el crédito importa sobre todo el lado bajo del intervalo: la columna «Bajo el p10» dice qué fracción de parcelas quedó por debajo de su p10, y la meta es 10 %. En el régimen B la cobertura supera la meta de 80 %, así que el intervalo de ese régimen es más ancho de lo necesario. En el B, con 51 parcelas, el error estándar de una cobertura es de 0.05 a 0.06; por eso se reporta el intervalo y no solo el punto.</p>
+      {% else %}
+      <p class="note">Esta tabla no está disponible en esta copia de la app.</p>
+      {% endif %}
+
+      <h3>Confianza frente a error</h3>
+      <p>Para cada parcela de validación se cuenta cuántas parcelas medidas del mismo régimen había a 400 m, dentro de los datos de entrenamiento de su fold. Así se valida la marca de confianza.</p>
+      {% if methodology.confidence_vs_error %}
+      <div class="table-wrap" role="region" aria-label="Error según los vecinos a 400 m" tabindex="0">
+        <table class="data wide">
+          <caption>Error y cobertura según los vecinos a 400 m</caption>
+          <thead>
+            <tr>
+              <th scope="col">Vecinos a 400 m</th>
+              <th scope="col" class="num">Filas</th>
+              <th scope="col" class="num">MAE (t/ha)</th>
+              <th scope="col" class="num">Bajo el p10</th>
+              <th scope="col" class="num">Cobertura</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in methodology.confidence_vs_error %}
+            <tr>
+              <th scope="row">{{ row.group | replace("-", " a ") }}</th>
+              <td class="num">{{ row.rows }}</td>
+              <td class="num">{{ row.mae | number(3) }}</td>
+              <td class="num">{{ row.below_p10 | percent(1) }}</td>
+              <td class="num">{{ row.coverage | percent(1) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">Una fila es una parcela en una repetición. En total suman {{ methodology.confidence_vs_error | sum(attribute="rows") }} filas.</p>
+      {% if methodology.no_neighbors_mae_gap %}
+      {% set gap = methodology.no_neighbors_mae_gap %}
+      <p>Sin vecinos, el error absoluto sube {{ gap.difference | number(3) }} t/ha, con un intervalo de confianza de 95 % de {{ gap.ci95[0] | number(3) }} a {{ gap.ci95[1] | number(3) }}. La marca señala menor precisión, no una cola baja peor: la fracción bajo el p10 no empeora sin vecinos.</p>
+      {% endif %}
+      {% else %}
+      <p class="note">Esta tabla no está disponible en esta copia de la app.</p>
+      {% endif %}
+
+      <h3>Margen de azar de la calificación</h3>
+      {% if methodology.chance_margin %}
+      {% set margin = methodology.chance_margin %}
+      <p>La calificación oficial es un solo RMSE sobre {{ margin.parcels }} parcelas, y con tan pocas parcelas el valor cambia por azar aunque el modelo sea el mismo. Al sortear {{ margin.draws | number(0) }} grupos de {{ margin.parcels }} parcelas, con los errores de validación del esquema A y la misma mezcla de regímenes que la predicción oficial, el RMSE medio es {{ margin.rmse_mean | number(3) }} t/ha, con desviación de {{ margin.rmse_sd | number(3) }}. El 90 % de los sorteos cae entre {{ margin.p05 | number(3) }} y {{ margin.p95 | number(3) }} t/ha. Por eso un RMSE oficial entre {{ margin.p05 | number(2) }} y {{ margin.p95 | number(2) }} es compatible con el mismo modelo.</p>
+      <p class="muted">Es una estimación aproximada, porque los sorteos salen de las mismas parcelas de entrenamiento y no de una población nueva. La mejora de 0.031 t/ha sobre la media por régimen es mucho menor que este margen.</p>
+      {% else %}
+      <p class="note">Esta cifra no está disponible en esta copia de la app.</p>
+      {% endif %}
+    </section>
+
+    <section>
+      <h2>Qué pesa en el número</h2>
+      <p>El modelo entregado tiene dos entradas: el régimen y el promedio de las parcelas medidas cercanas. Con el método SHAP, que reparte cada predicción entre sus partes, la predicción de una parcela es un valor de referencia del modelo más el aporte de cada entrada.</p>
+
+      <h3>Aporte de cada entrada en las parcelas de la entrega</h3>
+      {% if methodology.final_model_contributions %}
+      <div class="table-wrap" role="region" aria-label="Aporte de cada entrada del modelo" tabindex="0">
+        <table class="data">
+          <caption>Aporte promedio en valor absoluto, en t/ha</caption>
+          <thead>
+            <tr>
+              <th scope="col">Entrada del modelo</th>
+              <th scope="col" class="num">Aporte promedio (t/ha)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in methodology.final_model_contributions %}
+            <tr>
+              <th scope="row">{{ row.label }}</th>
+              <td class="num">{{ row.mean_abs_t_ha | number(3) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Las dos entradas no están separadas del todo: si una parcela no tiene vecinos a 400 m, su rezago recibe la media de su régimen, así que también lleva información del régimen. Lea estos aportes como orden de magnitud.</p>
+      {% else %}
+      <p class="note">Esta tabla no está disponible en esta copia de la app.</p>
+      {% endif %}
+
+      <h3>Otras variables que se probaron</h3>
+      <p>Se probaron grupos de variables de satélite, clima y topografía. Para medir su aporte, se quitó cada grupo con el régimen ya presente y se midió cuánto empeora el error (RMSE, en t/ha). Estos números salen de un modelo de análisis, un bosque aleatorio poco profundo, y no del modelo entregado.</p>
+      {% if methodology.other_groups %}
+      <div class="table-wrap" role="region" aria-label="Grupos de variables probados" tabindex="0">
+        <table class="data wide">
+          <caption>Los ocho grupos que más empeoran el error al quitarlos</caption>
+          <thead>
+            <tr>
+              <th scope="col">Grupo</th>
+              <th scope="col">Tipo</th>
+              <th scope="col" class="num">Empeora el error (t/ha)</th>
+              <th scope="col" class="num">Rango entre repeticiones, 5 % a 95 % (t/ha)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in methodology.other_groups %}
+            <tr>
+              <th scope="row">{{ row.label }}</th>
+              <td>{{ row.kind }}</td>
+              <td class="num">{{ row.delta_rmse | number(3) }}</td>
+              <td class="num">{{ row.p05 | number(3) }} a {{ row.p95 | number(3) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p>El mayor efecto entre los grupos probados es de {{ methodology.other_groups[0].delta_rmse | number(3) }} t/ha. La ficha del modelo lo resume así: una vez conocidos el régimen y los vecinos, el mejor bloque de variables aporta del orden de 0.01 t/ha y no pasa la regla de decisión del equipo. Esa regla pide que una idea gane a la versión anterior en al menos 7 de 10 repeticiones y que pase una prueba de permutación. Estas variables aportan muy poco, y por eso el modelo final no las usa.</p>
+      <p>Cuando el régimen no está presente, estas variables parecen importantes porque ayudan a identificarlo.</p>
+      {% else %}
+      <p class="note">Esta tabla no está disponible en esta copia de la app.</p>
+      {% endif %}
+    </section>
+
+    <section>
+      <h2>Limitaciones</h2>
+      <p>El modelo no está pensado para decidir solo un crédito ni para reemplazar la verificación en campo. Tampoco está pensado para parcelas fuera de Puebla, Hidalgo y Tlaxcala, para otros cultivos ni para otras temporadas, porque se entrenó con una sola.</p>
+      <ul>
+        <li><strong>Régimen inferido.</strong> Los dos regímenes son una inferencia a partir de los patrones de redondeo y de los niveles de rendimiento. Los organizadores no lo han confirmado, y el modelo depende de esa variable. Un municipio nuevo no tendría régimen asignado.</li>
+        <li><strong>Rendimiento declarado.</strong> Cada productor declaró su rendimiento sin validación oficial. Parte del error de predicción es ruido de la etiqueta, que ningún modelo puede explicar.</li>
+        <li><strong>Redondeo en el régimen B.</strong> Con 86.3 % de los valores en múltiplos de 0.5, el redondeo aporta una desviación de 0.144 t/ha por parcela redondeada. Eso fija un piso de unas 0.13 t/ha para el error del B. El error medido, 0.389, queda por encima de ese piso, y la diferencia incluye el resto del ruido.</li>
+        <li><strong>Parcelas pequeñas.</strong> En el cuartil de menor área el error fuera de muestra es el mayor (0.558 t/ha, contra 0.330 a 0.484 en los demás cuartiles), y el intervalo las cubre menos (77.1 %). Sospechamos que sus rendimientos son más ruidosos, pero no lo podemos confirmar con estos datos.</li>
+        <li><strong>Encogimiento.</strong> Dentro de cada régimen las predicciones varían mucho menos que los rendimientos. En las parcelas de la entrega, la desviación predicha es 0.41 de la observada en el A y 0.42 en el B. El modelo acierta el nivel del régimen y corrige poco dentro de él. No se corrige, porque ampliar la dispersión sin información que la respalde subiría el error.</li>
+        <li><strong>Variedad y fecha de siembra.</strong> No están en los datos. Son factores de peso, y parte de la variación entre parcelas vecinas viene de ellos y no puede capturarse.</li>
+        <li><strong>Satélite y clima sin aporte estable.</strong> Una vez conocidos el régimen y los vecinos, el mejor bloque de variables aporta del orden de 0.01 t/ha. El clima viene en celdas de unos 5 km, así que describe la zona y no la parcela.</li>
+        <li><strong>Cifra optimista y margen de azar.</strong> El RMSE de validación se obtuvo eligiendo entre 73 evaluaciones con las mismas particiones. La validación anidada estima 0.490 t/ha, y la calificación sobre 59 parcelas tiene una desviación de unas 0.05 t/ha por azar.</li>
+        <li><strong>Un solo año.</strong> Los errores vienen de la temporada 2025 y comparan parcelas distintas bajo el mismo clima. El intervalo describe la dispersión entre parcelas, no la variabilidad entre años por sequía, helada o plaga, que afecta a todas las parcelas de un municipio a la vez.</li>
+        <li><strong>Parcelas de entrenamiento.</strong> Para una parcela que ya está en el entrenamiento, el modelo final no sirve tal cual: su propio rendimiento entra en el rezago y la predicción sale pegada a su etiqueta. Por eso la app muestra la predicción sin ese dato.</li>
+      </ul>
+    </section>
+  </main>
+{% endblock %}

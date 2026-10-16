@@ -4,7 +4,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from flask import Flask, render_template, send_from_directory
 
-from .modules import model, parcels, predictions
+from .modules import detail, economics, formatting, methodology, model, parcels, predictions, run
 
 ROOT = Path(__file__).resolve().parent
 
@@ -26,6 +26,10 @@ class AgroCebadaApp:
         )
         self.server.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
         self.server.config.update(config or {})
+        # Filtros de plantilla: {{ valor | number }}, {{ valor | money }} y {{ valor | percent }}
+        self.server.add_template_filter(formatting.number, "number")
+        self.server.add_template_filter(formatting.money, "money")
+        self.server.add_template_filter(formatting.percent, "percent")
         self._path_register()
 
     def _path_register(self):
@@ -35,6 +39,10 @@ class AgroCebadaApp:
         self.server.register_blueprint(parcels.bp)
         self.server.register_blueprint(predictions.bp)
         self.server.register_blueprint(model.bp)
+        self.server.register_blueprint(economics.bp)
+        self.server.register_blueprint(detail.bp)
+        self.server.register_blueprint(methodology.bp)
+        self.server.register_blueprint(run.bp)
 
     def index(self):
         return render_template("index.html")
@@ -54,6 +62,10 @@ class AgroCebadaApp:
         parcels.parcels_geojson()
         predictions.predictions_table()
         model.warm_up()
+        economics.warm_up()
+        detail.warm_up()
+        methodology.warm_up()
+        run.warm_up()
 
     def serve(self, host=HOST, port=PORT):
         # Servidor de producción
