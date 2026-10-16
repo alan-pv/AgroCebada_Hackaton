@@ -11,6 +11,13 @@
   <header class="topbar">
     <h1>AgroCebada</h1>
     <p>Rendimiento de cebada por parcela en Puebla, Hidalgo y Tlaxcala.</p>
+    {# Enlaces de sección; el de la página actual lleva aria-current="page" #}
+    {% set sections = [("Mapa", "index"), ("Ejecutar el modelo", "run.page"), ("Metodología", "methodology.page")] %}
+    <nav class="nav" aria-label="Secciones">
+      {% for label, endpoint in sections %}
+      <a href="{{ url_for(endpoint) }}"{% if request.endpoint == endpoint %} aria-current="page"{% endif %}>{{ label }}</a>
+      {% endfor %}
+    </nav>
   </header>
   {% block content %}{% endblock %}
   {% block scripts %}{% endblock %}

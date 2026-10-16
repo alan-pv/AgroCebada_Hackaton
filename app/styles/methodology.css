@@ -1,0 +1,74 @@
+/* Página de metodología: solo lo que main.css no trae */
+
+/* Pasos numerados de «Cómo se obtiene el número» */
+ol.steps {
+  padding-left: 1.5rem;
+}
+
+ol.steps li + li {
+  margin-top: 0.6rem;
+}
+
+/* Términos con su explicación debajo */
+dl.terms dt {
+  margin-top: 0.9rem;
+  font-weight: 600;
+}
+
+dl.terms dd {
+  margin: 0.2rem 0 0;
+}
+
+dl.terms dd ul {
+  margin: 0.4rem 0 0;
+  padding-left: 1.25rem;
+}
+
+/* Título de cada tabla alineado a la izquierda, con aire antes de la tabla */
+table.data caption {
+  caption-side: top;
+  text-align: left;
+  font-weight: 600;
+  padding-bottom: 0.5rem;
+}
+
+/* Cifras alineadas a la derecha para compararlas en columna */
+table.data td.num,
+table.data th.num {
+  text-align: right;
+}
+
+/* Intervalo de confianza debajo de cada cifra, en letra más chica */
+span.ci {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+}
+
+/* Las tablas anchas tienen un ancho mínimo: en el celular se desplazan dentro de su caja, no la página */
+table.data.wide {
+  min-width: 36rem;
+}
+
+/* La caja que se desplaza con el teclado también muestra su foco */
+.table-wrap:focus-visible {
+  outline: 3px solid var(--primario);
+  outline-offset: 2px;
+}
+
+/* Un texto largo nunca empuja la página hacia la derecha */
+.page p,
+.page li,
+.page dd,
+.page caption {
+  overflow-wrap: break-word;
+}
+
+.page h2 {
+  margin-top: 2.5rem;
+}
+
+.page h3 {
+  margin-top: 1.75rem;
+  font-size: 1.1rem;
+}

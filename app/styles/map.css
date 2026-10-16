@@ -1,0 +1,97 @@
+/* Página del mapa: grupo de descargas y tamaños táctiles de la barra de controles.
+   base.html carga este archivo antes que main.css, así que los selectores de aquí tienen
+   más especificidad que las reglas de main.css que reemplazan (.btn y .controls select). */
+
+/* Grupo «Descargar»: el título y los dos botones se envuelven sin desbordar la barra */
+.map-page .download {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.download__title {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* Selectores y botones de al menos 44 px de alto, para tocarlos bien con el dedo.
+   border-box hace que el alto incluya el relleno y el borde del botón */
+.map-page .controls select {
+  box-sizing: border-box;
+  min-height: 44px;
+  max-width: 100%;
+}
+
+.map-page .controls .btn {
+  box-sizing: border-box;
+  min-height: 44px;
+}
+
+/* En pantallas chicas, la barra de controles es una cuadrícula de dos columnas para dejar más altura al mapa:
+   «Colorear por», las descargas y el contador ocupan todo el ancho; «Estado» y «Municipio» van lado a lado */
+@media (max-width: 600px) {
+  .map-page .controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .map-page .controls > label:first-of-type,
+  .map-page .controls > .download,
+  .map-page .controls > .count {
+    grid-column: 1 / -1;
+  }
+
+  /* Cada control es una columna: la etiqueta arriba y el selector a todo el ancho de su celda.
+     min-width: 0 deja que la celda se encoja; sin eso, el selector con la opción más larga la ensancha */
+  .map-page .controls label {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 0.25rem;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* El selector llena su celda; 16 px de letra evitan que iOS acerque la página al abrirlo.
+     Si el nombre no cabe, se recorta con puntos suspensivos */
+  .map-page .controls label select {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    font-size: 1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Los dos botones de descarga van en una fila, con el mismo ancho; si el texto no cabe, baja de línea dentro del botón */
+  .map-page .download {
+    align-items: stretch;
+  }
+
+  .map-page .download .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  /* El rótulo «Descargar» se oculta a la vista para ganar altura; el grupo conserva su nombre accesible */
+  .map-page .download__title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+}

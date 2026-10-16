@@ -1,0 +1,287 @@
+/* Ficha de parcela: solo lo que main.css y methodology.css no traen */
+
+/* Cada bloque de la página se separa del anterior */
+.page > section,
+.page > aside,
+.page > header,
+.page > footer {
+  margin-top: 1rem;
+}
+
+.back {
+  margin: 0 0 0.5rem;
+}
+
+/* Encabezado: identificación, badges y subtítulo */
+.parcel-head h2 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.parcel-head .muted {
+  margin: 0.25rem 0 0;
+}
+
+.parcel-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.5rem 0 0;
+}
+
+/* Badge para datos que no son un semáforo de riesgo */
+.badge--neutro {
+  background: #e9e8e2;
+  color: var(--texto);
+}
+
+/* Títulos de tarjeta y de subsección */
+.page section h2,
+.page aside h2 {
+  margin: 0 0 0.6rem;
+  font-size: 1.25rem;
+}
+
+.page section h3 {
+  margin: 1.25rem 0 0.4rem;
+  font-size: 1.05rem;
+}
+
+.page .note h2 {
+  font-size: 1.05rem;
+}
+
+/* Cifra principal: grande, pero se acomoda al ancho del celular */
+.cifra {
+  margin: 0.25rem 0 0.5rem;
+  font-size: clamp(2rem, 9vw, 3rem);
+  font-weight: 700;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+/* Gráficas SVG: ocupan el ancho de su columna y no empujan la página */
+figure {
+  margin: 1rem 0;
+}
+
+figure svg {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+}
+
+figcaption {
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--texto-suave);
+}
+
+.reading {
+  font-size: 0.95rem;
+}
+
+.serie-item figure {
+  margin-top: 0.5rem;
+}
+
+/* Nivel de confianza que corresponde a la parcela */
+ul.levels {
+  margin: 0.4rem 0;
+  padding-left: 1.25rem;
+}
+
+ul.levels li + li {
+  margin-top: 0.3rem;
+}
+
+ul.levels li.current {
+  font-weight: 600;
+}
+
+/* Pasos del desglose, una frase por término */
+ol.steps {
+  padding-left: 1.5rem;
+}
+
+ol.steps li + li {
+  margin-top: 0.4rem;
+}
+
+/* Aviso de un parámetro no válido, arriba del formulario */
+.alert {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--riesgo-alto-texto);
+  border-radius: 6px;
+  background: var(--riesgo-alto-fondo);
+  color: var(--riesgo-alto-texto);
+}
+
+.alert p {
+  margin: 0;
+}
+
+/* Formulario de precio y punto de equilibrio: dos columnas en escritorio, una en el celular */
+.price-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+}
+
+.field input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  background: var(--tarjeta);
+  color: var(--texto);
+  font: inherit;
+}
+
+.field .help {
+  margin: 0.3rem 0 0;
+  font-size: 0.9rem;
+  color: var(--texto-suave);
+}
+
+/* Botones de al menos 44 px de alto, uno al lado del otro cuando caben */
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.form-actions .btn {
+  min-height: 44px;
+}
+
+/* Bloques de riesgo: título, badge y punto de equilibrio de cada probabilidad */
+.page .risk {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: var(--fondo);
+}
+
+.page .risk h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+}
+
+.page .risk p {
+  margin: 0.4rem 0;
+}
+
+/* Tablas: título a la izquierda y cifras a la derecha, para leerlas en columna */
+table.data caption {
+  caption-side: top;
+  text-align: left;
+  font-weight: 600;
+  padding-bottom: 0.5rem;
+}
+
+table.data td.num,
+table.data th.num {
+  text-align: right;
+}
+
+/* La caja que se desplaza con el teclado también muestra su foco */
+.table-wrap:focus-visible {
+  outline: 3px solid var(--primario);
+  outline-offset: 2px;
+}
+
+/* Contexto del municipio: cada dato con su nombre encima */
+dl.ctx {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
+}
+
+dl.ctx dt {
+  margin-top: 0.75rem;
+  font-weight: 600;
+}
+
+dl.ctx dd {
+  margin: 0.15rem 0 0;
+}
+
+.parcel-links p {
+  margin: 0;
+}
+
+/* Un texto largo nunca empuja la página hacia la derecha */
+.page p,
+.page li,
+.page dd,
+.page caption,
+.page td {
+  overflow-wrap: break-word;
+}
+
+/* Celular (hasta 600 px): las tablas de tres columnas se apilan. Cada fila es una cuadrícula con la etiqueta
+   a la izquierda y el valor a la derecha, y la descripción debajo a todo el ancho */
+@media (max-width: 600px) {
+  /* El encabezado sigue en el HTML para los lectores de pantalla, pero no ocupa lugar en la página */
+  table.data.stack thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  table.data.stack {
+    position: relative;
+  }
+
+  /* Tabla, filas y celdas en bloque: cada fila se arma con cuadrícula */
+  table.data.stack,
+  table.data.stack caption,
+  table.data.stack tbody,
+  table.data.stack tr,
+  table.data.stack th,
+  table.data.stack td {
+    display: block;
+  }
+
+  table.data.stack tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--borde);
+  }
+
+  table.data.stack tbody tr th,
+  table.data.stack tbody tr td {
+    padding: 0;
+    border: 0;
+  }
+
+  /* La descripción va debajo de la etiqueta y del valor, a todo el ancho y en texto suave */
+  table.data.stack tbody td:not(.num) {
+    grid-column: 1 / -1;
+    margin-top: 0.25rem;
+    font-size: 0.95rem;
+    color: var(--texto-suave);
+  }
+}

@@ -2,7 +2,7 @@
 #   uv run app               levanta el servidor en http://127.0.0.1:8090 (o el puerto de .env)
 #   uv run app --debug       igual, pero recarga el servidor al guardar cambios
 #   uv run app --production  servidor de producción con waitress; carga datos y modelo antes de aceptar peticiones
-#   uv run app --test        corre las pruebas de la app
+#   uv run app --test        corre las pruebas de la app (tests/test_app*.py)
 #   uv run app install       crea .env a partir de .env.example si no existe e instala las dependencias
 #                            ejecuta: [ -f .env ] || cp .env.example .env; uv sync --inexact
 import argparse
@@ -12,7 +12,8 @@ import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-TESTS = ROOT / "tests" / "test_app.py"
+# Pruebas de la app: tests/test_app.py y el resto de tests/test_app_*.py, en orden
+TESTS = sorted((ROOT / "tests").glob("test_app*.py"))
 # --inexact no quita lo que se instaló aparte, como el extra tabpfn
 SYNC = ["sync", "--inexact"]
 
@@ -46,7 +47,7 @@ def main(argv=None):
     if args.test:
         # pytest solo hace falta para las pruebas
         import pytest
-        return pytest.main([str(TESTS), "-q"])
+        return pytest.main([*map(str, TESTS), "-q"])
 
     from app import AgroCebadaApp
     if args.production:

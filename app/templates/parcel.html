@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block title %}Parcela {{ parcel_id }} | AgroCebada{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='parcel.css') }}">
+{% endblock %}
+
+{% block content %}
+  <main class="page">
+    <p class="back"><a href="{{ url_for('index') }}">← Volver al mapa</a></p>
+
+    {% if missing %}
+    <section class="card" aria-labelledby="no-encontrada">
+      <h2 id="no-encontrada">Parcela no encontrada</h2>
+      <p>No encontramos la parcela {{ parcel_id }}. Revise el identificador o búsquela en el mapa.</p>
+      <p><a class="btn btn--primary" href="{{ url_for('index') }}">Ir al mapa</a></p>
+    </section>
+    {% else %}
+
+    <header class="parcel-head">
+      <h2>Parcela {{ ficha.id }}</h2>
+      <p class="parcel-badges">
+        <span class="badge badge--neutro">{{ view.set_label }}</span>
+        <span class="badge badge--neutro">Régimen {{ ficha.regime or "—" }}</span>
+      </p>
+      <p class="muted">{{ ficha.municipality or "—" }}, {{ ficha.state or "—" }} · {{ ficha.area_ha | number(2) }} ha</p>
+    </header>
+
+    <section class="card" aria-labelledby="rendimiento">
+      <h2 id="rendimiento">Rendimiento esperado</h2>
+      <p class="cifra">{{ ficha.pred | number(2) }} t/ha</p>
+      <p>Rango p10 a p90: de {{ ficha.p10 | number(2) }} a {{ ficha.p90 | number(2) }} t/ha.</p>
+      <figure>
+        {{ interval_bar(ficha.p10, ficha.pred, ficha.p90, observed=ficha.observed, threshold=ficha.threshold, breakeven=econ.breakeven, uid="intervalo") }}
+        <figcaption>Barra del rango p10 a p90, con la predicción, el umbral de {{ ficha.threshold | number(1) }} t/ha{% if ficha.observed is not none %}, el rendimiento reportado{% endif %} y el equilibrio total de {{ econ.breakeven | number(2) }} t/ha, en t/ha.</figcaption>
+      </figure>
+      <p>Probabilidad de quedar por debajo de {{ ficha.threshold | number(1) }} t/ha: <strong>{{ view.prob_below }}</strong>.</p>
+
+      {% if ficha.set == "ENTRENAMIENTO" %}
+      <p><strong>Rendimiento reportado: {{ ficha.observed | number(2) }} t/ha.</strong></p>
+      <p class="note">La predicción que se muestra es la validada fuera de entrenamiento, porque esta parcela se usó para entrenar el modelo. <a href="{{ url_for('methodology.page') }}">Ver metodología</a></p>
+      {% endif %}
+
+      <h3>Confianza</h3>
+      <p><span class="badge badge--{{ view.conf_class }}">{{ view.conf_label }}</span> {{ ficha.confidence.reason or "—" }}</p>
+      <p>Lo que significa cada nivel:</p>
+      <ul class="levels">
+        <li{% if ficha.confidence.level == "alta" %} class="current"{% endif %}><strong>Alta:</strong> al menos una parcela medida a 400 m o menos.</li>
+        <li{% if ficha.confidence.level == "media" %} class="current"{% endif %}><strong>Media:</strong> ninguna a 400 m, pero la más cercana está a 800 m o menos.</li>
+        <li{% if ficha.confidence.level == "baja" %} class="current"{% endif %}><strong>Baja:</strong> la más cercana está a más de 800 m, o el área de la parcela queda fuera del rango de su régimen.</li>
+      </ul>
+      <p class="muted">La marca señala menor precisión de la predicción. No cambia el intervalo.</p>
+    </section>
+
+    <section class="card" aria-labelledby="pesos">
+      <h2 id="pesos">¿Cuánto significa en pesos?</h2>
+
+      {% if error %}
+      <div class="alert" role="alert">
+        <p>{{ error }} Se muestran los valores por defecto.</p>
+      </div>
+      {% endif %}
+
+      <form class="price-form" method="get" action="{{ url_for('detail.page', parcel_id=ficha.id) }}" novalidate>
+        <div class="field">
+          <label for="price">Precio de la cebada ($ por tonelada)</label>
+          <input id="price" name="price" type="number" min="500" max="30000" step="50"
+                 value="{{ view.price_field }}" aria-describedby="price-help">
+          <p id="price-help" class="help">Por defecto, el precio promedio 2023 a 2025 del municipio (SIAP): {{ econ.price_default | money }}</p>
+        </div>
+        <div class="field">
+          <label for="breakeven">Punto de equilibrio (t/ha)</label>
+          <input id="breakeven" name="breakeven" type="number" min="0.5" max="15" step="0.1"
+                 value="{{ view.breakeven_field }}" placeholder="automático: {{ econ.breakeven | number(2) }}"
+                 aria-describedby="breakeven-help">
+          <p id="breakeven-help" class="help">Rendimiento con el que el ingreso cubre el costo total. Si lo dejas vacío, se calcula como costo ÷ precio.</p>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn--primary" type="submit">Recalcular</button>
+          <a class="btn" href="{{ url_for('detail.page', parcel_id=ficha.id) }}">Restablecer valores</a>
+        </div>
+      </form>
+
+      <div class="table-wrap" role="region" aria-label="Ingresos, costos y punto de equilibrio" tabindex="0">
+        <table class="data">
+          <caption>Resultados con el precio y el punto de equilibrio elegidos</caption>
+          <thead>
+            <tr>
+              <th scope="col">Concepto</th>
+              <th scope="col" class="num">Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Ingreso esperado por hectárea</th>
+              <td class="num">{{ econ.income_ha | money }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Ingreso esperado de la parcela ({{ ficha.area_ha | number(2) }} ha)</th>
+              <td class="num">{{ econ.income_parcel | money }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Ingreso conservador por hectárea (con el p10)</th>
+              <td class="num">{{ econ.income_conservative_ha | money }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Costo total por hectárea</th>
+              <td class="num">{{ econ.cost_total | money }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Margen esperado por hectárea</th>
+              <td class="num">{{ econ.margin_ha | money }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Punto de equilibrio en t/ha frente a la predicción</th>
+              <td class="num">{{ econ.breakeven | number(2) }} t/ha frente a {{ ficha.pred | number(2) }} t/ha</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="muted">Los costos son los del paquete tecnológico de FIRA del ciclo primavera-verano 2022 (el más reciente público) para la zona de AgroCostos del municipio, actualizados a 2025 con el índice general de precios al consumidor de INEGI. Ese índice no sigue el precio de los insumos agrícolas, así que el costo real puede ser distinto: por eso el precio y el punto de equilibrio se pueden cambiar arriba. El precio es el precio medio rural del SIAP para el municipio, promedio 2023 a 2025 ponderado por producción.</p>
+
+      <div class="grid-2 risks">
+        <div class="risk">
+          <h3>Probabilidad de no cubrir los costos totales: {{ view.costs_text }}</h3>
+          <p><span class="badge badge--{{ view.costs_class }}">{{ view.costs_label }}</span></p>
+          <p class="muted">Punto de equilibrio total: {{ econ.breakeven | number(2) }} t/ha.</p>
+        </div>
+        <div class="risk">
+          <h3>Probabilidad de no pagar el crédito: {{ view.credit_text }}</h3>
+          <p><span class="badge badge--{{ view.credit_class }}">{{ view.credit_label }}</span></p>
+          <p class="muted">Punto de equilibrio del crédito: {{ econ.breakeven_credit | number(2) }} t/ha.</p>
+        </div>
+      </div>
+      <p class="note">Semáforo. Bajo: menos de {{ view.cut_low }}. Medio: de {{ view.cut_low }} a menos de {{ view.cut_high }}. Alto: {{ view.cut_high }} o más.</p>
+      <p>La probabilidad de pérdida de la cosecha es de {{ view.loss_text }}. Es la parte de la superficie sembrada que el municipio perdió en {{ view.siap_years }}. Si el cultivo se pierde, el ingreso se supone en cero, y esa parte ya está incluida en las dos probabilidades de arriba.</p>
+
+      <h3>Contexto del municipio</h3>
+      <dl class="ctx">
+        <dt>Siniestralidad histórica, {{ view.siap_years }}</dt>
+        <dd>Parte de la superficie sembrada que se pierde: {{ econ.context.loss_rate_2003_2025 | percent(1) }}.</dd>
+        <dt>Siniestralidad histórica, 2013 a 2025</dt>
+        <dd>Parte de la superficie sembrada que se pierde: {{ econ.context.loss_rate_2013_2025 | percent(1) }}.</dd>
+        <dt>Años con pérdidas de más de 20 %</dt>
+        <dd>{{ econ.context.years_loss_over_20 }} de {{ view.siap_total }} años ({{ view.siap_years }}).</dd>
+        <dt>Años con pérdidas de más de 50 %</dt>
+        <dd>{{ econ.context.years_loss_over_50 }} de {{ view.siap_total }} años ({{ view.siap_years }}).</dd>
+        <dt>Rendimiento del SIAP en el municipio, {{ view.siap_years }}</dt>
+        <dd>Media {{ econ.context.siap_yield_mean | number(2) }} t/ha; desviación {{ econ.context.siap_yield_sd | number(2) }} t/ha; percentil 10, {{ econ.context.siap_yield_p10 | number(2) }} t/ha. Incluye las pérdidas. Es contexto: el SIAP mide otra cosa, y su nivel no es comparable con los rendimientos de esta ficha.</dd>
+        <dt>Rango de precios, 2023 a 2025</dt>
+        <dd>De {{ econ.context.price_min | money }} a {{ econ.context.price_max | money }} por tonelada.</dd>
+        <dt>Zona de costos de AgroCostos</dt>
+        <dd>{{ econ.context.agrocostos_zone or "—" }}</dd>
+      </dl>
+    </section>
+
+    <aside class="note" aria-labelledby="sencillas">
+      <h2 id="sencillas">En palabras sencillas</h2>
+      <p><strong>Cómo sale la predicción.</strong> Se toman las parcelas medidas del mismo régimen a 400 m o menos, hasta 10, y se promedian sus rendimientos; las más cercanas pesan más. Si ninguna queda a esa distancia, se usa el promedio de su régimen. El régimen es la forma en que su municipio reportó los rendimientos, A o B. Un modelo estadístico combina ambas cosas. El satélite, el clima y la topografía no entran en la predicción final. <a href="{{ url_for('methodology.page') }}">Ver metodología</a></p>
+      <p><strong>Qué significa el intervalo p10 a p90.</strong> Es el rango en el que se espera que caiga el rendimiento real de la parcela. El p10 es un rendimiento conservador: en condiciones como las de 2025, 9 de cada 10 parcelas rinden más que ese valor. El p90 es el extremo alto: solo 1 de cada 10 parcelas rinde más.</p>
+      <p><strong>Cómo leer el semáforo.</strong> Mide la probabilidad de que la cosecha no cubra el costo total o no pague el crédito, con el precio que se elija. Bajo: menos de {{ view.cut_low }}. Medio: de {{ view.cut_low }} a menos de {{ view.cut_high }}. Alto: {{ view.cut_high }} o más. Es una señal para ordenar parcelas y abrir la conversación, no una probabilidad de incumplimiento.</p>
+      <p><strong>Lo que el intervalo no cubre.</strong> El intervalo describe las diferencias entre parcelas en un año. No incluye una sequía, una helada o una plaga que afecte a todo el municipio: esas golpean a muchas parcelas a la vez, y para una cartera de crédito el p10 subestima ese riesgo común.</p>
+    </aside>
+
+    <section class="card" aria-labelledby="desglose">
+      <h2 id="desglose">Cómo se llegó a este número</h2>
+      {% if ficha.breakdown %}
+      <p>Con el método SHAP, que reparte cada predicción entre sus partes, la predicción de una parcela es un valor de referencia del modelo más el aporte de cada entrada.</p>
+      <figure>
+        {{ breakdown_bars(ficha.breakdown.base, ficha.breakdown.terms, ficha.breakdown.total, uid="desglose") }}
+        <figcaption>Cascada del desglose: promedio de las parcelas medidas, aporte de cada entrada y predicción, en t/ha.</figcaption>
+      </figure>
+      <ol class="steps">
+        {% for step in view.breakdown_steps %}
+        <li>{{ step }}</li>
+        {% endfor %}
+      </ol>
+      <p class="muted">Las cifras van redondeadas a dos decimales, así que la suma puede diferir en 0.01 t/ha del total.</p>
+      {% else %}
+      <p class="note">{{ ficha.breakdown_note or "El desglose no está disponible para esta parcela." }}</p>
+      {% endif %}
+
+      <h3>Entradas del modelo en esta parcela</h3>
+      <div class="table-wrap" role="region" aria-label="Entradas del modelo para esta parcela" tabindex="0">
+        <table class="data stack">
+          <caption>Lo que usa el modelo entregado para esta parcela</caption>
+          <thead>
+            <tr>
+              <th scope="col">Entrada</th>
+              <th scope="col" class="num">Valor</th>
+              <th scope="col">Qué significa</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in view.model_rows %}
+            <tr>
+              <th scope="row">{{ row.label }}</th>
+              <td class="num">{{ row.text }}</td>
+              <td>{{ row.help }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="serie">
+      <h2 id="serie">Verdor y sequía en 2025 frente a 2022 a 2024</h2>
+      {% if ficha.series %}
+      <div class="grid-2">
+        {% for key, index in ficha.series.indices.items() %}
+        <div class="serie-item">
+          <figure>
+            {{ line_chart(index.current, index.history, title=index.label, y_label=key | upper, uid=key) }}
+            <figcaption>{{ index.label }}: la línea continua es 2025, la punteada el promedio de 2022 a 2024 y la franja su rango.</figcaption>
+          </figure>
+          <p class="reading">{% if key == "ndvi" %}Lectura: el pico de verdor es el día del máximo del NDVI, y la variable de contexto compara el máximo del NDVI de 2025 con su promedio de 2022 a 2024.{% else %}Lectura: la variable de contexto es el máximo de la curva suavizada del NDDI, de junio a octubre de 2025.{% endif %}</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="note">La serie satelital no está disponible en esta copia de la app.</p>
+      {% endif %}
+    </section>
+
+    <section class="card" aria-labelledby="contexto">
+      <h2 id="contexto">Contexto de 2025 (no entra al modelo final)</h2>
+      <div class="table-wrap" role="region" aria-label="Variables de contexto de 2025" tabindex="0">
+        <table class="data stack">
+          <caption>Variables de 2025 que la ficha muestra como contexto</caption>
+          <thead>
+            <tr>
+              <th scope="col">Variable</th>
+              <th scope="col" class="num">Valor</th>
+              <th scope="col">Nota</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in view.context_rows %}
+            <tr>
+              <th scope="row">{{ row.label }}</th>
+              <td class="num">{{ row.text }}</td>
+              <td>{{ row.note }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="parcel-links">
+      <p>
+        <a href="{{ url_for('detail.parcel_detail', parcel_id=ficha.id) }}">Datos de esta ficha en JSON</a>
+        ·
+        <a href="{{ url_for('economics.parcel_economics', parcel_id=ficha.id) }}">Detalle económico en JSON</a>
+      </p>
+    </footer>
+    {% endif %}
+  </main>
+{% endblock %}
