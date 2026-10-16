@@ -175,3 +175,31 @@ def test_json_estricto_en_todas_las_respuestas(client, lista):
     for f in lista:
         assert set(detail(client, f["id"])) >= LIST_KEYS
     detail(client, "AGC_003", price=6000, breakeven=4)
+
+
+def test_error_del_modelo_en_pesos(client, lista):
+    # El error típico es el RMSE del esquema A del modelo entregado, por el precio usado (issue #48)
+    from app.modules import model
+    rmse = model.load_model().metricas["A"]["rmse"]
+    base = detail(client, "AGC_003")
+    err = base["model_error"]
+    assert set(err) == {"t_ha", "money_ha", "share_cost_total", "share_credit"}
+    assert err["t_ha"] == pytest.approx(rmse, abs=5e-4)
+    assert err["money_ha"] == pytest.approx(rmse * base["price"], abs=0.01)
+    assert err["share_cost_total"] == pytest.approx(err["money_ha"] / base["cost_total"], abs=1e-4)
+    assert err["share_credit"] == pytest.approx(err["money_ha"] / base["cost_credit"], abs=1e-4)
+    # Con otro precio, los pesos siguen al precio
+    caro = detail(client, "AGC_003", price=8000)
+    assert caro["model_error"]["money_ha"] == pytest.approx(rmse * 8000, abs=0.01)
+
+
+def test_error_en_pesos_reproduce_el_rango_del_reporte(client, lista):
+    # Reporte de entrega: unos 2,500 $/ha en promedio en las 59 parcelas, de 2,000 a 3,300 según el
+    # municipio, de 7 a 12 % del costo total y de 13 a 45 % del crédito
+    errores = [detail(client, f["id"])["model_error"] for f in lista if f["set"] == "PREDICCION"]
+    assert len(errores) == 59
+    pesos = [e["money_ha"] for e in errores]
+    assert 1900 < min(pesos) and max(pesos) < 3400
+    assert sum(pesos) / len(pesos) == pytest.approx(2500, abs=100)
+    assert 0.06 < min(e["share_cost_total"] for e in errores) and max(e["share_cost_total"] for e in errores) < 0.125
+    assert 0.12 < min(e["share_credit"] for e in errores) and max(e["share_credit"] for e in errores) < 0.455

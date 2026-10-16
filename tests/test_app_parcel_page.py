@@ -148,6 +148,21 @@ def test_precio_de_la_query_se_muestra_y_se_usa(client):
     assert formatting.money(esperado["income_ha"]) in html
 
 
+def test_error_del_modelo_en_pesos_sigue_al_precio(client):
+    # Issue #48: el error típico del modelo en pesos por hectárea, en la tabla y en la nota sencilla
+    for query in ({}, {"price": "8000"}):
+        html = client.get("/parcela/AGC_003", query_string=query).get_data(as_text=True)
+        econ = economics.parcel_economics_data("AGC_003", price=query.get("price"))
+        err = econ["model_error"]
+        pesos = formatting.money(err["money_ha"])
+        assert f"Error típico del modelo por hectárea ({formatting.number(err['t_ha'], 2)} t/ha)" in html
+        assert (f"El modelo se equivoca en promedio unas {formatting.number(err['t_ha'], 2)} t/ha. "
+                f"Con el precio de {formatting.money(econ['price'])} por tonelada eso son unos {pesos} por "
+                f"hectárea. Es el {formatting.percent(err['share_cost_total'])} del costo total y el "
+                f"{formatting.percent(err['share_credit'])} del crédito por hectárea.") in html
+    assert "$8,000 por tonelada" in html
+
+
 def test_equilibrio_de_la_query_se_muestra_y_se_usa(client):
     res = client.get("/parcela/AGC_003", query_string={"breakeven": "4.5"})
     assert res.status_code == 200

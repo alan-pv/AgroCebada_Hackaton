@@ -377,6 +377,11 @@ def _view(ficha, econ, breakeven):
         "loss_text": formatting.percent(econ["prob_loss"], 1),
         "cut_low": formatting.percent(cuts["green_below"]),
         "cut_high": formatting.percent(cuts["red_from"]),
+        # Error típico del modelo en t/ha, en pesos por hectárea con el precio usado y como parte de los costos
+        "error_t_ha": formatting.number(econ["model_error"]["t_ha"], 2),
+        "error_money": formatting.money(econ["model_error"]["money_ha"]),
+        "error_cost": formatting.percent(econ["model_error"]["share_cost_total"]),
+        "error_credit": formatting.percent(econ["model_error"]["share_credit"]),
         "siap_years": f"{SIAP_FIRST} a {SIAP_LAST}",
         "siap_total": SIAP_LAST - SIAP_FIRST + 1,
         # El campo muestra el precio que se usó: el del municipio o el que escribió la persona

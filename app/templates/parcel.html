@@ -113,6 +113,10 @@
               <td class="num">{{ econ.margin_ha | money }}</td>
             </tr>
             <tr>
+              <th scope="row">Error típico del modelo por hectárea ({{ view.error_t_ha }} t/ha)</th>
+              <td class="num">{{ view.error_money }}</td>
+            </tr>
+            <tr>
               <th scope="row">Punto de equilibrio en t/ha frente a la predicción</th>
               <td class="num">{{ econ.breakeven | number(2) }} t/ha frente a {{ ficha.pred | number(2) }} t/ha</td>
             </tr>
@@ -161,6 +165,7 @@
       <p><strong>Cómo sale la predicción.</strong> Se toman las parcelas medidas del mismo régimen a 400 m o menos, hasta 10, y se promedian sus rendimientos; las más cercanas pesan más. Si ninguna queda a esa distancia, se usa el promedio de su régimen. El régimen es la forma en que su municipio reportó los rendimientos, A o B. Un modelo estadístico combina ambas cosas. El satélite, el clima y la topografía no entran en la predicción final. <a href="{{ url_for('methodology.page') }}">Ver metodología</a></p>
       <p><strong>Qué significa el intervalo p10 a p90.</strong> Es el rango en el que se espera que caiga el rendimiento real de la parcela. El p10 es un rendimiento conservador: en condiciones como las de 2025, 9 de cada 10 parcelas rinden más que ese valor. El p90 es el extremo alto: solo 1 de cada 10 parcelas rinde más.</p>
       <p><strong>Cómo leer el semáforo.</strong> Mide la probabilidad de que la cosecha no cubra el costo total o no pague el crédito, con el precio que se elija. Bajo: menos de {{ view.cut_low }}. Medio: de {{ view.cut_low }} a menos de {{ view.cut_high }}. Alto: {{ view.cut_high }} o más. Es una señal para ordenar parcelas y abrir la conversación, no una probabilidad de incumplimiento.</p>
+      <p><strong>Cuánto puede fallar el modelo.</strong> El modelo se equivoca en promedio unas {{ view.error_t_ha }} t/ha. Con el precio de {{ econ.price | money }} por tonelada eso son unos {{ view.error_money }} por hectárea. Es el {{ view.error_cost }} del costo total y el {{ view.error_credit }} del crédito por hectárea. Por eso la predicción sirve para ordenar parcelas por riesgo, pero no para decidir sola sobre una parcela.</p>
       <p><strong>Lo que el intervalo no cubre.</strong> El intervalo describe las diferencias entre parcelas en un año. No incluye una sequía, una helada o una plaga que afecte a todo el municipio: esas golpean a muchas parcelas a la vez, y para una cartera de crédito el p10 subestima ese riesgo común.</p>
     </aside>
 

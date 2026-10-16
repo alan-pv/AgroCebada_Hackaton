@@ -5,7 +5,8 @@
 #                                   regime, area_ha, price, breakeven, income_ha, income_conservative_ha, income_parcel,
 #                                   margin_ha, prob_not_cover_costs, light_costs, prob_not_pay_credit y light_credit;
 #                                   format=csv descarga lo mismo como CSV
-#   GET /api/economics/<parcel_id>  detalle económico de una parcela con contexto municipal;
+#   GET /api/economics/<parcel_id>  detalle económico de una parcela con contexto municipal y el error típico
+#                                   del modelo en pesos por hectárea (model_error);
 #                                   query opcional price (en $/t) y breakeven (en t/ha)
 #   parcel_economics_data()         función pura con el detalle de la ruta anterior; lanza KeyError si el ID
 #                                   no existe y ValueError si price o breakeven no son válidos
@@ -110,6 +111,27 @@ def _arg_number(name):
         raise ValueError(f"{name} debe ser un número") from None
 
 
+def _model_rmse():
+    """Error típico del modelo en t/ha: el RMSE de validación cruzada del esquema A que guarda el modelo
+    entregado (0.458). Es el error de 0.46 t/ha que el reporte pasa a pesos (anexo técnico, Tabla III).
+    La validación anidada da 0.490, así que la cifra es la parte baja del error esperado."""
+    return float(model.load_model().metricas["A"]["rmse"])
+
+
+def _model_error(price, cost_total, cost_credit):
+    """Error típico del modelo en pesos por hectárea con el precio usado, y qué parte es del costo total
+    y del crédito por hectárea. Con ?price= cambian los pesos; con ?breakeven=, la parte del costo."""
+    rmse = _model_rmse()
+    money_ha = rmse * price
+    # Un costo de cero no tiene parte; _round lo deja en None
+    return {
+        "t_ha": _round(rmse, 3),
+        "money_ha": _round(money_ha, 2),
+        "share_cost_total": _round(money_ha / cost_total if cost_total > 0 else math.nan, 4),
+        "share_credit": _round(money_ha / cost_credit if cost_credit > 0 else math.nan, 4),
+    }
+
+
 def _list_table():
     """Las 197 parcelas con valores por defecto, ordenadas por ID y con los nombres de la API."""
     return default_table()[list(FIELDS)].rename(columns=FIELDS).round(DECIMALS).sort_index()
@@ -172,6 +194,8 @@ def parcel_economics_data(parcel_id, price=None, breakeven=None) -> dict:
         "prob_not_pay_credit": _round(calc["prob_no_pagar_credito"], 4),
         "light_credit": str(calc["semaforo_credito"]),
         "light_cuts": {"green_below": economia.CORTES[0], "red_from": economia.CORTES[1]},
+        "model_error": _model_error(float(calc["precio"]), float(calc["costo_total"]),
+                                    float(calc["costo_credito"])),
         "context": {
             "loss_rate_2003_2025": _round(muni["siniestralidad_2003_2025"], 4),
             "loss_rate_2013_2025": _round(muni["siniestralidad_2013_2025"], 4),
