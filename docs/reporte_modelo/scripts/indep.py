@@ -194,6 +194,7 @@ res["permutacion_dentro_regimen"] = {"gp_media": float(pdn[:, 0].mean()), "gp_mi
                                      "media_regimen": float(pdn[:, 1].mean()),
                                      "gp_mejor_que_media_en": int((pdn[:, 0] < pdn[:, 1]).sum()), "n": 20,
                                      "rmse_real_gp": float(rep_gp.mean())}
+pd.DataFrame({"rmse_permutado": pdn[:, 0]}).to_csv(OUT / "permutacion.csv", index=False)
 print(res["permutacion_global"], res["permutacion_dentro_regimen"], flush=True)
 
 # --------------------------------------------- 5. vecinos: fuga del relleno y duplicados

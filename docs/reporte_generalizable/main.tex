@@ -44,7 +44,7 @@
 \newcommand{\integranteC}{Vicente Josimar López Martinez}
 \newcommand{\correo}{pv202351433@alm.buap.mx}
 \newcommand{\asesor}{Luis Gustavo Olivares Soto}
-\newcommand{\fecha}{9 de octubre de 2026}
+\newcommand{\fecha}{15 de octubre de 2026}
 
 \newcommand{\logo}[2]{%
   \IfFileExists{figuras/#1}{\includegraphics[height=2.4cm]{#1}}%
@@ -82,10 +82,13 @@
 
 \noindent\textbf{\textit{Resumen.}} \bfseries Estimamos qué rendimiento de cebada de temporal esperar en cada
 municipio de Hidalgo, México, Puebla y Tlaxcala, y con qué riesgo, usando solo datos públicos. Aprendimos del
-rendimiento oficial del SIAP de 2003 a 2025. Donde no hay datos del SIAP a menos de 50\,km, un modelo basado en la
-temperatura máxima de julio y agosto se equivoca en promedio 0.44\,t/ha, contra 0.57\,t/ha de interpolar a los
-municipios vecinos. El suelo no agrega información y el clima del año no anticipa la cosecha. El resultado es un mapa
-de 268 municipios con rendimiento esperado, probabilidad de quedar bajo 2\,t/ha y una marca de confianza.\par\mdseries
+rendimiento oficial del SIAP de 2003 a 2025, promediado por municipio. Donde no hay datos del SIAP a menos de 50\,km,
+un modelo basado en la temperatura máxima de julio y agosto tiene una raíz del error cuadrático medio (RMSE) de
+0.44\,t/ha, contra 0.57\,t/ha de interpolar a los municipios vecinos. Como elegimos la variable viendo resultados, una
+selección repetida dentro de la validación reduce esa ventaja a cerca de 0.07\,t/ha. El suelo no agrega información y
+el clima del año no anticipa la cosecha. El resultado es un mapa de 268 municipios con rendimiento esperado,
+probabilidad de quedar bajo 2\,t/ha y una marca de confianza, como apoyo preliminar para identificar zonas que
+revisar.\par\mdseries
 
 \smallskip
 \noindent\textbf{\textit{Palabras clave.}} \bfseries cebada de temporal, rendimiento municipal, SIAP, validación

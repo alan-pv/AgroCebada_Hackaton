@@ -1,0 +1,73 @@
+% Reporte técnico del Reto AgroCebada FIRA 2026. Plantilla oficial de IEEE para conferencias (bare_conf.tex, IEEEtran v1.8b).
+% Compilar primero anexo_tecnico.tex y después este archivo (dos veces), desde reporte/entrega:
+%   xelatex -interaction=nonstopmode main.tex && xelatex -interaction=nonstopmode main.tex
+% Después, `python3 plataforma.py` genera el texto de cada campo de la plataforma y el conteo de palabras.
+\documentclass[conference,letterpaper]{IEEEtran}
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Termes}
+\usepackage{polyglossia}
+\setdefaultlanguage{spanish}
+\usepackage{cite}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{etoolbox}
+\usepackage{xr}
+\externaldocument[A-]{anexo_tecnico}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue!50!black}
+\graphicspath{{figuras/}}
+\gappto\captionsspanish{\renewcommand{\figurename}{Fig.}\renewcommand{\tablename}{Tabla}}
+\renewcommand{\IEEEkeywordsname}{Palabras clave}
+
+\begin{document}
+
+\title{Reporte técnico. Rendimiento de cebada de temporal\\con régimen de registro y rezago espacial}
+
+\author{\IEEEauthorblockN{José Alán Pomares Valdés}
+\IEEEauthorblockA{Facultad de Ciencias de la Computación\\
+Benemérita Universidad Autónoma de Puebla\\
+Puebla, México\\
+pv202351433@alm.buap.mx}
+\and
+\IEEEauthorblockN{Vicente Josimar López Martínez}
+\IEEEauthorblockA{Facultad de Ciencias de la Computación\\
+Benemérita Universidad Autónoma de Puebla\\
+Puebla, México}
+\and
+\IEEEauthorblockN{Luis Emmanuel Ramiro Luna}
+\IEEEauthorblockA{Facultad de Ciencias de la Computación\\
+Benemérita Universidad Autónoma de Puebla\\
+Puebla, México}
+\and
+\IEEEauthorblockN{Luis Gustavo Olivares Soto (asesor)}
+\IEEEauthorblockA{Facultad de Ciencias de la Computación\\
+Benemérita Universidad Autónoma de Puebla\\
+Puebla, México}}
+
+\maketitle
+
+\begin{abstract}
+Este reporte reúne el texto de cada sección capturada en la plataforma del Reto AgroCebada
+FIRA 2026. Estimamos el rendimiento de 59 parcelas de cebada de temporal con un proceso gaussiano que usa el régimen de
+registro del municipio y el rendimiento de las parcelas vecinas. Esperamos una raíz del error cuadrático medio de 0.46 a
+0.49\,t/ha. Las figuras, ecuaciones y tablas citadas están en el anexo técnico.
+\end{abstract}
+
+\begin{IEEEkeywords}
+rendimiento de cebada, régimen de registro, rezago espacial, proceso gaussiano, crédito agrícola.
+\end{IEEEkeywords}
+
+\input{secciones/01_introduccion}
+\input{secciones/02_justificacion}
+\input{secciones/03_objetivos}
+\input{secciones/04_metodologia}
+\input{secciones/05_resultados}
+\input{secciones/06_inclusion_financiera}
+\input{secciones/07_conclusiones}
+
+\input{referencias}
+
+\end{document}

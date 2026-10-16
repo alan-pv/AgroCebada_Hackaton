@@ -1,0 +1,29 @@
+\section{Conclusiones}\label{sec:conclusiones}
+
+Construimos un modelo sencillo para estimar el rendimiento de 59 parcelas de cebada de temporal. Usa dos datos, el
+régimen de registro del municipio y el rendimiento de las parcelas vecinas, combinados con un proceso gaussiano.
+Esperamos un RMSE de 0.46 a 0.49\,t/ha en las 59 parcelas.
+
+Cada pieza entró porque mejoró la validación de forma consistente, y cada idea que quedó fuera lo hizo porque no la
+mejoró. Así quedaron fuera las variables satelitales y climáticas, que no aportaron una vez conocidos el régimen y los
+vecinos.
+
+Nuestros resultados sugieren que el límite de este reto está más en las etiquetas que en el algoritmo. El modelo mejora
+poco a la media por régimen, y el redondeo y la fuente mixta del rendimiento pueden agregar un ruido que no pudimos
+medir. Conocer la fuente de cada registro, la fecha de siembra o tener cortes de cosecha medidos permitiría comprobarlo,
+y podría ayudar más que un modelo más complejo.
+
+El modelo municipal es nuestra principal aportación más allá del conjunto de datos del reto. Con datos públicos estima
+el rendimiento esperado de toda la región y muestra que el calor de verano es la variable climática clave. También
+explica por qué el clima no ayudó en las parcelas, porque en los nueve municipios del reto casi no varía.
+
+Sobre las preguntas guía, el NDVI y la lluvia pesan solo cuando falta el régimen, porque indican la zona. Con el régimen
+y los vecinos, el NDDI es el índice que más aporta, pero su efecto es muy pequeño. A escala regional la variable
+climática de mayor peso es la Tmax de julio y agosto. La mejor combinación es régimen más
+rezago espacial.
+
+Para un productor, el error equivale a unos 2,500 pesos por hectárea. La estimación sirve para ordenar parcelas y
+orientar la revisión de un crédito, junto con el juicio del analista.
+
+Como trabajo futuro proponemos validar con el rendimiento real de las 59 parcelas cuando FIRA lo publique, sumar más
+temporadas para estimar antes de la cosecha y probar la capa de crédito con datos reales.
