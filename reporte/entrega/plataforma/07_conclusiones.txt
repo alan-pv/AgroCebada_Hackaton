@@ -8,6 +8,6 @@ El modelo municipal es nuestra principal aportación más allá del conjunto de 
 
 Sobre las preguntas guía, el NDVI y la lluvia pesan solo cuando falta el régimen, porque indican la zona. Con el régimen y los vecinos, el NDDI es el índice que más aporta, pero su efecto es muy pequeño. A escala regional la variable climática de mayor peso es la Tmax de julio y agosto. La mejor combinación es régimen más rezago espacial.
 
-Para un productor, el error equivale a unos 2,500 pesos por hectárea. La estimación sirve para ordenar parcelas y orientar la revisión de un crédito, junto con el juicio del analista.
+Para un productor, el error equivale a unos 2,500 pesos por hectárea en promedio por parcela. La estimación sirve para ordenar parcelas y orientar la revisión de un crédito, junto con el juicio del analista.
 
 Como trabajo futuro proponemos validar con el rendimiento real de las 59 parcelas cuando FIRA lo publique, sumar más temporadas para estimar antes de la cosecha y probar la capa de crédito con datos reales.
