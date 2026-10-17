@@ -34,14 +34,16 @@ const RISK_LAYERS = new Map([
   ["risk_costs", { light: "light_costs", title: "Riesgo de no cubrir costos" }],
   ["risk_credit", { light: "light_credit", title: "Riesgo de no pagar el crédito" }],
 ]);
-// Semáforo de la API (light_*): texto, rango de probabilidad y color; paleta Okabe-Ito, apta para daltonismo
+// Semáforo de la API (light_*): texto, rango de probabilidad, color y clase del badge; paleta Okabe-Ito, apta para daltonismo
 const RISK_LEVELS = new Map([
-  ["verde", { text: "bajo", range: "menos de 10 %", color: "#009E73" }],
-  ["amarillo", { text: "medio", range: "de 10 a 30 %", color: "#E69F00" }],
-  ["rojo", { text: "alto", range: "30 % o más", color: "#D55E00" }],
+  ["verde", { text: "bajo", range: "menos de 10 %", color: "#009E73", badge: "badge--bajo" }],
+  ["amarillo", { text: "medio", range: "de 10 a 30 %", color: "#E69F00", badge: "badge--medio" }],
+  ["rojo", { text: "alto", range: "30 % o más", color: "#D55E00", badge: "badge--alto" }],
 ]);
 
-const BORDER = "#52514e";
+// Borde de las parcelas: gris oscuro semitransparente, para que lean sobre el mapa base gris claro
+const BORDER = "#3d3c38";
+const BORDER_OPACITY = 0.7;
 const BORDER_HOVER = "#0b0b0b";
 
 // Por debajo de este zoom las parcelas miden pocos píxeles y se dibujan como círculos en su centro
@@ -55,9 +57,19 @@ const municipalitySelect = document.getElementById("municipality");
 const countLabel = document.getElementById("count");
 const predictionsLink = document.getElementById("download-predictions");
 const economicsLink = document.getElementById("download-economics");
+const filtersToggle = document.getElementById("filters-toggle");
+const filtersActive = document.getElementById("filters-active");
+const downloadMenu = document.querySelector(".download-menu");
+// Indicadores sobre el mapa: cifra y nota de cada uno
+const stats = Object.fromEntries(["shown", "to-predict", "pred-mean", "risk"].map((key) => [key, {
+  value: document.getElementById(`stat-${key}`),
+  note: document.getElementById(`stat-${key}-note`),
+}]));
 
 // Vista inicial sobre la zona de estudio; se ajusta al cargar las parcelas
 const map = L.map(mapElement).setView([19.8, -98.4], 10);
+// Mapa base de OpenStreetMap; map.css lo pasa a gris claro para que el color lo lleven solo las parcelas.
+// (Los mosaicos grises de CARTO ya piden clave de API: sin ella llegan con una marca de agua)
 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -69,12 +81,14 @@ let pointsLayer = null;
 // Verdadero si la carga de economía falló; entonces las capas de riesgo están deshabilitadas
 let economicsFailed = false;
 
+// Índice de la clase de rendimiento de un valor; menos de 2.0 cae en la primera y 5.6 o más en la última
+function yieldClassIndex(value) {
+  const index = YIELD_CLASSES.findIndex((c) => value < c.to);
+  return index === -1 ? YIELD_CLASSES.length - 1 : index;
+}
+
 function yieldColor(value) {
-  for (const c of YIELD_CLASSES) {
-    if (value < c.to) return c.color;
-  }
-  // 5.6 o más cae en la última clase
-  return YIELD_CLASSES[YIELD_CLASSES.length - 1].color;
+  return YIELD_CLASSES[yieldClassIndex(value)].color;
 }
 
 function colorValue(p) {
@@ -97,11 +111,11 @@ function fillColorOf(p) {
 
 function featureStyle(feature) {
   const p = feature.properties;
-  const base = { weight: 1, color: BORDER, opacity: 1, fillOpacity: 0.8, dashArray: null };
+  const base = { weight: 1, color: BORDER, opacity: BORDER_OPACITY, fillOpacity: 0.85, dashArray: null };
   const fillColor = fillColorOf(p);
   if (fillColor === null) {
     // Sin valor en este modo: gris con borde punteado, para no depender solo del color
-    return { ...base, fillColor: NO_DATA.color, color: NO_DATA.border, fillOpacity: 0.5, dashArray: "3 3" };
+    return { ...base, fillColor: NO_DATA.color, color: NO_DATA.border, opacity: 1, fillOpacity: 0.6, dashArray: "3 3" };
   }
   return { ...base, fillColor };
 }
@@ -112,10 +126,11 @@ function pointStyle(feature) {
   return {
     ...featureStyle(feature),
     radius: POINT_RADIUS,
-    weight: 1,
+    weight: 1.5,
     color: noData ? NO_DATA.border : "#ffffff",
+    opacity: 1,
     dashArray: noData ? "2 2" : null,
-    fillOpacity: noData ? 0.6 : 0.9,
+    fillOpacity: noData ? 0.7 : 0.95,
   };
 }
 
@@ -123,33 +138,44 @@ function formatNumber(value, digits) {
   return value.toLocaleString("es-MX", { minimumFractionDigits: digits, maximumFractionDigits: digits });
 }
 
-// Línea del tooltip con la probabilidad de un riesgo y, si la API la trae, su nivel (bajo, medio o alto)
-function riskLine(label, probability, light) {
-  const level = RISK_LEVELS.get(light);
-  const suffix = level ? ` (riesgo ${level.text})` : "";
-  return `${label}: ${formatNumber(probability * 100, 0)} %${suffix}`;
+// Fila etiqueta–valor de la mini tarjeta del tooltip
+function tipRow(label, value) {
+  return `<div class="tip__row"><dt>${label}</dt><dd>${value}</dd></div>`;
 }
 
+// Fila de un riesgo: probabilidad y, si la API trae el semáforo, su nivel con texto (bajo, medio o alto)
+function riskRow(label, probability, light) {
+  const level = RISK_LEVELS.get(light);
+  const badge = level ? ` <span class="badge ${level.badge}">Riesgo ${level.text}</span>` : "";
+  return tipRow(label, `${formatNumber(probability * 100, 0)} %${badge}`);
+}
+
+// Mini tarjeta del tooltip: ID y conjunto, la cifra principal grande y filas etiqueta–valor
 function tooltipHtml(p) {
-  const lines = [`<strong>${p.id}</strong>`, `${p.municipality}, ${p.state}`];
-  if (p.set === "ENTRENAMIENTO") {
-    lines.push(`Entrenamiento · ${formatNumber(p.yield_t_ha, 2)} t/ha observadas`);
-  } else {
-    lines.push(`Predicción · ${formatNumber(p.pred, 2)} t/ha`);
-    lines.push(`Intervalo p10 a p90: ${formatNumber(p.p10, 2)} a ${formatNumber(p.p90, 2)} t/ha`);
-    lines.push(`Probabilidad bajo 2.5 t/ha: ${formatNumber(p.prob_below * 100, 0)} %`);
+  const training = p.set === "ENTRENAMIENTO";
+  const dot = training ? "dot--entrenamiento" : "dot--prediccion";
+  const rows = [tipRow("Municipio", `${p.municipality}, ${p.state}`)];
+  if (!training) {
+    rows.push(tipRow("Intervalo p10 a p90", `${formatNumber(p.p10, 2)} a ${formatNumber(p.p90, 2)} t/ha`));
+    rows.push(tipRow("Probabilidad bajo 2.5 t/ha", `${formatNumber(p.prob_below * 100, 0)} %`));
   }
-  lines.push(`${formatNumber(p.area_ha, 2)} ha`);
+  rows.push(tipRow("Área", `${formatNumber(p.area_ha, 2)} ha`));
   // Riesgo económico, solo si se cargó la economía
   if (typeof p.prob_not_cover_costs === "number") {
-    lines.push(riskLine("Probabilidad de no cubrir costos", p.prob_not_cover_costs, p.light_costs));
+    rows.push(riskRow("No cubrir costos", p.prob_not_cover_costs, p.light_costs));
   }
   if (typeof p.prob_not_pay_credit === "number") {
-    lines.push(riskLine("Probabilidad de no pagar el crédito", p.prob_not_pay_credit, p.light_credit));
+    rows.push(riskRow("No pagar el crédito", p.prob_not_pay_credit, p.light_credit));
   }
-  // Siempre es la última línea: avisa que el clic abre la ficha
-  lines.push("Clic para ver la ficha");
-  return lines.join("<br>");
+  return '<div class="tip">'
+    + `<div class="tip__head"><strong class="tip__id">${p.id}</strong>`
+    + `<span class="tip__set"><span class="dot ${dot}"></span>${SET_LABELS[p.set]}</span></div>`
+    + `<p class="tip__value">${formatNumber(training ? p.yield_t_ha : p.pred, 2)} <span class="tip__unit">t/ha</span></p>`
+    + `<p class="tip__caption">${training ? "Rendimiento observado" : "Rendimiento predicho por el modelo"}</p>`
+    + `<dl class="tip__rows">${rows.join("")}</dl>`
+    // Siempre es la última línea: avisa que el clic abre la ficha
+    + '<p class="tip__hint">Clic para ver la ficha</p>'
+    + "</div>";
 }
 
 function matchesFilters(p) {
@@ -180,37 +206,114 @@ function updateCount(selected) {
   countLabel.textContent = text;
 }
 
-function legendRow(color, label, extraClass = "") {
-  return `<div class="legend-row"><span class="legend-swatch ${extraClass}" style="background:${color}"></span>${label}</div>`;
+// Muestra la cifra (con su unidad, si la tiene) y la nota de un indicador
+function setStat(key, value, unit, note) {
+  stats[key].value.innerHTML = unit ? `${value} <span class="stat__unit">${unit}</span>` : value;
+  stats[key].note.textContent = note;
 }
 
+// Indicadores de las parcelas mostradas: se recalculan con cada cambio de estado o municipio
+function updateStats(selected) {
+  const toPredict = selected.filter((f) => f.properties.set === "PREDICCION");
+  setStat("shown", selected.length, "", `${selected.length - toPredict.length} de entrenamiento`);
+  setStat("to-predict", toPredict.length, "", "Sin rendimiento observado");
+
+  // Promedio simple de la predicción de las parcelas por predecir
+  const preds = toPredict.map((f) => f.properties.pred).filter((v) => typeof v === "number");
+  if (preds.length) {
+    const mean = preds.reduce((sum, v) => sum + v, 0) / preds.length;
+    setStat("pred-mean", formatNumber(mean, 2), "t/ha",
+      preds.length === 1 ? "De la única parcela por predecir" : `Promedio simple de ${preds.length} parcelas por predecir`);
+  } else {
+    setStat("pred-mean", "—", "", "No hay parcelas por predecir en la selección");
+  }
+
+  // Parte de las parcelas mostradas con semáforo rojo en el crédito (probabilidad de 30 % o más).
+  // Se usa el crédito y no los costos: casi todas las parcelas salen en rojo en costos y la cifra no distinguiría nada
+  if (economicsFailed) {
+    setStat("risk", "—", "", "No se pudo cargar la economía");
+    return;
+  }
+  const withLight = selected.filter((f) => RISK_LEVELS.has(f.properties.light_credit));
+  if (!withLight.length) {
+    setStat("risk", "—", "", "Sin dato de riesgo en la selección");
+    return;
+  }
+  const high = withLight.filter((f) => f.properties.light_credit === "rojo").length;
+  setStat("risk", formatNumber((high / withLight.length) * 100, 0), "%",
+    `${high} de ${withLight.length}, con probabilidad de 30 % o más`);
+}
+
+// Fila de la leyenda: muestra de color, rótulo y número de parcelas mostradas en esa clase
+function legendRow(color, label, count, extraClass = "") {
+  return `<div class="legend-row"><span class="legend-swatch ${extraClass}" style="background:${color}"></span>`
+    + `<span class="legend-label">${label}</span><span class="legend-count">${count}</span></div>`;
+}
+
+// Leyenda plegable: el título (con el rótulo de la columna de conteos) abre y cierra las filas
+function legendHtml(title, rows) {
+  return `<details class="legend-details"${legendOpen ? " open" : ""}>`
+    + `<summary class="legend-head"><strong>${title}</strong><span class="legend-count-title">Parcelas</span></summary>`
+    + `<div class="legend-body">${rows.join("")}</div></details>`;
+}
+
+// Cuenta cuántas parcelas caen en cada clave; null agrupa las que no tienen valor
+function countBy(selected, keyOf) {
+  const counts = new Map();
+  for (const f of selected) {
+    const key = keyOf(f.properties);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  return counts;
+}
+
+// En el celular la leyenda empieza plegada para no tapar el mapa; se recuerda si el usuario la abre o la cierra
+let legendOpen = !window.matchMedia("(max-width: 600px)").matches;
 const legend = L.control({ position: "bottomright" });
-legend.onAdd = () => L.DomUtil.create("div", "legend");
+legend.onAdd = () => {
+  const div = L.DomUtil.create("div", "legend");
+  // Los clics en la leyenda no llegan al mapa; «toggle» no burbujea, por eso se escucha en captura
+  L.DomEvent.disableClickPropagation(div);
+  div.addEventListener("toggle", (event) => {
+    legendOpen = event.target.open;
+  }, true);
+  return div;
+};
 legend.addTo(map);
 
-function updateLegend() {
+// Leyenda de la capa activa, con el número de parcelas mostradas en cada clase
+function updateLegend(selected) {
   const div = legend.getContainer();
   const mode = layerSelect.value;
   if (mode === "set") {
-    div.innerHTML = "<strong>Conjunto</strong>"
-      + Object.keys(SET_COLORS).map((k) => legendRow(SET_COLORS[k], SET_LABELS[k])).join("");
+    const counts = countBy(selected, (p) => p.set);
+    div.innerHTML = legendHtml("Conjunto",
+      Object.keys(SET_COLORS).map((k) => legendRow(SET_COLORS[k], SET_LABELS[k], counts.get(k) ?? 0)));
   } else if (RISK_LAYERS.has(mode)) {
     // Los tres niveles del semáforo con su rango de probabilidad, y la entrada de sin dato
-    div.innerHTML = `<strong>${RISK_LAYERS.get(mode).title}</strong>`
-      + [...RISK_LEVELS.values()].map((level) => legendRow(level.color, `Riesgo ${level.text}: ${level.range}`)).join("")
-      + legendRow(NO_DATA.color, "Sin dato", "legend-swatch--no-data");
+    const { light, title } = RISK_LAYERS.get(mode);
+    const counts = countBy(selected, (p) => (RISK_LEVELS.has(p[light]) ? p[light] : null));
+    div.innerHTML = legendHtml(title, [
+      ...[...RISK_LEVELS].map(([key, level]) => legendRow(level.color, `Riesgo ${level.text}: ${level.range}`, counts.get(key) ?? 0)),
+      legendRow(NO_DATA.color, "Sin dato", counts.get(null) ?? 0, "legend-swatch--no-data"),
+    ]);
   } else {
-    div.innerHTML = `<strong>${LEGEND_TITLES[mode]}</strong>`
-      + YIELD_CLASSES.map((c) => legendRow(c.color, `${c.from.toFixed(1)} a ${c.to.toFixed(1)}`)).join("")
-      + legendRow(NO_DATA.color, NO_DATA_LABELS[mode], "legend-swatch--no-data");
+    const counts = countBy(selected, (p) => {
+      const value = colorValue(p);
+      return value === null || value === undefined ? null : yieldClassIndex(value);
+    });
+    div.innerHTML = legendHtml(LEGEND_TITLES[mode], [
+      ...YIELD_CLASSES.map((c, i) => legendRow(c.color, `${c.from.toFixed(1)} a ${c.to.toFixed(1)}`, counts.get(i) ?? 0)),
+      legendRow(NO_DATA.color, NO_DATA_LABELS[mode], counts.get(null) ?? 0, "legend-swatch--no-data"),
+    ]);
   }
 }
 
 function bindInteractions(feature, layer, reset) {
-  layer.bindTooltip(tooltipHtml(feature.properties), { sticky: true });
+  layer.bindTooltip(tooltipHtml(feature.properties), { sticky: true, className: "parcel-tip", opacity: 1 });
   layer.on({
     mouseover: () => {
-      layer.setStyle({ weight: 3, color: BORDER_HOVER });
+      layer.setStyle({ weight: 3, color: BORDER_HOVER, opacity: 1 });
       layer.bringToFront();
     },
     mouseout: reset,
@@ -245,6 +348,9 @@ function draw(fit) {
   }));
 
   updateCount(selected);
+  updateStats(selected);
+  updateLegend(selected);
+  updateActiveFilters();
   if (fit && selected.length) map.fitBounds(polygonsLayer.getBounds(), { padding: [20, 20] });
   showByZoom();
 }
@@ -309,6 +415,12 @@ function restoreState() {
   municipalitySelect.value = enabledValue(municipalitySelect, params.get("municipality")) ?? "";
 }
 
+// Texto del botón «Capa y filtros» (celular): cuántos filtros de estado o municipio están activos
+function updateActiveFilters() {
+  const active = [stateSelect.value, municipalitySelect.value].filter(Boolean).length;
+  filtersActive.textContent = active ? ` · ${active} ${active === 1 ? "filtro" : "filtros"}` : "";
+}
+
 // Sin economía, las capas de riesgo quedan deshabilitadas y el resto del mapa sigue igual
 function disableRiskLayers() {
   for (const option of layerSelect.options) {
@@ -318,7 +430,6 @@ function disableRiskLayers() {
 
 map.on("zoomend", showByZoom);
 layerSelect.addEventListener("change", () => {
-  updateLegend();
   draw(false);
   syncState();
 });
@@ -332,6 +443,29 @@ municipalitySelect.addEventListener("change", () => {
   draw(true);
   syncState();
 });
+
+// Botón «Capa y filtros» (solo se ve en el celular): abre o cierra el panel; el mapa recalcula su tamaño
+filtersToggle.addEventListener("click", () => {
+  const open = filtersToggle.getAttribute("aria-expanded") === "true";
+  filtersToggle.setAttribute("aria-expanded", String(!open));
+  map.invalidateSize();
+});
+
+// Menú «Descargar»: se cierra con Esc (el foco vuelve al botón), al hacer clic fuera o al elegir un archivo
+downloadMenu.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && downloadMenu.open) {
+    downloadMenu.open = false;
+    downloadMenu.querySelector("summary").focus();
+  }
+});
+document.addEventListener("click", (event) => {
+  if (downloadMenu.open && !downloadMenu.contains(event.target)) downloadMenu.open = false;
+});
+for (const link of [predictionsLink, economicsLink]) {
+  link.addEventListener("click", () => {
+    downloadMenu.open = false;
+  });
+}
 
 // La economía se pide a la par; si falla, el mapa se dibuja igual, sin las capas de riesgo
 const economicsRequest = fetchJson(mapElement.dataset.economicsUrl).catch(() => null);
@@ -366,7 +500,6 @@ Promise.all([fetchJson(mapElement.dataset.parcelsUrl), fetchJson(mapElement.data
     fillSelect(stateSelect, parcels.map((f) => f.properties.state));
     // La capa y los filtros vienen del hash si son válidos; luego se dibuja
     restoreState();
-    updateLegend();
     updateDownloadLinks();
     draw(true);
   })

@@ -80,11 +80,13 @@ def _viewbox(svg):
 
 
 def _text_boxes(svg):
-    # Caja aproximada de cada texto: 0.56 em por carácter, 0.75 em sobre la línea base y 0.25 em bajo ella
+    # Caja aproximada de cada texto: 0.56 em por carácter (0.6 en negrita), 0.75 em sobre la línea base
+    # y 0.25 em bajo ella, con el tamaño de letra de cada texto
     boxes = []
     for element in _root(svg).iter(NS + "text"):
         content = element.text or ""
-        width = len(content) * FONT_SIZE * 0.56
+        size = float(element.get("font-size"))
+        width = len(content) * size * (0.6 if element.get("font-weight") else 0.56)
         x, y = float(element.get("x")), float(element.get("y"))
         anchor = element.get("text-anchor")
         if anchor == "end":
@@ -93,7 +95,7 @@ def _text_boxes(svg):
             left = x
         else:
             left = x - width / 2
-        boxes.append((content, left, left + width, y - 0.75 * FONT_SIZE, y + 0.25 * FONT_SIZE))
+        boxes.append((content, left, left + width, y - 0.75 * size, y + 0.25 * size))
     return boxes
 
 
@@ -294,7 +296,7 @@ def test_breakdown_colors_follow_sign():
 
 def _current_polyline(svg):
     return next(element for element in _root(svg).iter(NS + "polyline")
-                if "primario-oscuro" in (element.get("stroke") or ""))
+                if "dato-oscuro" in (element.get("stroke") or ""))
 
 
 def test_current_series_has_one_point_per_valid_value():
@@ -351,9 +353,13 @@ def test_coordinates_are_finite_and_inside_viewbox(name):
 # (9) Todo texto cae dentro del viewBox y no se solapa con otro texto
 
 def _every_chart():
-    svgs = [(f"intervalo {name}", charts.interval_bar(**args)) for name, args in INTERVAL_CASES.items()]
-    svgs.append(("cascada", charts.breakdown_bars(**BREAKDOWN_ARGS)))
-    svgs.append(("linea", CHARTS["linea"]()))
+    # Cada gráfica con el ancho del celular y con el del escritorio
+    svgs = []
+    for width in (charts.WIDTH, charts.WIDE_WIDTH):
+        svgs += [(f"intervalo {name} {width}", charts.interval_bar(**args, width=width))
+                 for name, args in INTERVAL_CASES.items()]
+        svgs.append((f"cascada {width}", charts.breakdown_bars(**BREAKDOWN_ARGS, width=width)))
+        svgs.append((f"linea {width}", charts.line_chart(*season(), "NDVI 2025", "NDVI", width=width)))
     return svgs
 
 
@@ -373,3 +379,136 @@ def test_no_text_overlaps_in_any_chart(name, svg):
             overlap_x = left_a < right_b and left_b < right_a
             overlap_y = top_a < bottom_b and top_b < bottom_a
             assert not (overlap_x and overlap_y), (name, text_a, text_b)
+
+
+# (10) Ancho del escritorio: viewBox de 880, mismo texto y mismos datos
+
+WIDE_CHARTS = {
+    "intervalo": lambda: charts.interval_bar(**INTERVAL_ARGS, width=charts.WIDE_WIDTH),
+    "cascada": lambda: charts.breakdown_bars(**BREAKDOWN_ARGS, width=charts.WIDE_WIDTH),
+    "linea": lambda: charts.line_chart(*season(), "NDVI 2025", "NDVI", width=charts.WIDE_WIDTH),
+}
+
+
+@pytest.mark.parametrize("name", list(WIDE_CHARTS))
+def test_wide_viewbox_is_880_and_style_caps_at_seven_sixths(name):
+    svg = WIDE_CHARTS[name]()
+    assert _viewbox(svg)[0] == 880
+    # 7/6 del viewBox: el texto de 14 unidades no pasa de unos 16 px en pantalla
+    assert "max-width:1027px" in svg
+
+
+@pytest.mark.parametrize("name", list(WIDE_CHARTS))
+def test_wide_and_narrow_say_the_same(name):
+    # Las dos versiones describen los mismos datos con el mismo texto
+    wide, narrow = WIDE_CHARTS[name](), CHARTS[name]()
+    assert _root(wide).find(NS + "desc").text == _root(narrow).find(NS + "desc").text
+    if name == "linea":
+        # En el escritorio caben las etiquetas de todos los meses; el resto del texto es el mismo
+        assert set(_texts(narrow)) <= set(_texts(wide))
+        assert set(_texts(wide)) - set(_texts(narrow)) <= set(charts.MONTH_ABBRS)
+    else:
+        assert sorted(_texts(wide)) == sorted(_texts(narrow))
+
+
+@pytest.mark.parametrize("name", list(WIDE_CHARTS))
+def test_wide_coordinates_are_inside_viewbox(name):
+    svg = WIDE_CHARTS[name]()
+    width, height = _viewbox(svg)
+    for element in _root(svg).iter():
+        for x, y in _positions(element):
+            assert -0.5 <= x <= width + 0.5 and -0.5 <= y <= height + 0.5
+
+
+def test_width_must_be_at_least_the_narrow_one():
+    for bad in (100, NAN, None, "ancho"):
+        with pytest.raises(ValueError):
+            charts.interval_bar(3.1, 3.6, 4.1, width=bad)
+
+
+def test_default_uid_differs_between_widths():
+    narrow = charts.interval_bar(**INTERVAL_ARGS)
+    wide = charts.interval_bar(**INTERVAL_ARGS, width=charts.WIDE_WIDTH)
+    assert not _ids(narrow) & _ids(wide)
+
+
+# (11) responsive_chart: las dos versiones, cada una en su contenedor y con ids propios
+
+def test_responsive_chart_wraps_both_widths():
+    html = str(charts.responsive_chart(charts.interval_bar, **INTERVAL_ARGS, uid="intervalo"))
+    assert html.startswith('<div class="chart-ancha"><svg')
+    assert '</svg></div><div class="chart-angosta"><svg' in html
+    wide, narrow = re.findall(r"<svg.*?</svg>", html)
+    assert _viewbox(wide)[0] == charts.WIDE_WIDTH and _viewbox(narrow)[0] == charts.WIDTH
+    assert "intervalo-ancha-t" in _ids(wide) and "intervalo-angosta-t" in _ids(narrow)
+    assert not _ids(wide) & _ids(narrow)
+
+
+def test_responsive_chart_without_data_returns_notice_once():
+    assert charts.responsive_chart(charts.interval_bar, 3.1, NAN, 4.1) == charts.NO_DATA
+
+
+# (12) Detalles del rediseño: zona bajo el umbral, líneas de referencia, total de la cascada y rejilla
+
+@pytest.mark.parametrize("width", [charts.WIDTH, charts.WIDE_WIDTH])
+def test_zone_below_threshold_ends_at_the_threshold_line(width):
+    root = _root(charts.interval_bar(**INTERVAL_ARGS, width=width))
+    zone = next(e for e in root.iter(NS + "path") if e.get("class") == "zone-below")
+    line = next(e for e in root.iter(NS + "line") if e.get("class") == "ref-threshold")
+    xs = [x for x, _ in _path_points(zone.get("d"))]
+    assert min(xs) == 16
+    assert max(xs) == pytest.approx(float(line.get("x1")), abs=0.1)
+    # Sin umbral no hay zona
+    assert "zone-below" not in charts.interval_bar(3.1, 3.6, 4.1, width=width)
+
+
+def test_threshold_and_breakeven_lines_look_different():
+    root = _root(charts.interval_bar(**INTERVAL_ARGS))
+    threshold = next(e for e in root.iter(NS + "line") if e.get("class") == "ref-threshold")
+    breakeven = next(e for e in root.iter(NS + "line") if e.get("class") == "ref-breakeven")
+    assert threshold.get("stroke-dasharray") and not breakeven.get("stroke-dasharray")
+    assert float(breakeven.get("stroke-width")) > float(threshold.get("stroke-width"))
+
+
+@pytest.mark.parametrize("width", [charts.WIDTH, charts.WIDE_WIDTH])
+def test_breakdown_total_is_dark_data_blue_and_bars_are_thin(width):
+    bars = _bars(charts.breakdown_bars(**BREAKDOWN_ARGS, width=width))
+    total = next(bar for bar in bars if bar.get("class") == "bar bar-total")
+    assert total.get("fill") == "var(--dato-oscuro, #184f95)"
+    for bar in bars:
+        ys = [y for _, y in _path_points(bar.get("d"))]
+        assert max(ys) - min(ys) == pytest.approx(charts.BAR_HEIGHT)
+
+
+def test_wide_breakdown_puts_labels_in_a_left_column():
+    root = _root(charts.breakdown_bars(**BREAKDOWN_ARGS, width=charts.WIDE_WIDTH))
+    labels = [e for e in root.iter(NS + "text") if e.get("text-anchor") == "end"]
+    assert [e.text for e in labels] == ["Promedio de las parcelas medidas", "Régimen de medición",
+                                        "Parcelas medidas cercanas", "Predicción"]
+    # Todas alineadas a la derecha en la misma x, a la izquierda de donde empiezan las barras
+    column = {float(e.get("x")) for e in labels}
+    assert len(column) == 1
+    starts = [min(x for x, _ in _path_points(bar.get("d"))) for bar in _bars(ET.tostring(root, encoding="unicode"))]
+    assert column.pop() < min(starts)
+
+
+@pytest.mark.parametrize("width", [charts.WIDTH, charts.WIDE_WIDTH])
+def test_line_chart_has_faint_horizontal_grid(width):
+    root = _root(charts.line_chart(*season(), "NDVI 2025", "NDVI", width=width))
+    grid = [e for e in root.iter(NS + "line") if e.get("class") == "grid"]
+    assert grid
+    assert all(e.get("y1") == e.get("y2") and e.get("stroke") == charts.GRID for e in grid)
+    assert not any(e.get("stroke-dasharray") for e in grid)
+
+
+@pytest.mark.parametrize("width", [charts.WIDTH, charts.WIDE_WIDTH])
+@pytest.mark.parametrize("name", list(INTERVAL_CASES))
+def test_range_values_are_not_crossed_by_reference_lines(name, width):
+    # Los valores p10 y p90 se corren para que la línea del umbral o del equilibrio no los cruce
+    args = INTERVAL_CASES[name]
+    svg = charts.interval_bar(**args, width=width)
+    lines = [float(e.get("x1")) for e in _root(svg).iter(NS + "line") if (e.get("class") or "").startswith("ref-")]
+    values = {charts.number(args["p10"], 2), charts.number(args["p90"], 2)}
+    for content, left, right, _, _ in _text_boxes(svg):
+        if content in values:
+            assert not any(left <= x <= right for x in lines), (content, lines)

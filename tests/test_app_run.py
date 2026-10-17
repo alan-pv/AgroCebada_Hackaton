@@ -227,3 +227,17 @@ def test_run_css_has_mobile_rules(client):
     head = head[:head.index("}")]
     assert "clip: rect(0, 0, 0, 0)" in head
     assert "display: none" not in head
+
+
+def test_run_page_custom_controls_stay_accessible(client):
+    html = client.get("/ejecutar").get_data(as_text=True)
+    # El selector de archivo propio: el campo nativo sigue en la página, con etiqueta en español
+    assert 'id="csv-file" class="visually-hidden"' in html
+    assert '<label for="csv-file"' in html and "Ningún archivo seleccionado" in html
+    # El umbral conserva su unidad en el nombre accesible y su ayuda
+    assert 'aria-describedby="threshold-help"' in html
+    assert '<span class="visually-hidden"> (t/ha)</span>' in html
+    js = client.get("/scripts/run.js").get_data(as_text=True)
+    # La barra de rango se lee como imagen con sus valores en texto
+    assert 'setAttribute("role", "img")' in js
+    assert 'range.setAttribute("aria-label", text)' in js

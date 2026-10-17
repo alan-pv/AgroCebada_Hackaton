@@ -8,8 +8,8 @@
 
 {% block content %}
   <main class="page">
-    <h2>Ejecutar el modelo</h2>
-    <p class="muted">Elige parcelas del conjunto de datos o prueba una parcela nueva, y calcula su predicción con el modelo final.</p>
+    <h2 class="page-title">Ejecutar el modelo</h2>
+    <p class="page-lede">Elige parcelas del conjunto de datos o prueba una parcela nueva, y calcula su predicción con el modelo final.</p>
 
     {# Las rutas y los límites llegan por data-*; run.js no los escribe a mano #}
     <div class="run" id="run"
@@ -22,8 +22,10 @@
          data-threshold-max="{{ threshold_max }}"
          data-threshold-default="{{ threshold_default }}">
 
-      <section class="card" aria-labelledby="dataset-title">
-        <h3 id="dataset-title">Parcelas del conjunto de datos</h3>
+      <section class="card dataset" aria-labelledby="dataset-title">
+        <div class="card__head">
+          <h3 class="card__title" id="dataset-title">Parcelas del conjunto de datos</h3>
+        </div>
 
         <div class="filters">
           <label>Estado
@@ -55,7 +57,6 @@
           </label>
           <button type="button" class="btn" id="select-predicted">Las 59 por predecir</button>
           <button type="button" class="btn" id="clear-selection">Limpiar selección</button>
-          <span class="muted" id="selection-count" aria-live="polite">0 seleccionadas</span>
         </div>
 
         <div class="table-wrap list-wrap">
@@ -69,7 +70,7 @@
                 <th scope="col" class="hide-sm">Régimen</th>
                 <th scope="col" class="hide-sm">Estado</th>
                 <th scope="col">Municipio</th>
-                <th scope="col">Área (ha)</th>
+                <th scope="col" class="num">Área (ha)</th>
               </tr>
             </thead>
             <tbody id="dataset-rows">
@@ -78,21 +79,27 @@
           </table>
         </div>
 
-        <div class="threshold">
-          <label for="threshold">Umbral (t/ha)</label>
-          <input type="number" id="threshold" min="{{ threshold_min }}" max="{{ threshold_max }}" step="0.1"
-                 aria-describedby="threshold-help">
+        {# Barra de acción al pie de la tarjeta: cuántas parcelas, con qué umbral y el botón #}
+        <div class="run-bar">
+          <div class="run-bar__row">
+            <span class="run-bar__count" id="selection-count" aria-live="polite">0 seleccionadas</span>
+            <div class="threshold">
+              <label for="threshold">Umbral<span class="visually-hidden"> (t/ha)</span></label>
+              <input type="number" id="threshold" min="{{ threshold_min }}" max="{{ threshold_max }}" step="0.1"
+                     aria-describedby="threshold-help">
+              <span class="threshold__unit" aria-hidden="true">t/ha</span>
+            </div>
+            <button type="button" class="btn btn--primary" id="run-button">Ejecutar el modelo</button>
+          </div>
           <p class="hint" id="threshold-help">Probabilidad de que el rendimiento quede por debajo de este valor</p>
+          <div class="message" id="dataset-message" aria-live="polite"></div>
         </div>
-
-        <div class="actions">
-          <button type="button" class="btn btn--primary" id="run-button">Ejecutar el modelo</button>
-        </div>
-        <div class="message" id="dataset-message" aria-live="polite"></div>
       </section>
 
       <section class="card" aria-labelledby="new-title">
-        <h3 id="new-title">Probar una parcela nueva</h3>
+        <div class="card__head">
+          <h3 class="card__title" id="new-title">Probar una parcela nueva</h3>
+        </div>
         <p class="hint intro">Calcula la predicción de una parcela que no está en el conjunto de datos. Usa el umbral de la tarjeta anterior.</p>
 
         <form id="new-form" novalidate>
@@ -131,22 +138,25 @@
 
         <div class="csv">
           <h4>O carga varias parcelas desde un CSV</h4>
-          <p class="hint">Columnas: id (opcional), lon, lat, area_ha y regimen. Hasta 59 filas, con coma o punto y coma como separador y punto decimal.</p>
-          <div class="field">
-            <label for="csv-file">Archivo CSV</label>
-            <input type="file" id="csv-file" accept=".csv,text/csv">
+          <p class="hint">Columnas: id (opcional), lon, lat, area_ha y regimen. Hasta 59 filas, con coma o punto y coma como separador y punto decimal.
+            <a id="csv-template" download="plantilla_parcelas.csv">Descargar plantilla CSV</a></p>
+          {# Selector propio: el campo nativo queda oculto a la vista pero sigue en el teclado y en el lector #}
+          <div class="file">
+            <input type="file" id="csv-file" class="visually-hidden" accept=".csv,text/csv"
+                   aria-describedby="csv-file-name">
+            <label for="csv-file" class="btn file__button">Elegir archivo CSV</label>
+            <span class="file__name" id="csv-file-name">Ningún archivo seleccionado</span>
           </div>
           <div class="actions">
-            <a id="csv-template" download="plantilla_parcelas.csv">Descargar plantilla CSV</a>
-            <button type="button" class="btn" id="csv-run">Calcular las parcelas del CSV</button>
+            <button type="button" class="btn btn--primary" id="csv-run">Calcular las parcelas del CSV</button>
           </div>
           <div class="message" id="csv-message" aria-live="polite"></div>
         </div>
       </section>
 
       <section class="card" id="results" aria-labelledby="results-title">
-        <div class="results-head">
-          <h3 id="results-title">Resultados</h3>
+        <div class="card__head">
+          <h3 class="card__title" id="results-title">Resultados</h3>
           <button type="button" class="btn" id="download-button" hidden>Descargar resultados (CSV)</button>
         </div>
         <div id="results-zone" aria-live="polite">

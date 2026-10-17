@@ -27,9 +27,13 @@
   // Encabezados de la tabla de resultados; también son la etiqueta de cada celda en el celular
   const RESULT_LABELS = [
     "Parcela", "Estado", "Municipio", "Predicción (t/ha)", "Intervalo p10–p90 (t/ha)",
-    "Probabilidad bajo el umbral (%)", "Confianza",
+    "Rango frente al umbral", "Probabilidad bajo el umbral (%)", "Confianza",
   ];
   const SET_LABELS = { ENTRENAMIENTO: "Entrenamiento", PREDICCION: "Predicción" };
+  // Punto de color de cada conjunto, el mismo del mapa
+  const SET_DOTS = { ENTRENAMIENTO: "dot--entrenamiento", PREDICCION: "dot--prediccion" };
+  // Paso de la escala de las barras de rango: sus extremos son múltiplos de 0.5 t/ha
+  const RANGE_STEP = 0.5;
   // Confianza con el mismo semáforo de riesgo de la app: alta en verde, baja en rojo
   const CONFIDENCE = {
     alta: { text: "Confianza alta", className: "badge--bajo" },
@@ -261,6 +265,30 @@
     return `${formatNumber(p10, 2)}–${formatNumber(p90, 2)}`;
   }
 
+  // Escala común de las barras de rango: cubre todos los p10, p90 y predicciones y el umbral,
+  // con extremos redondeados a RANGE_STEP. Así todas las filas se comparan a simple vista
+  function rangeScale(rows, threshold) {
+    const values = [threshold];
+    for (const row of rows) {
+      for (const value of [row.p10, row.p90, row.pred]) {
+        if (Number.isFinite(value)) values.push(value);
+      }
+    }
+    let min = Math.floor(Math.min(...values) / RANGE_STEP) * RANGE_STEP;
+    let max = Math.ceil(Math.max(...values) / RANGE_STEP) * RANGE_STEP;
+    if (max - min < RANGE_STEP) {
+      min -= RANGE_STEP;
+      max += RANGE_STEP;
+    }
+    return { min: Math.max(0, min), max };
+  }
+
+  // Posición de un valor en la escala, en porcentaje de 0 a 100
+  function rangePercent(value, scale) {
+    const percent = ((value - scale.min) / (scale.max - scale.min)) * 100;
+    return Math.min(100, Math.max(0, percent));
+  }
+
   // Valida los campos del formulario de parcela nueva. Devuelve la parcela lista para la API
   // y los errores, cada uno con el campo que falla
   function parseNewParcel(fields) {
@@ -377,6 +405,7 @@
     const csvRun = el("csv-run");
     const csvMessage = el("csv-message");
     const csvTemplate = el("csv-template");
+    const csvFileName = el("csv-file-name");
     const resultsZone = el("results-zone");
     const downloadButton = el("download-button");
 
@@ -405,23 +434,33 @@
       box.type = "checkbox";
       box.checked = view.selected.has(row.id);
       box.setAttribute("aria-label", `Seleccionar ${row.id}`);
+      // La fila elegida se resalta; la casilla marcada ya lo dice sin depender del color
+      tr.classList.toggle("is-selected", box.checked);
       box.addEventListener("change", () => {
         if (box.checked) view.selected.add(row.id);
         else view.selected.delete(row.id);
+        tr.classList.toggle("is-selected", box.checked);
         updateSelectionInfo();
       });
       boxCell.append(box);
       const idCell = makeCell("th", row.id);
       idCell.scope = "row";
+      // Conjunto con su punto de color, el mismo del mapa; el texto lo nombra
+      const setNode = document.createElement("span");
+      setNode.className = "set";
+      const dot = document.createElement("span");
+      dot.className = `dot ${SET_DOTS[row.set] || ""}`;
+      dot.setAttribute("aria-hidden", "true");
+      setNode.append(dot, SET_LABELS[row.set] || row.set);
       // Conjunto, Régimen y Estado se ocultan en el celular (clase hide-sm)
       tr.append(
         boxCell,
         idCell,
-        makeCell("td", SET_LABELS[row.set] || row.set, { className: "hide-sm" }),
+        makeCell("td", setNode, { className: "hide-sm" }),
         makeCell("td", row.regime, { className: "hide-sm" }),
         makeCell("td", row.state, { className: "hide-sm" }),
         makeCell("td", row.municipality),
-        makeCell("td", formatNumber(row.area_ha, 2)),
+        makeCell("td", formatNumber(row.area_ha, 2), { className: "num" }),
       );
       return tr;
     }
@@ -475,7 +514,67 @@
       resultsZone.setAttribute("aria-busy", String(busy));
     }
 
-    function buildResultRow(row) {
+    // Barra de rango de una parcela: intervalo p10–p90, predicción como punto y umbral como línea,
+    // en la escala común. El texto accesible (y el del cursor) dice los mismos valores
+    function buildRange(row, scale, threshold) {
+      if (![row.pred, row.p10, row.p90].every(Number.isFinite)) return "—";
+      const text = `Predicción ${formatNumber(row.pred, 2)} t/ha; intervalo de ${formatNumber(row.p10, 2)} `
+        + `a ${formatNumber(row.p90, 2)} t/ha; umbral ${formatNumber(threshold, 1)} t/ha`;
+      const range = document.createElement("div");
+      range.className = "range";
+      range.setAttribute("role", "img");
+      range.setAttribute("aria-label", text);
+      range.title = text;
+      const band = document.createElement("span");
+      band.className = "range__band";
+      band.style.left = `${rangePercent(row.p10, scale)}%`;
+      band.style.width = `${rangePercent(row.p90, scale) - rangePercent(row.p10, scale)}%`;
+      const line = document.createElement("span");
+      line.className = "range__threshold";
+      line.style.left = `${rangePercent(threshold, scale)}%`;
+      const point = document.createElement("span");
+      point.className = "range__pred";
+      point.style.left = `${rangePercent(row.pred, scale)}%`;
+      range.append(band, line, point);
+      return range;
+    }
+
+    // Encabezado de la columna de barras: su nombre y los extremos de la escala común
+    function buildRangeHeader(scale) {
+      const th = makeCell("th", RESULT_LABELS[5]);
+      th.scope = "col";
+      th.className = "range-col";
+      const axis = document.createElement("span");
+      axis.className = "range-axis";
+      axis.setAttribute("aria-hidden", "true");
+      axis.append(makeCell("span", formatNumber(scale.min, 1)), makeCell("span", formatNumber(scale.max, 1)));
+      th.append(axis);
+      return th;
+    }
+
+    // Leyenda de las barras, con la escala en texto: el celular no muestra el encabezado
+    function buildRangeLegend(scale, threshold) {
+      const legend = document.createElement("p");
+      legend.className = "range-legend";
+      const item = (keyClass, label) => {
+        const span = document.createElement("span");
+        span.className = "range-legend__item";
+        const key = document.createElement("span");
+        key.className = `range-legend__key ${keyClass}`;
+        key.setAttribute("aria-hidden", "true");
+        span.append(key, label);
+        return span;
+      };
+      legend.append(
+        item("range-legend__key--band", "Intervalo p10–p90"),
+        item("range-legend__key--pred", "Predicción"),
+        item("range-legend__key--threshold", `Umbral ${formatNumber(threshold, 1)} t/ha`),
+        makeCell("span", `Misma escala en todas las filas, de ${formatNumber(scale.min, 1)} a ${formatNumber(scale.max, 1)} t/ha`),
+      );
+      return legend;
+    }
+
+    function buildResultRow(row, scale, threshold) {
       let idNode = row.id;
       if (row.inDataset) {
         const link = document.createElement("a");
@@ -498,15 +597,16 @@
         idCell,
         makeCell("td", row.state || "—", { label: RESULT_LABELS[1] }),
         makeCell("td", row.municipality || "—", { label: RESULT_LABELS[2] }),
-        makeCell("td", formatNumber(row.pred, 2), { label: RESULT_LABELS[3] }),
-        makeCell("td", intervalText(row.p10, row.p90), { label: RESULT_LABELS[4] }),
-        makeCell("td", percentText(row.prob_below), { label: RESULT_LABELS[5] }),
-        makeCell("td", confidenceNode, { label: RESULT_LABELS[6] }),
+        makeCell("td", formatNumber(row.pred, 2), { label: RESULT_LABELS[3], className: "num" }),
+        makeCell("td", intervalText(row.p10, row.p90), { label: RESULT_LABELS[4], className: "num" }),
+        makeCell("td", buildRange(row, scale, threshold), { label: RESULT_LABELS[5], className: "range-col" }),
+        makeCell("td", percentText(row.prob_below), { label: RESULT_LABELS[6], className: "num" }),
+        makeCell("td", confidenceNode, { label: RESULT_LABELS[7] }),
       );
       return tr;
     }
 
-    function buildResultsTable(rows) {
+    function buildResultsTable(rows, scale, threshold) {
       const wrap = document.createElement("div");
       wrap.className = "table-wrap";
       const table = document.createElement("table");
@@ -515,14 +615,20 @@
       caption.className = "visually-hidden";
       const head = document.createElement("thead");
       const headRow = document.createElement("tr");
-      for (const title of RESULT_LABELS) {
+      RESULT_LABELS.forEach((title, index) => {
+        if (index === 5) {
+          headRow.append(buildRangeHeader(scale));
+          return;
+        }
         const th = makeCell("th", title);
         th.scope = "col";
+        // Las cifras se alinean a la derecha, también su encabezado
+        if (index === 3 || index === 4 || index === 6) th.className = "num";
         headRow.append(th);
-      }
+      });
       head.append(headRow);
       const body = document.createElement("tbody");
-      for (const row of rows) body.append(buildResultRow(row));
+      for (const row of rows) body.append(buildResultRow(row, scale, threshold));
       table.append(caption, head, body);
       wrap.append(table);
       return wrap;
@@ -532,19 +638,27 @@
     function renderResults(rows, meta) {
       view.results = { rows, meta };
       resultsZone.replaceChildren();
+      // Resumen en una línea: cuántas parcelas, con qué umbral y qué versión del modelo
       const summary = document.createElement("p");
       summary.className = "summary";
-      summary.textContent = `Modelo versión ${meta.model_version} · umbral ${meta.threshold} t/ha · `
-        + `${rows.length} ${rows.length === 1 ? "parcela" : "parcelas"}`;
+      const count = document.createElement("strong");
+      count.textContent = `${rows.length} ${rows.length === 1 ? "parcela" : "parcelas"}`;
+      summary.append(count, ` · umbral ${meta.threshold} t/ha · modelo versión ${meta.model_version}`);
       resultsZone.append(summary);
       const lowIds = rows.filter((row) => row.confidence === "baja").map((row) => row.id);
       if (lowIds.length > 0) {
-        const warning = document.createElement("p");
+        const warning = document.createElement("div");
         warning.className = "warning";
-        warning.textContent = `${LOW_CONFIDENCE_WARNING} Confianza baja en: ${lowIds.join(", ")}.`;
+        const text = document.createElement("p");
+        text.textContent = LOW_CONFIDENCE_WARNING;
+        const ids = document.createElement("p");
+        ids.className = "warning__ids";
+        ids.textContent = `Confianza baja en: ${lowIds.join(", ")}.`;
+        warning.append(text, ids);
         resultsZone.append(warning);
       }
-      resultsZone.append(buildResultsTable(rows));
+      const scale = rangeScale(rows, meta.threshold);
+      resultsZone.append(buildRangeLegend(scale, meta.threshold), buildResultsTable(rows, scale, meta.threshold));
       downloadButton.hidden = false;
     }
 
@@ -681,6 +795,12 @@
       runNew([parcel], newMessage);
     });
     csvRun.addEventListener("click", runCsv);
+    // El selector propio muestra el nombre del archivo elegido
+    csvFile.addEventListener("change", () => {
+      const file = csvFile.files[0];
+      csvFileName.textContent = file ? file.name : "Ningún archivo seleccionado";
+      csvFileName.classList.toggle("file__name--chosen", Boolean(file));
+    });
 
     downloadButton.addEventListener("click", () => {
       if (!view.results) return;
@@ -709,6 +829,7 @@
     module.exports = {
       chunk, parseNumber, parseRecords, parseCsv, formatCsvErrors, toCsv, csvCell,
       filterRows, uniqueSorted, municipalitiesIn, resultRow, confidenceBadge, parseNewParcel,
+      rangeScale, rangePercent,
     };
   }
 

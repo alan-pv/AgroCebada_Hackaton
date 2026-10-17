@@ -1,6 +1,6 @@
 # Metodología del modelo: página que lo explica y sus cifras en JSON
 # Contrato:
-#   GET /metodologia      página HTML, con la plantilla methodology.html
+#   GET /metodologia      página HTML, con la plantilla methodology.html y las gráficas de method_charts.py
 #   GET /api/methodology  cifras de la metodología en JSON (ver methodology_data)
 #   methodology_data()    función pura con esas cifras. Cada sección vale None si falta su archivo
 #                         de outputs/ o el modelo; la página muestra un aviso en su lugar
@@ -12,9 +12,15 @@ from flask import Blueprint, jsonify, render_template
 
 from agrocebada.config import OUTPUTS
 
-from . import model
+from . import method_charts, model
 
 bp = Blueprint("methodology", __name__)
+# Gráficas de la página, disponibles en las plantillas
+bp.add_app_template_global(method_charts.coverage_chart, "coverage_chart")
+bp.add_app_template_global(method_charts.groups_chart, "groups_chart")
+bp.add_app_template_global(method_charts.rmse_chart, "rmse_chart")
+bp.add_app_template_global(method_charts.neighbors_chart, "neighbors_chart")
+bp.add_app_template_global(method_charts.contributions_chart, "contributions_chart")
 
 SCHEMES = ("A", "B")
 # Cuántos grupos de variables se muestran: los de mayor efecto al quitarlos
@@ -24,6 +30,10 @@ GROUP_LABELS = {"sat25_fen": "Fenología 2025"}
 GROUP_KINDS = {"indice": "Índice satelital", "clima": "Clima", "bloque": "Bloque de variables"}
 CONTRIBUTIONS = (("regime", "Régimen de etiquetas (A o B)"),
                  ("spatial_lag", "Parcelas medidas cercanas (rezago espacial)"))
+# RMSE de una predicción que solo da la media de su régimen, en t/ha, por esquema de validación.
+# Cifras del reporte: el A sale de outputs/prueba_t_corregida.json (media_regimen, 0.4889) y el B de
+# outputs/ablaciones_v1.csv (paso v1_base, 0.4878). La página las usa como referencia del modelo
+REGIME_MEAN_RMSE = {"A": 0.489, "B": 0.488}
 MONTHS = ("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto",
           "septiembre", "octubre", "noviembre", "diciembre")
 
@@ -173,7 +183,8 @@ def warm_up():
 def page():
     values = methodology_data()
     trained_on = _long_date(values["model"]["trained_on"]) if values["model"] else None
-    return render_template("methodology.html", methodology=values, trained_on=trained_on)
+    return render_template("methodology.html", methodology=values, trained_on=trained_on,
+                           regime_mean_rmse=REGIME_MEAN_RMSE)
 
 
 @bp.get("/api/methodology")

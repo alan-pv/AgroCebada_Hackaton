@@ -64,6 +64,26 @@ def test_download_group_has_two_links(client):
     assert hrefs == ["/api/predictions?format=csv", "/api/economics?format=csv"]
 
 
+def test_toolbar_toggle_stats_and_count(client):
+    html = client.get("/").get_data(as_text=True)
+    elements = _Elements(html).elements
+    by_id = {a["id"]: (tag, a) for tag, a in elements if "id" in a}
+    # El botón que pliega la capa y los filtros en el celular dice su estado y qué controla
+    tag, toggle = by_id["filters-toggle"]
+    assert tag == "button" and toggle["type"] == "button"
+    assert toggle["aria-expanded"] == "false"
+    assert toggle["aria-controls"] == "filters" and "filters" in by_id
+    # Los tres selectores están dentro del panel que se pliega
+    panel = re.search(r'<div id="filters"[^>]*>(.*?)</div>', html, re.S).group(1)
+    assert all(f'<select id="{name}"' in panel for name in ("layer", "state", "municipality"))
+    # Cuatro indicadores con cifra y nota, que el script llena
+    for key in ("shown", "to-predict", "pred-mean", "risk"):
+        assert f"stat-{key}" in by_id and f"stat-{key}-note" in by_id
+    assert "Parcelas con riesgo alto de no pagar el crédito" in html
+    # El contador sigue anunciando los cambios
+    assert by_id["count"][1]["aria-live"] == "polite"
+
+
 def test_map_js_is_javascript_without_hardcoded_api_paths(client):
     res = client.get("/scripts/map.js")
     assert res.status_code == 200

@@ -1,47 +1,319 @@
 /* Página de metodología: solo lo que main.css no trae */
 
-/* Pasos numerados de «Cómo se obtiene el número» */
+/* Encabezado: título, nota del modelo e indicadores */
+.method__head .note {
+  max-width: 70ch;
+}
+
+/* Indicadores: en el celular van de dos en dos */
+.method__stats {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
+  margin-top: 1rem;
+}
+
+/* Índice y secciones: en escritorio el índice va en una columna fija a la izquierda */
+.method__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.method__body {
+  display: grid;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+/* En el celular el índice queda arriba, fijo al desplazar, y sus enlaces se recorren de lado */
+.method__aside {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin: 0 -16px;
+  padding: 0.5rem 16px;
+  background: var(--fondo);
+  border-bottom: 1px solid var(--borde);
+}
+
+.method__toc .eyebrow {
+  display: none;
+}
+
+/* El ancla no queda escondida bajo el índice fijo */
+.method__section {
+  scroll-margin-top: 4rem;
+}
+
+@media (min-width: 960px) {
+  .method__layout {
+    grid-template-columns: 13.5rem minmax(0, 1fr);
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .method__aside {
+    top: 1.5rem;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: 0;
+  }
+
+  .method__toc .eyebrow {
+    display: block;
+    padding: 0 0.75rem;
+  }
+
+  .method__toc ol {
+    flex-direction: column;
+    gap: 0.1rem;
+    overflow: visible;
+  }
+
+  .method__toc a {
+    display: block;
+    padding: 0.4rem 0.75rem;
+    border-radius: var(--radio-sm);
+    line-height: 1.35;
+    white-space: normal;
+  }
+
+  .method__section {
+    scroll-margin-top: 1.5rem;
+  }
+}
+
+/* Secciones en tarjeta; cada subsección se separa con una línea fina */
+.method__section > h2 {
+  margin: 0 0 0.75rem;
+  font-size: var(--t-xl);
+}
+
+.method__sub {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--borde);
+}
+
+.method__sub > h3 {
+  margin: 0 0 0.5rem;
+  font-size: var(--t-lg);
+}
+
+/* Párrafos a un ancho cómodo de lectura */
+.method__section > p:not(.note),
+.method__sub > p:not(.note) {
+  max-width: 72ch;
+}
+
+/* Un texto largo nunca empuja la página hacia la derecha */
+.method p,
+.method li,
+.method dd,
+.method caption {
+  overflow-wrap: break-word;
+}
+
+/* «Cómo se obtiene el número»: resumen de los pasos en fila, unidos por una línea */
+.flow {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0.5rem 0 1.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.flow li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+/* Línea que une el número de un paso con el siguiente */
+.flow li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 0.875rem;
+  left: 2.25rem;
+  right: -0.25rem;
+  border-top: 1px solid var(--borde-fuerte);
+}
+
+.flow__n,
+.steps li::before {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid var(--borde-fuerte);
+  border-radius: 50%;
+  background: var(--tarjeta);
+  color: var(--texto);
+  font-size: var(--t-sm);
+  font-weight: 650;
+}
+
+.flow__n {
+  margin-bottom: 0.35rem;
+}
+
+.flow__name {
+  font-size: var(--t-sm);
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+.flow__out {
+  font-size: var(--t-xs);
+  color: var(--texto-suave);
+}
+
+/* Lista de pasos con su texto completo; el número va en un círculo como en el resumen */
 ol.steps {
-  padding-left: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem 2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: paso;
 }
 
-ol.steps li + li {
-  margin-top: 0.6rem;
+ol.steps li {
+  position: relative;
+  padding-left: 2.5rem;
+  counter-increment: paso;
 }
 
-/* Términos con su explicación debajo */
+ol.steps li::before {
+  content: counter(paso);
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+ol.steps strong {
+  display: block;
+}
+
+/* En el celular el resumen sobra: la lista se apila y una línea une cada paso con el siguiente */
+@media (max-width: 699px) {
+  .flow {
+    display: none;
+  }
+
+  ol.steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  ol.steps li:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 2rem;
+    bottom: -1rem;
+    left: 0.875rem;
+    border-left: 1px solid var(--borde-fuerte);
+  }
+}
+
+ol.steps + .note {
+  margin-top: 1.5rem;
+}
+
+/* Términos: el nombre a la izquierda y su explicación a la derecha */
+dl.terms {
+  margin: 0;
+}
+
+dl.terms > div {
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1fr);
+  gap: 0.25rem 1.5rem;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--borde);
+}
+
+dl.terms > div:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
 dl.terms dt {
-  margin-top: 0.9rem;
   font-weight: 600;
 }
 
 dl.terms dd {
-  margin: 0.2rem 0 0;
+  margin: 0;
+  max-width: 68ch;
 }
 
 dl.terms dd ul {
-  margin: 0.4rem 0 0;
+  margin: 0.4rem 0;
   padding-left: 1.25rem;
 }
 
-/* Título de cada tabla alineado a la izquierda, con aire antes de la tabla */
-table.data caption {
-  caption-side: top;
-  text-align: left;
-  font-weight: 600;
-  padding-bottom: 0.5rem;
+@media (max-width: 699px) {
+  dl.terms > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
-/* Cifras alineadas a la derecha para compararlas en columna */
-table.data td.num,
-table.data th.num {
-  text-align: right;
+/* Gráficas: título y nota arriba, la gráfica y su tabla desplegable debajo */
+.method-figure {
+  margin: 1.25rem 0 0.75rem;
+}
+
+.method-figure figcaption {
+  margin-bottom: 0.75rem;
+}
+
+.method-figure__title {
+  display: block;
+  font-weight: 600;
+}
+
+.method-figure__note {
+  display: block;
+  font-size: var(--t-sm);
+  color: var(--texto-suave);
+}
+
+/* Se dibujan dos versiones de cada gráfica; solo se ve la que corresponde al ancho */
+.method-chart--wide {
+  display: block;
+}
+
+.method-chart--narrow {
+  display: none;
+}
+
+@media (max-width: 699px) {
+  .method-chart--wide {
+    display: none;
+  }
+
+  .method-chart--narrow {
+    display: block;
+  }
+}
+
+.method-figure + .disclosure {
+  margin-bottom: 1rem;
+}
+
+.method-figure + .disclosure > summary {
+  font-size: var(--t-sm);
 }
 
 /* Intervalo de confianza debajo de cada cifra, en letra más chica */
 span.ci {
   display: block;
-  font-size: 0.85rem;
+  font-size: var(--t-xs);
   color: var(--texto-suave);
 }
 
@@ -50,25 +322,28 @@ table.data.wide {
   min-width: 36rem;
 }
 
-/* La caja que se desplaza con el teclado también muestra su foco */
-.table-wrap:focus-visible {
-  outline: 3px solid var(--primario);
-  outline-offset: 2px;
+/* Limitaciones: cada una con su título en negrita, en dos columnas en pantallas anchas */
+.limits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 2rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
 }
 
-/* Un texto largo nunca empuja la página hacia la derecha */
-.page p,
-.page li,
-.page dd,
-.page caption {
-  overflow-wrap: break-word;
+.limits li {
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--borde);
 }
 
-.page h2 {
-  margin-top: 2.5rem;
+.limits strong {
+  display: block;
+  margin-bottom: 0.15rem;
 }
 
-.page h3 {
-  margin-top: 1.75rem;
-  font-size: 1.1rem;
+@media (max-width: 699px) {
+  .limits {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

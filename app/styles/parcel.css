@@ -1,94 +1,302 @@
-/* Ficha de parcela: solo lo que main.css y methodology.css no traen */
+/* Ficha de parcela: solo lo que main.css no trae */
 
 /* Cada bloque de la página se separa del anterior */
 .page > section,
 .page > aside,
-.page > header,
 .page > footer {
   margin-top: 1rem;
 }
 
 .back {
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.75rem;
+  font-size: var(--t-sm);
 }
 
-/* Encabezado: identificación, badges y subtítulo */
-.parcel-head h2 {
-  margin: 0;
-  font-size: 1.6rem;
+.back a {
+  color: var(--texto-suave);
+  text-decoration: none;
 }
 
-.parcel-head .muted {
-  margin: 0.25rem 0 0;
+.back a:hover {
+  color: var(--texto);
+  text-decoration: underline;
 }
 
-.parcel-badges {
+/* Encabezado: identificación, ubicación y badges en una línea que se parte si no cabe */
+.parcel-head__meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  margin: 0.5rem 0 0;
-}
-
-/* Badge para datos que no son un semáforo de riesgo */
-.badge--neutro {
-  background: #e9e8e2;
-  color: var(--texto);
-}
-
-/* Títulos de tarjeta y de subsección */
-.page section h2,
-.page aside h2 {
-  margin: 0 0 0.6rem;
-  font-size: 1.25rem;
-}
-
-.page section h3 {
-  margin: 1.25rem 0 0.4rem;
-  font-size: 1.05rem;
-}
-
-.page .note h2 {
-  font-size: 1.05rem;
-}
-
-/* Cifra principal: grande, pero se acomoda al ancho del celular */
-.cifra {
-  margin: 0.25rem 0 0.5rem;
-  font-size: clamp(2rem, 9vw, 3rem);
-  font-weight: 700;
-  line-height: 1.1;
-  overflow-wrap: anywhere;
-}
-
-/* Gráficas SVG: ocupan el ancho de su columna y no empujan la página */
-figure {
-  margin: 1rem 0;
-}
-
-figure svg {
-  display: block;
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-}
-
-figcaption {
-  margin-top: 0.4rem;
-  font-size: 0.9rem;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin: 0.4rem 0 0;
   color: var(--texto-suave);
 }
 
-.reading {
-  font-size: 0.95rem;
+.parcel-badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
 }
 
-.serie-item figure {
-  margin-top: 0.5rem;
+/* Índice de la ficha: queda fijo arriba al desplazarse, sobre el fondo de la página */
+.parcel-toc {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  margin: 1rem -16px 0;
+  padding: 0.5rem 16px;
+  background: var(--fondo);
+  border-bottom: 1px solid var(--borde);
 }
 
-/* Nivel de confianza que corresponde a la parcela */
+.parcel-toc a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+}
+
+/* Las secciones a las que lleva el índice no quedan tapadas por él */
+.parcel [id] {
+  scroll-margin-top: 5rem;
+}
+
+/* Títulos de tarjeta y de subsección */
+.parcel .card > .card__title {
+  margin: 0 0 1rem;
+}
+
+.parcel .card h3 {
+  margin: 1.75rem 0 0.6rem;
+  font-size: var(--t-base);
+  font-weight: 650;
+}
+
+.card__lede {
+  margin: 0;
+  max-width: 70ch;
+  color: var(--texto-suave);
+}
+
+.small {
+  font-size: var(--t-sm);
+}
+
+/* Bloque principal: la cifra grande a la izquierda y sus tres indicadores a la derecha */
+.yield-summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1rem 2.5rem;
+  align-items: center;
+}
+
+.hero__label {
+  margin: 0;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--texto-suave);
+}
+
+/* Cifra principal: la única de 48 px o más en la página, con números proporcionales */
+.cifra {
+  margin: 0.15rem 0 0;
+  font-size: clamp(3rem, 10vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.cifra__unit {
+  font-size: var(--t-lg);
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--texto-suave);
+}
+
+/* La cifra de cada indicador queda abajo, alineada aunque el rótulo ocupe dos líneas */
+.yield-stats .stat {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.stat__value--badge {
+  margin-top: 0.45rem;
+  line-height: 1;
+}
+
+.stat__value--badge .badge {
+  font-size: var(--t-sm);
+}
+
+.observed {
+  margin: 1.25rem 0 0;
+}
+
+/* Gráficas SVG: la versión ancha en escritorio y la angosta en pantallas de hasta 900 px.
+   Por debajo de 900 px la ancha encogería su texto a menos de 13 px */
+.chart-figure {
+  margin: 1.5rem 0 0;
+}
+
+.chart-figure svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.chart-angosta {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .chart-ancha {
+    display: none;
+  }
+
+  .chart-angosta {
+    display: block;
+  }
+}
+
+figcaption {
+  margin-top: 0.6rem;
+  font-size: var(--t-sm);
+  color: var(--texto-suave);
+}
+
+/* Leyenda de la barra de intervalo: cada muestra se dibuja igual que en la gráfica */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.1rem;
+  margin-bottom: 0.4rem;
+  color: var(--texto);
+}
+
+.legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.key {
+  display: inline-block;
+  flex: none;
+}
+
+.key--range {
+  width: 1.25rem;
+  height: 0.75rem;
+  border-radius: 3px;
+  background: var(--dato);
+  opacity: 0.35;
+}
+
+.key--pred {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: var(--dato-oscuro);
+}
+
+.key--observed {
+  width: 0.55rem;
+  height: 0.55rem;
+  margin: 0 0.1rem;
+  background: var(--texto);
+  transform: rotate(45deg);
+}
+
+.key--zone {
+  width: 1.25rem;
+  height: 0.75rem;
+  background: rgba(28, 36, 32, 0.07);
+  box-shadow: inset 0 0 0 1px var(--borde);
+}
+
+.key--threshold {
+  width: 1.25rem;
+  border-top: 2px dashed var(--texto-suave);
+}
+
+.key--breakeven {
+  width: 1.25rem;
+  border-top: 2px solid var(--texto);
+}
+
+/* Confianza: tres pasos de menor a mayor. El nivel actual va en negrita, con la raya más oscura
+   y con el texto «nivel actual», no solo con otro tono */
+.confidence {
+  margin-top: 1.75rem;
+  padding-top: 0.25rem;
+  border-top: 1px solid var(--borde);
+}
+
+.parcel .confidence h3 {
+  margin-top: 1.25rem;
+}
+
+.confidence__body {
+  display: grid;
+  grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+  gap: 1rem 2rem;
+  align-items: start;
+}
+
+.conf-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.conf-step {
+  font-size: var(--t-sm);
+  color: var(--texto-suave);
+}
+
+.conf-step__bar {
+  display: block;
+  height: 6px;
+  margin-bottom: 0.4rem;
+  border-radius: 3px;
+  background: var(--superficie-suave);
+  box-shadow: inset 0 0 0 1px var(--borde);
+}
+
+.conf-step--filled .conf-step__bar {
+  background: var(--control-borde);
+  box-shadow: none;
+}
+
+.conf-step--current .conf-step__bar {
+  background: var(--texto);
+}
+
+.conf-step--current .conf-step__name {
+  font-weight: 700;
+  color: var(--texto);
+}
+
+.conf-step__tag {
+  display: block;
+  font-size: var(--t-xs);
+  color: var(--texto);
+}
+
+.confidence__reason {
+  margin: 0;
+}
+
+.confidence .disclosure {
+  margin-top: 1rem;
+}
+
 ul.levels {
-  margin: 0.4rem 0;
+  margin: 0;
   padding-left: 1.25rem;
 }
 
@@ -102,6 +310,7 @@ ul.levels li.current {
 
 /* Pasos del desglose, una frase por término */
 ol.steps {
+  margin: 1.25rem 0 0;
   padding-left: 1.5rem;
 }
 
@@ -109,118 +318,228 @@ ol.steps li + li {
   margin-top: 0.4rem;
 }
 
-/* Aviso de un parámetro no válido, arriba del formulario */
-.alert {
-  margin: 0 0 1rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--riesgo-alto-texto);
-  border-radius: 6px;
-  background: var(--riesgo-alto-fondo);
-  color: var(--riesgo-alto-texto);
-}
-
-.alert p {
-  margin: 0;
-}
-
-/* Formulario de precio y punto de equilibrio: dos columnas en escritorio, una en el celular */
+/* Formulario de precio y punto de equilibrio: dos campos y los botones a la altura de los campos */
 .price-form {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  gap: 1rem 1.25rem;
   align-items: start;
+  margin: 0 0 1.25rem;
+  padding: 1rem 1.1rem;
+  background: var(--superficie-suave);
+  border-radius: var(--radio);
 }
 
 .field label {
   display: block;
   margin-bottom: 0.3rem;
+  font-size: var(--t-sm);
   font-weight: 600;
-}
-
-.field input {
-  box-sizing: border-box;
-  width: 100%;
-  min-height: 44px;
-  padding: 0.5rem 0.6rem;
-  border: 1px solid var(--borde);
-  border-radius: 6px;
-  background: var(--tarjeta);
-  color: var(--texto);
-  font: inherit;
 }
 
 .field .help {
-  margin: 0.3rem 0 0;
-  font-size: 0.9rem;
+  margin: 0.35rem 0 0;
+  font-size: var(--t-xs);
   color: var(--texto-suave);
 }
 
-/* Botones de al menos 44 px de alto, uno al lado del otro cuando caben */
+/* El rótulo mide 1.5 líneas de t-sm más su margen: los botones bajan eso para alinearse con el campo */
 .form-actions {
-  grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.5rem;
+  margin-top: calc(var(--t-sm) * 1.5 + 0.3rem);
 }
 
 .form-actions .btn {
-  min-height: 44px;
+  min-height: 2.75rem;
 }
 
-/* Bloques de riesgo: título, badge y punto de equilibrio de cada probabilidad */
-.page .risk {
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--borde);
-  border-radius: 8px;
-  background: var(--fondo);
+@media (max-width: 900px) {
+  .price-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .form-actions {
+    grid-column: 1 / -1;
+    margin-top: 0;
+  }
 }
 
-.page .risk h3 {
-  margin: 0 0 0.4rem;
-  font-size: 1rem;
+/* Resultados en pesos: tres indicadores arriba de la tabla */
+.econ-stats {
+  margin: 0 0 1.25rem;
 }
 
-.page .risk p {
-  margin: 0.4rem 0;
+/* Margen negativo: tinta de riesgo alto, además del signo menos y de la nota que lo dice */
+.stat--negativo .stat__value,
+.stat--negativo .stat__note {
+  color: var(--riesgo-alto-texto);
 }
 
-/* Tablas: título a la izquierda y cifras a la derecha, para leerlas en columna */
-table.data caption {
-  caption-side: top;
-  text-align: left;
-  font-weight: 600;
-  padding-bottom: 0.5rem;
+/* Medidores de riesgo: cifra, barra de 0 a 100 % partida en los cortes del semáforo, y badge con texto */
+.risks {
+  margin-top: 1.5rem;
 }
 
-table.data td.num,
-table.data th.num {
-  text-align: right;
+.meter {
+  min-width: 0;
+  padding: 1rem 1.1rem;
+  background: var(--superficie-suave);
+  border-radius: var(--radio);
 }
 
-/* La caja que se desplaza con el teclado también muestra su foco */
-.table-wrap:focus-visible {
-  outline: 3px solid var(--primario);
-  outline-offset: 2px;
-}
-
-/* Contexto del municipio: cada dato con su nombre encima */
-dl.ctx {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
+.parcel .card .meter__label {
   margin: 0;
-}
-
-dl.ctx dt {
-  margin-top: 0.75rem;
+  font-size: var(--t-sm);
   font-weight: 600;
+  color: var(--texto-suave);
 }
 
-dl.ctx dd {
-  margin: 0.15rem 0 0;
+.meter__value {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: var(--t-2xl);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--texto);
+}
+
+/* Riel: un paso claro del mismo color del nivel; los cortes son espacios de 2 px del color del recuadro */
+.meter__track {
+  position: relative;
+  height: 10px;
+  margin-top: 0.75rem;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--tarjeta);
+  box-shadow: inset 0 0 0 1px var(--borde);
+}
+
+.meter__track--bajo {
+  background: var(--riesgo-bajo-fondo);
+}
+
+.meter__track--medio {
+  background: var(--riesgo-medio-fondo);
+}
+
+.meter__track--alto {
+  background: var(--riesgo-alto-fondo);
+}
+
+/* Relleno: recto en el 0 y redondeado de 4 px en el extremo del dato */
+.meter__fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 0 4px 4px 0;
+  background: var(--texto-suave);
+}
+
+.meter__fill--bajo {
+  background: var(--riesgo-bajo);
+}
+
+.meter__fill--medio {
+  background: var(--riesgo-medio);
+}
+
+.meter__fill--alto {
+  background: var(--riesgo-alto);
+}
+
+.meter__cut {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--superficie-suave);
+}
+
+/* Escala bajo el riel: los dos cortes del semáforo, centrados en su posición */
+.meter__scale {
+  position: relative;
+  height: 1.2rem;
+  margin-top: 0.25rem;
+  font-size: var(--t-xs);
+  color: var(--texto-suave);
+  font-variant-numeric: tabular-nums;
+}
+
+.meter__scale span {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.meter__badge {
+  margin: 0.6rem 0 0;
+}
+
+.meter .muted {
+  margin: 0.4rem 0 0;
+}
+
+.loss {
+  margin: 1rem 0 0;
+  max-width: 80ch;
+}
+
+/* Contexto del municipio: cuadrícula de indicadores; el rendimiento del SIAP ocupa toda la fila por su nota */
+.stat-grid.ctx {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ctx .stat__value {
+  font-size: var(--t-lg);
+}
+
+.ctx .stat__value--text {
+  font-size: var(--t-base);
+}
+
+.stat--wide {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 760px) {
+  .stat-grid.ctx {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .yield-summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .stat-grid.ctx {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Serie satelital: una gráfica por fila, a todo el ancho */
+.series {
+  display: grid;
+  gap: 1.75rem;
+}
+
+.serie-item .chart-figure {
+  margin-top: 0;
+}
+
+.reading {
+  margin: 0.6rem 0 0;
+  font-size: var(--t-sm);
 }
 
 .parcel-links p {
   margin: 0;
+  font-size: var(--t-sm);
 }
 
 /* Un texto largo nunca empuja la página hacia la derecha */
@@ -283,5 +602,15 @@ dl.ctx dd {
     margin-top: 0.25rem;
     font-size: 0.95rem;
     color: var(--texto-suave);
+  }
+
+  /* Objetivos táctiles de 44 px en el índice */
+  .parcel-toc a {
+    min-height: 44px;
+  }
+
+  .confidence__body,
+  .price-form {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

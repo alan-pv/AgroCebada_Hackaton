@@ -46,6 +46,42 @@ def test_page_has_sections(client):
     assert "methodology.css" in html
 
 
+def test_page_index_and_sections(client):
+    html = client.get("/metodologia").get_data(as_text=True)
+    # Índice con un enlace por sección, cada uno al id de su <section>
+    indice = re.search(r'<nav class="toc[^"]*" aria-label="En esta página">(.*?)</nav>', html, re.S).group(1)
+    anclas = re.findall(r'href="/metodologia#([\w-]+)">([^<]+)</a>', indice)
+    assert [titulo for _, titulo in anclas] == list(SECCIONES)
+    for ancla, titulo in anclas:
+        assert re.search(rf'<section id="{ancla}" class="card[^"]*">\s*<h2>{re.escape(titulo)}</h2>', html)
+
+
+def test_page_stats_come_from_methodology(client, payload):
+    html = client.get("/metodologia").get_data(as_text=True)
+    esquema_a = payload["validation"][0]
+    cobertura = next(f for f in payload["interval_coverage"] if f["group"] == "global")
+    indicadores = re.search(r'<dl class="stat-grid[^"]*"[^>]*>(.*?)</dl>', html, re.S).group(1)
+    valores = re.findall(r'<dd class="stat__value">([^<]+)', indicadores)
+    assert [v.strip() for v in valores] == [f"{esquema_a['rmse']:.3f}", f"{esquema_a['r2']:.3f}",
+                                           f"{cobertura['coverage'] * 100:.1f} %", str(payload["model"]["n_train"])]
+    assert "Meta 80 %" in indicadores
+
+
+def test_page_charts_have_table_below(client):
+    html = client.get("/metodologia").get_data(as_text=True)
+    figuras = re.findall(r'<figure class="method-figure">(.*?)</figure>\s*<details class="disclosure">\s*'
+                         r'<summary>Ver tabla</summary>(.*?)</details>', html, re.S)
+    # Cinco gráficas, cada una con su versión ancha y angosta, su pie y su tabla debajo
+    assert len(figuras) == 5
+    for figura, tabla in figuras:
+        assert "<figcaption>" in figura
+        assert figura.count('role="img"') == 2
+        assert figura.count("<title id=") == 2 and figura.count("<desc id=") == 2
+        assert '<table class="data' in tabla
+    # La página no usa JavaScript
+    assert "<script" not in html
+
+
 def test_api_structure_is_strict_json(payload):
     assert set(payload) >= {"model", "validation", "interval_coverage", "confidence_vs_error",
                             "chance_margin", "final_model_contributions", "other_groups"}
@@ -132,4 +168,8 @@ def test_missing_outputs_omit_sections(client, sin_outputs):
     assert payload["model"] is not None  # el modelo no depende de outputs/
     res = client.get("/metodologia")
     assert res.status_code == 200
-    assert "no está disponible" in res.get_data(as_text=True)
+    html = res.get_data(as_text=True)
+    assert "no está disponible" in html
+    # Las gráficas que dependen de outputs/ desaparecen con su tabla; la del modelo se queda
+    assert html.count('<figure class="method-figure">') == 1
+    assert "RMSE del modelo y de la media por régimen" in html

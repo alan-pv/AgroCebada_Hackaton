@@ -57,7 +57,7 @@ La configuración va en `.env`, que no se versiona; `.env.example` trae los valo
 
 Si falta una variable en `.env` se usa su valor por defecto, y una variable `AGRCBDA_*` definida en la terminal gana sobre el archivo. `install` no agrega variables nuevas a un `.env` que ya existe.
 
-Las plantillas Jinja van en `app/templates`, el JavaScript en `app/scripts` (servido en `/scripts`), los estilos en `app/styles` (servidos en `/styles`) y cada sección de la app en un módulo de `app/modules`. Cada página tiene su CSS (`map.css`, `run.css`, `methodology.css` y `parcel.css`), cargado antes de `main.css`, que es común a todas. Su JavaScript, si tiene, es `map.js` (el mapa, con Leaflet desde unpkg) o `run.js` (Ejecutar el modelo); la metodología y la ficha no llevan JavaScript. Las gráficas de la ficha son SVG generados en Python (`app/modules/charts.py`), sin librerías de JavaScript.
+Las plantillas Jinja van en `app/templates`, el JavaScript en `app/scripts` (servido en `/scripts`), los estilos en `app/styles` (servidos en `/styles`) y cada sección de la app en un módulo de `app/modules`. `main.css` es común a todas: trae los tokens (el acento verde de la interfaz en `--acento`, separado del azul de los datos en `--dato`), la barra superior y los componentes compartidos (tarjetas, botones, tablas, indicadores, acordeón e índice). Cada página tiene además su CSS (`map.css`, `run.css`, `methodology.css` y `parcel.css`), cargado después de `main.css`. Su JavaScript, si tiene, es `map.js` (el mapa, con Leaflet desde unpkg) o `run.js` (Ejecutar el modelo); la metodología y la ficha no llevan JavaScript. Las gráficas de la ficha son SVG generados en Python (`app/modules/charts.py`), sin librerías de JavaScript.
 
 | Ruta | Qué devuelve |
 |---|---|

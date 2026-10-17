@@ -87,6 +87,11 @@ def campo(html, nombre):
     return re.search(rf'<input id="{nombre}"[^>]*>', html).group(0)
 
 
+def texto_visible(html):
+    # Texto de la página sin etiquetas: una frase partida en varios <span> se lee completa
+    return re.sub(r"<[^>]+>", "", html)
+
+
 def badge_tras(html, texto):
     # Clase y texto del primer badge que aparece después de `texto`
     i = html.index(texto)
@@ -272,7 +277,8 @@ def test_semaforos_y_confianza_coinciden_con_la_economia(client):
         html = client.get(f"/parcela/{pid}").get_data(as_text=True)
         assert badge_tras(html, "Probabilidad de no cubrir los costos totales") == LUCES[econ["light_costs"]], pid
         assert badge_tras(html, "Probabilidad de no pagar el crédito") == LUCES[econ["light_credit"]], pid
-        assert badge_tras(html, "<h3>Confianza</h3>") == CONFIANZA[nivel], pid
+        # El badge de confianza va en el indicador «Confianza» del bloque principal
+        assert badge_tras(html, '<dt class="stat__label">Confianza</dt>') == CONFIANZA[nivel], pid
 
 
 def test_probabilidades_extremas_se_dicen_con_palabras(client):
@@ -280,7 +286,7 @@ def test_probabilidades_extremas_se_dicen_con_palabras(client):
     html = client.get("/parcela/AGC_003").get_data(as_text=True)
     econ = economics.parcel_economics_data("AGC_003")
     assert econ["prob_not_cover_costs"] > 0.99
-    assert "Probabilidad de no cubrir los costos totales: más de 99 %" in html
+    assert "Probabilidad de no cubrir los costos totales: más de 99 %" in texto_visible(html)
     assert "100 %" not in html
     cortes = econ["light_cuts"]
     assert (f"Bajo: menos de {formatting.percent(cortes['green_below'])}. "
@@ -306,15 +312,20 @@ def test_nota_de_costos_queda_bajo_la_tabla_de_resultados(client):
 def test_contexto_municipal_cuenta_los_anios_del_siap(client):
     html = client.get("/parcela/AGC_003").get_data(as_text=True)
     econ = economics.parcel_economics_data("AGC_003")
-    assert f"{econ['context']['years_loss_over_20']} de {ANIOS_SIAP} años (2003 a 2025)." in html
-    assert f"{econ['context']['years_loss_over_50']} de {ANIOS_SIAP} años (2003 a 2025)." in html
+    # Cada indicador dice «N de 23 años» y su nota el periodo del SIAP
+    texto = texto_visible(html)
+    assert f"{econ['context']['years_loss_over_20']} de {ANIOS_SIAP} años" in texto
+    assert f"{econ['context']['years_loss_over_50']} de {ANIOS_SIAP} años" in texto
+    assert texto.count("Periodo 2003 a 2025.") == 2
 
 
 def test_rutas_siguen_al_punto_de_montaje(client):
     html = client.get("/parcela/AGC_003", base_url="http://localhost/sub/").get_data(as_text=True)
     rutas = re.findall(r'(?:href|src|action|data-[\w-]+-url)="([^"]+)"', html)
     assert rutas
-    assert all(r.startswith(("/sub/", "https://")) for r in rutas), [r for r in rutas if not r.startswith("/sub/")]
+    # Los enlaces del índice de la ficha son anclas de la misma página (#rendimiento...)
+    externas = [r for r in rutas if not r.startswith("#")]
+    assert all(r.startswith(("/sub/", "https://")) for r in externas), [r for r in externas if not r.startswith("/sub/")]
     assert 'action="/sub/parcela/AGC_003"' in html
     assert 'href="/sub/parcela/AGC_003"' in html
     assert 'href="/sub/metodologia"' in html
@@ -323,9 +334,10 @@ def test_rutas_siguen_al_punto_de_montaje(client):
 def test_graficas_de_la_serie_o_aviso(client):
     html = client.get("/parcela/AGC_003").get_data(as_text=True)
     if SERIE.exists():
+        # Cada índice se dibuja dos veces, ancha para el escritorio y angosta para el celular; el CSS muestra una
         titulos = [t for imagen in analizar(html).imagenes for t in imagen if "NDVI" in t or "NDDI" in t]
-        assert sum("NDVI" in t for t in titulos) == 1
-        assert sum("NDDI" in t for t in titulos) == 1
+        assert sum("NDVI" in t for t in titulos) == 2
+        assert sum("NDDI" in t for t in titulos) == 2
         assert "no está disponible en esta copia" not in html
     else:
         assert "La serie satelital no está disponible en esta copia de la app." in html
@@ -339,3 +351,95 @@ def test_html_bien_formado_y_graficas_con_titulo(client):
     assert m.img_sin_alt == 0
     assert len(m.imagenes) >= 3
     assert all(any(t for t in titulos) for titulos in m.imagenes)
+
+
+# Rediseño de la ficha: índice fijo, bloque principal, confianza en tres pasos, medidores y gráficas dobles
+
+def test_indice_lleva_a_secciones_que_existen(client):
+    html = client.get("/parcela/AGC_003").get_data(as_text=True)
+    indice = re.search(r'<nav class="toc parcel-toc" aria-label="Secciones de la ficha">(.*?)</nav>', html, re.S)
+    assert indice
+    enlaces = re.findall(r'<a href="#([\w-]+)">([^<]+)</a>', indice.group(1))
+    assert [texto for _, texto in enlaces] == ["Rendimiento", "Pesos", "Desglose", "Satélite", "Contexto"]
+    for ancla, _ in enlaces:
+        assert html.count(f'id="{ancla}"') == 1, ancla
+
+
+def test_css_indice_fijo_y_secciones_con_margen():
+    css = (ROOT / "app" / "styles" / "parcel.css").read_text(encoding="utf-8")
+    bloque = re.search(r"\.parcel-toc \{([^}]*)\}", css).group(1)
+    assert "position: sticky" in bloque and "top: 0" in bloque
+    assert re.search(r"\.parcel \[id\] \{\s*scroll-margin-top: [\d.]+rem;", css)
+
+
+def test_bloque_principal_con_cifra_y_tres_indicadores(client):
+    html = client.get("/parcela/AGC_003").get_data(as_text=True)
+    ficha = client.get("/api/parcels/AGC_003").get_json()
+    texto = texto_visible(html)
+    assert f'<p class="cifra">{formatting.number(ficha["pred"], 2)} <span class="cifra__unit">t/ha</span></p>' in html
+    resumen = re.search(r'<dl class="stat-grid yield-stats">(.*?)</dl>', html, re.S).group(1)
+    assert resumen.count('<div class="stat">') == 3
+    assert f'{formatting.number(ficha["p10"], 2)} a {formatting.number(ficha["p90"], 2)}' in resumen
+    assert "Probabilidad de quedar por debajo de 2.5 t/ha" in texto
+
+
+@pytest.mark.parametrize("pid", ["AGC_003", "AGC_001"])
+def test_confianza_marca_el_nivel_actual_con_texto(client, pid):
+    html = client.get(f"/parcela/{pid}").get_data(as_text=True)
+    nivel = client.get(f"/api/parcels/{pid}").get_json()["confidence"]["level"]
+    actuales = re.findall(r'<li class="conf-step[^"]*conf-step--current" aria-current="step">(.*?)</li>', html, re.S)
+    assert len(actuales) == 1
+    assert f'<span class="conf-step__name">{nivel.capitalize()}</span>' in actuales[0]
+    assert "nivel actual" in actuales[0]
+    # La explicación de los tres niveles sigue en la página, dentro de un desplegable
+    assert "<summary>Lo que significa cada nivel</summary>" in html
+    for texto in ("al menos una parcela medida a 400 m o menos.",
+                  "ninguna a 400 m, pero la más cercana está a 800 m o menos.",
+                  "la más cercana está a más de 800 m, o el área de la parcela queda fuera del rango de su régimen."):
+        assert texto in html
+
+
+def test_medidores_de_riesgo_siguen_a_la_economia(client):
+    html = client.get("/parcela/AGC_003").get_data(as_text=True)
+    econ = economics.parcel_economics_data("AGC_003")
+    rellenos = re.findall(r'<span class="meter__fill meter__fill--(\w+)" style="width: ([\d.]+)%"></span>', html)
+    assert [(clase, float(ancho)) for clase, ancho in rellenos] == [
+        (LUCES[econ["light_costs"]][0], round(min(econ["prob_not_cover_costs"], 1) * 100, 1)),
+        (LUCES[econ["light_credit"]][0], round(min(econ["prob_not_pay_credit"], 1) * 100, 1)),
+    ]
+    # Los cortes del semáforo se marcan en cada riel, en su posición
+    cortes = econ["light_cuts"]
+    for corte in (cortes["green_below"], cortes["red_from"]):
+        assert html.count(f'<span class="meter__cut" style="left: {corte * 100:.1f}%"></span>') == 2
+    # La explicación de los cortes queda en un solo lugar
+    assert html.count(f"Bajo: menos de {formatting.percent(cortes['green_below'])}.") == 1
+    assert "probabilidad de pérdida de la cosecha" in html
+
+
+def test_margen_negativo_con_signo_y_texto(client):
+    html = client.get("/parcela/AGC_003").get_data(as_text=True)
+    econ = economics.parcel_economics_data("AGC_003")
+    assert econ["margin_ha"] < 0
+    margen = "−" + formatting.money(econ["margin_ha"])[1:]
+    assert re.search(r'<div class="stat stat--negativo">\s*<dt class="stat__label">Margen esperado por hectárea</dt>\s*'
+                     rf'<dd class="stat__value">{re.escape(margen)}</dd>', html)
+    assert "Negativo: el ingreso esperado no cubre el costo total." in html
+    assert "-$" not in html
+
+
+def test_graficas_en_dos_anchos_con_ids_unicos(client):
+    html = client.get("/parcela/AGC_003").get_data(as_text=True)
+    assert html.count('<div class="chart-ancha">') == html.count('<div class="chart-angosta">') >= 2
+    ids = re.findall(r'\sid="([^"]+)"', html)
+    assert len(ids) == len(set(ids))
+    css = (ROOT / "app" / "styles" / "parcel.css").read_text(encoding="utf-8")
+    assert re.search(r"\.chart-angosta \{\s*display: none;", css)
+    assert re.search(r"@media \(max-width: 900px\) \{\s*\.chart-ancha \{\s*display: none;", css)
+
+
+def test_palabras_sencillas_en_desplegables(client):
+    html = client.get("/parcela/AGC_003").get_data(as_text=True)
+    aparte = re.search(r'<aside class="card plain" aria-labelledby="sencillas">(.*?)</aside>', html, re.S).group(1)
+    preguntas = re.findall(r'<details class="disclosure">\s*<summary>([^<]+)</summary>', aparte)
+    assert preguntas == ["Cómo sale la predicción", "Qué significa el intervalo p10 a p90", "Cómo leer el semáforo",
+                         "Cuánto puede fallar el modelo", "Lo que el intervalo no cubre"]

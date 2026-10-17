@@ -9,33 +9,72 @@
 {% block body_class %}map-page{% endblock %}
 
 {% block content %}
-  <section class="controls">
-    <label>Colorear por
-      <select id="layer">
-        <option value="set">Conjunto</option>
-        <option value="yield">Rendimiento observado</option>
-        <option value="pred">Predicción del modelo</option>
-        <option value="risk_costs">Riesgo de no cubrir costos (semáforo)</option>
-        <option value="risk_credit">Riesgo de no pagar el crédito (semáforo)</option>
-      </select>
-    </label>
-    <label>Estado
-      <select id="state">
-        <option value="">Todos</option>
-      </select>
-    </label>
-    <label>Municipio
-      <select id="municipality">
-        <option value="">Todos</option>
-      </select>
-    </label>
-    <div class="download" role="group" aria-labelledby="download-title">
-      <span id="download-title" class="download__title">Descargar</span>
-      <a id="download-predictions" class="btn" href="{{ url_for('predictions.predictions', format='csv') }}" download>Predicciones (CSV)</a>
-      <a id="download-economics" class="btn" href="{{ url_for('economics.economics_table', format='csv') }}" download>Economía por parcela (CSV)</a>
+  {# Barra de controles: capa y filtros a la izquierda; contador y menú de descargas a la derecha.
+     En el celular, la capa y los filtros se pliegan tras el botón «Capa y filtros» #}
+  <section class="map-toolbar" aria-label="Capa, filtros y descargas">
+    <button type="button" id="filters-toggle" class="btn filters-toggle" aria-expanded="false" aria-controls="filters">
+      Capa y filtros<span id="filters-active" class="filters-toggle__active"></span>
+    </button>
+    <div id="filters" class="controls">
+      <label class="field"><span class="field__label">Colorear por</span>
+        <select id="layer">
+          <option value="set">Conjunto</option>
+          <option value="yield">Rendimiento observado</option>
+          <option value="pred">Predicción del modelo</option>
+          <option value="risk_costs">Riesgo de no cubrir costos (semáforo)</option>
+          <option value="risk_credit">Riesgo de no pagar el crédito (semáforo)</option>
+        </select>
+      </label>
+      <label class="field"><span class="field__label">Estado</span>
+        <select id="state">
+          <option value="">Todos</option>
+        </select>
+      </label>
+      <label class="field"><span class="field__label">Municipio</span>
+        <select id="municipality">
+          <option value="">Todos</option>
+        </select>
+      </label>
     </div>
-    <span id="count" class="count" aria-live="polite"></span>
+    <div class="map-toolbar__end">
+      <span id="count" class="count" aria-live="polite"></span>
+      {# Menú «Descargar»: <details> abre y cierra sin JavaScript; el script lo cierra con Esc o al hacer clic fuera #}
+      <details class="download-menu">
+        <summary id="download-title" class="btn">Descargar</summary>
+        <div class="download" role="group" aria-labelledby="download-title">
+          <a id="download-predictions" class="download__link" href="{{ url_for('predictions.predictions', format='csv') }}" download>Predicciones (CSV)</a>
+          <a id="download-economics" class="download__link" href="{{ url_for('economics.economics_table', format='csv') }}" download>Economía por parcela (CSV)</a>
+        </div>
+      </details>
+    </div>
   </section>
+
+  {# Indicadores de las parcelas mostradas; el script los recalcula con cada filtro #}
+  <section class="map-stats" aria-label="Resumen de las parcelas mostradas">
+    <div class="stat-grid">
+      <div class="stat">
+        <p class="stat__label">Parcelas mostradas</p>
+        <p class="stat__value" id="stat-shown">—</p>
+        <p class="stat__note" id="stat-shown-note"></p>
+      </div>
+      <div class="stat">
+        <p class="stat__label">Parcelas por predecir</p>
+        <p class="stat__value" id="stat-to-predict">—</p>
+        <p class="stat__note" id="stat-to-predict-note"></p>
+      </div>
+      <div class="stat">
+        <p class="stat__label">Rendimiento predicho medio</p>
+        <p class="stat__value" id="stat-pred-mean">—</p>
+        <p class="stat__note" id="stat-pred-mean-note"></p>
+      </div>
+      <div class="stat">
+        <p class="stat__label">Parcelas con riesgo alto de no pagar el crédito</p>
+        <p class="stat__value" id="stat-risk">—</p>
+        <p class="stat__note" id="stat-risk-note"></p>
+      </div>
+    </div>
+  </section>
+
   <div id="map"
        data-parcels-url="{{ url_for('parcels.parcels') }}"
        data-predictions-url="{{ url_for('predictions.predictions') }}"
