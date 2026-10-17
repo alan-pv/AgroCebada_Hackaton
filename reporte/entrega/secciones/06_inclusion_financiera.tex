@@ -1,19 +1,19 @@
 \section{Uso de la ciencia de datos en la inclusión financiera del sector agro}\label{sec:inclusion}
 
-\textbf{Del rendimiento de la zona al de la parcela.} Los paquetes tecnológicos de AgroCostos, que FIRA sugirió consultar
-en la segunda sesión de preguntas~\cite{preguntas}, suponen un rendimiento esperado por zona~\cite{agrocostos}. Nuestra
+\textbf{Del rendimiento de la zona al de la parcela.} Los paquetes tecnológicos de AgroCostos, que FIRA sugirió consultar~\cite{preguntas},
+suponen un rendimiento esperado por zona~\cite{agrocostos}. Nuestra
 capa de crédito usa en su lugar la predicción de cada parcela con su incertidumbre. Con ella calcula la probabilidad de
 no cubrir el crédito o el costo de producción (anexo técnico, ecuación~\ref{A-eq:credito}). Si la cosecha se pierde el
 ingreso es cero, así que la probabilidad también incluye la pérdida histórica del municipio. Un semáforo la resume en
-verde, amarillo o rojo. Con el crédito, 23 parcelas salen en verde, 30 en amarillo y 6 en rojo. Con el costo total casi
+verde, amarillo o rojo, con cortes que evitan dar por segura una parcela riesgosa. Con el crédito, 23 parcelas salen en verde, 30 en amarillo y 6 en rojo~\cite{repo}. Con el costo total casi
 todas salen en rojo, porque el paquete incluye la aportación del productor y los gastos que el crédito no financia.
 
 \textbf{A quién sirve.} La comercializadora puede decidir dónde visitar primero, el analista ordenar parcelas por riesgo
 y el productor ver cuánto necesita cosechar para pagar.
 
 \textbf{Planeación regional.} El mapa municipal indica dónde es más probable un buen rendimiento, aun sin parcelas
-registradas. Puede orientar la planeación de crédito hacia zonas nuevas, como guía preliminar porque sus probabilidades
-aún no están calibradas.
+registradas. Puede orientar la planeación de crédito hacia zonas nuevas, como guía preliminar porque se valida con promedios
+municipales y no con parcelas.
 
 \textbf{Qué no hace.} La probabilidad describe un año parecido a 2025 y no incluye sequías, heladas ni cambios de precio.
 Por eso no es una probabilidad de incumplimiento ni sirve para fijar el precio de un seguro~\cite{jensen2017}.

@@ -1,50 +1,56 @@
 \section{Resultados y discusión}\label{sec:resultados}
 
-\textbf{El modelo mejora poco a la media por régimen.} En validación cruzada el modelo obtiene un RMSE de 0.458\,t/ha,
-un error absoluto medio (MAE) de 0.312\,t/ha y un coeficiente de determinación ($R^2$) de 0.71. Solo con la media de
-cada régimen el RMSE es 0.489. La mejora va en la dirección correcta, pero su intervalo de confianza del 95\,\% incluye
-el cero, así que no es significativa (anexo técnico, Tabla~\ref{A-tab:error}).
+\textbf{Error en validación cruzada.} El modelo obtiene un RMSE de 0.458\,t/ha, un error absoluto medio (MAE) de
+0.312\,t/ha y un coeficiente de determinación ($R^2$) de 0.71~\cite{doc_modelo}. Solo con la media de cada régimen el
+RMSE es 0.489. La mejora va en la dirección correcta, aunque con 138 parcelas su intervalo de confianza del 95\,\%
+todavía incluye el cero (anexo técnico, Tabla~\ref{A-tab:error}).
 
-\textbf{Error esperado en la calificación.} Al repetir toda la elección dentro de la validación el RMSE es 0.490. Por
-eso esperamos entre 0.46 y 0.49\,t/ha en las 59 parcelas. Con solo 59 parcelas el resultado también depende de cuáles
-toquen, y por azar podría caer entre 0.35 y 0.56.
+\textbf{Error esperado en la calificación.} Al repetir toda la elección dentro de la validación el RMSE es 0.490,
+prácticamente el de la media por régimen. Por eso esperamos alrededor de 0.49\,t/ha en las 59 parcelas, y el 0.458 es
+una cifra optimista. Con solo 59 parcelas el resultado también depende de cuáles toquen, y por azar podría caer entre
+0.35 y 0.56~\cite{doc_modelo}.
 
 \textbf{Qué aportó cada pieza.} El régimen es la base. Cuando la validación deja fuera zonas completas, la media por
-municipio sube a 0.955\,t/ha y la del régimen se mantiene en 0.489. El rezago
-espacial mejoró el error en 9 de 10 repeticiones y pasó la prueba de permutación ($p=0.02$). Ningún bloque de variables
-satelitales, climáticas o topográficas pasó la regla (Fig.~\ref{A-fig:bloques}). El clima, por ejemplo, viene en celdas
-de unos 5\,km y solo distingue zonas, algo que ya hacen el régimen y los vecinos. Entre algoritmos, los de árboles
-quedaron peor que la media por régimen y el proceso gaussiano obtuvo el menor error, aunque no superó de forma
-significativa a un modelo lineal~\cite{doc_modelo}.
+municipio sube a 0.955\,t/ha y la del régimen se mantiene en 0.489, así que el régimen generaliza y el municipio no. El
+rezago espacial mejoró el error en 9 de 10 repeticiones y pasó la prueba de permutación ($p=0.02$). Ningún bloque de
+variables satelitales, climáticas o topográficas pasó la regla (Fig.~\ref{A-fig:bloques}). El clima, por ejemplo,
+viene en celdas de unos 5\,km y solo distingue zonas, algo que ya hacen el régimen y los vecinos. Entre los algoritmos
+comparados, el proceso gaussiano obtuvo el menor error~\cite{doc_modelo}.
 
-\textbf{El modelo no aprende de las etiquetas por error.} Con los rendimientos revueltos el RMSE nunca baja de 0.485,
-contra 0.467 con los reales. Si hubiera fuga de información, ambos serían parecidos.
+\textbf{Cómo verificamos la fuga de información.} Auditamos que todo lo que usa el rendimiento se calcule solo con el
+entrenamiento, una prueba automatizada verifica que cambiar las etiquetas de prueba no cambia sus predicciones, y con
+los rendimientos revueltos el RMSE no baja de 0.485, contra 0.467 con los reales~\cite{doc_modelo}. Ninguna prueba
+descarta la fuga por completo, pero ninguna la encontró.
 
 \textbf{Los intervalos cumplen.} El intervalo del percentil 10 al 90 contiene el rendimiento real en 83\,\% de los
 casos, cerca de la meta de 80\,\%~\cite{doc_modelo}. En 18 parcelas, todas del régimen B, la probabilidad de
-quedar bajo 2.5\,t/ha supera 10\,\%. La tabla con las 59 predicciones está en el anexo técnico.
+quedar bajo 2.5\,t/ha, el percentil 10 de ese régimen, supera 10\,\%. La tabla con las 59 predicciones está en el
+anexo técnico.
 
 \textbf{El modelo municipal funciona donde no hay datos.} En municipios sin datos del SIAP a menos de 50\,km obtiene un
-RMSE de 0.44\,t/ha, contra 0.57 del kriging de vecinos, que no usa clima, y gana en las 10 repeticiones (anexo técnico,
-Fig.~\ref{A-fig:municipal_modelos})~\cite{doc_generalizable}. Como elegimos la Tmax viendo resultados, repetimos esa elección de forma anidada y la
-ventaja baja a unos 0.07\,t/ha, todavía a favor. Con vecinos cerca ambos empatan. Cada grado más de Tmax se asocia con
-0.79\,t/ha menos (Fig.~\ref{A-fig:dispersion}). El mapa regional (Fig.~\ref{A-fig:mapas}) muestra que el oriente de
-Puebla y Tlaxcala, más fresco en verano, tiene el mayor rendimiento esperado.
+RMSE de 0.44\,t/ha en promedios municipales, que no se compara con el de parcelas, contra 0.57 del kriging de vecinos,
+que no usa clima, y gana en las 10 repeticiones (anexo técnico, Fig.~\ref{A-fig:municipal_modelos}). Como elegimos la
+Tmax viendo resultados, repetimos esa elección de forma anidada y la ventaja sigue a favor, con unos 0.07\,t/ha. Cada
+grado más de Tmax se asocia con 0.79\,t/ha menos~\cite{doc_generalizable}. El mapa
+regional (Fig.~\ref{A-fig:mapas}) muestra que el oriente de Puebla y Tlaxcala, más fresco en verano, tiene el mayor
+rendimiento esperado.
 
 \textbf{Por qué el clima no ayudó en las parcelas.} En los nueve municipios del reto la Tmax solo va de 23.3 a
-23.9\,$^\circ$C. A esa escala casi no varía, así que no puede distinguir una parcela de otra. A escala regional sí.
+23.9\,$^\circ$C~\cite{doc_generalizable}. A esa escala casi no varía, así que no puede distinguir una parcela de otra.
+A escala regional sí.
 
 \textbf{Preguntas guía.} Las bases plantean tres preguntas~\cite{bases}. Como el modelo final no usa índices ni
 clima, las respondimos con un bosque aleatorio auxiliar, midiendo cuánto sube su error al revolver cada variable
 (anexo técnico, Fig.~\ref{A-fig:indices}). Primero, el índice satelital más importante. Sin el régimen es el NDVI,
 porque su historia identifica la zona, y con régimen y vecinos es el índice de sequía NDDI~\cite{gu2007}, aunque apenas
-aporta 0.004\,t/ha. Segundo, la variable climática de mayor peso. En las parcelas ninguna aporta una vez conocido el
-régimen, y a escala regional es la Tmax de julio y agosto. Tercero, la mejor combinación, que es régimen más rezago
-espacial.
+aporta 0.004\,t/ha~\cite{doc_modelo}. Segundo, la variable climática de mayor peso. En las parcelas ninguna aporta una
+vez conocido el régimen, y a escala regional es la Tmax de julio y agosto. Tercero, la mejor combinación, que es
+régimen más rezago espacial.
 
-\textbf{Qué significa el error para un productor.} Con el precio del SIAP, un error de 0.46\,t/ha equivale a unos
-2,500 pesos por hectárea en promedio por parcela, entre 2,000 y 3,300 según el municipio. Es de 7 a 12\,\% del costo de producción y de 13 a
-45\,\% del crédito por hectárea. Sirve para ordenar parcelas por riesgo, pero no para decidir sola sobre una parcela.
+\textbf{Qué significa el error para un productor.} Con el precio del SIAP, un error de 0.49\,t/ha equivale a unos
+2,700 pesos por hectárea en promedio por parcela, entre 2,100 y 3,500 según el municipio. Es de 7 a 13\,\% del costo de
+producción y de 14 a 47\,\% del crédito por hectárea~\cite{repo}. Sirve para ordenar parcelas por riesgo, pero no para
+decidir sola sobre una parcela.
 
 \textbf{Aplicación.} En \url{https://agrocebada.alan-pv.com} se consulta el mapa de parcelas, la predicción con su
 intervalo y la probabilidad de quedar bajo un umbral que elige el usuario. La aplicación ejecuta el modelo en vivo.

@@ -1,0 +1,59 @@
+{
+ "variables": [
+  "clim_tmax_jul_ago",
+  "clim_prec_may_oct",
+  "elev_m"
+ ],
+ "municipios_con_siap": 100,
+ "municipios_mapa_sin_siap": 168,
+ "limite_disimilitud": 0.3571,
+ "lejos_de_todos": 27,
+ "lejos_por_confianza": {
+  "baja": 14,
+  "media": 13
+ },
+ "lejos_municipios": [
+  "Hidalgo, Mineral del Monte",
+  "Hidalgo, Tetepango",
+  "México, Calimaya",
+  "México, Chalco",
+  "México, Donato Guerra",
+  "México, Ecatzingo",
+  "México, Naucalpan de Juárez",
+  "México, Temascaltepec",
+  "México, Tenango del Valle",
+  "México, Texcaltitlán",
+  "México, Villa Guerrero",
+  "Puebla, Ajalpan",
+  "Puebla, Atzitzihuacán",
+  "Puebla, Calpan",
+  "Puebla, Chapulco",
+  "Puebla, Chiautzingo",
+  "Puebla, Huejotzingo",
+  "Puebla, Puebla",
+  "Puebla, San Felipe Teotlalcingo",
+  "Puebla, San Jerónimo Tecuanipan",
+  "Puebla, San Martín Texmelucan",
+  "Puebla, San Salvador el Verde",
+  "Puebla, Vicente Guerrero",
+  "Tlaxcala, Panotla",
+  "Tlaxcala, Santa Apolonia Teacalco",
+  "Tlaxcala, Santa Cruz Quilehtla",
+  "Tlaxcala, Tlaxcala"
+ ],
+ "mahalanobis_max_con_siap": 3.825,
+ "mahalanobis_sobre_max": 2,
+ "con_siap_con_vecino_siap_a_25km": 97,
+ "distancia_vecino_siap_mediana_km": 8.1,
+ "tres_estados": {
+  "municipios": 361,
+  "con_valor_en_mapa": 202,
+  "mas_calidos": 159,
+  "con_siap": 76,
+  "con_valor_sin_siap": 126,
+  "lejos_de_todos": 45,
+  "corr_tmax_elevacion": -0.98,
+  "elevacion_media_con_valor_m": 2336,
+  "elevacion_media_mas_calidos_m": 1226
+ }
+}

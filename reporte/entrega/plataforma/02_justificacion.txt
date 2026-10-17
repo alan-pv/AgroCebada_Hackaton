@@ -2,4 +2,4 @@ FIRA pidió que la estimación sirva para decisiones productivas, de planeación
 
 Las mediciones de campo son escasas y costosas, mientras que las imágenes de satélite y el clima son públicos y cubren cualquier parcela. Vale la pena saber cuánta información del rendimiento contienen realmente. Con pocas parcelas y un registro heterogéneo, también vale la pena medir el error con cuidado, porque un error subestimado haría parecer seguras decisiones que no lo son.
 
-Este trabajo aporta una estimación por parcela con un error medido de forma conservadora, su traducción a pesos y una aplicación para consultarla. También documenta qué ideas no funcionaron y por qué.
+Este trabajo aporta una estimación por parcela con un error medido de forma conservadora, su traducción a pesos y una aplicación para consultarla. El detalle de cada decisión está en los reportes técnicos del repositorio [15].

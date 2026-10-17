@@ -1,0 +1,21 @@
+{
+ "modelo": "kriging_residuos_simple_a_tmax",
+ "tmax_rango_con_siap": [
+  22.98,
+  25.69
+ ],
+ "municipios": 361,
+ "con_valor": 202,
+ "con_siap": 76,
+ "confianza": {
+  "media": 80,
+  "alta": 76,
+  "baja": 46
+ },
+ "mas_calidos": 159,
+ "mas_calidos_prediccion_max": 1.09,
+ "valor_min_max": [
+  1.03,
+  3.16
+ ]
+}

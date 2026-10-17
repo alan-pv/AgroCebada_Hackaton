@@ -33,7 +33,7 @@ ANCHO = 3.45
 
 def guardar(fig, nombre):
     fig.tight_layout()
-    fig.savefig(FIG / f"{nombre}.pdf")
+    fig.savefig(FIG / f"{nombre}.pdf", dpi=600)  # solo afecta las capas rasterizadas
     plt.close(fig)
 
 
@@ -61,24 +61,34 @@ bas = pd.read_csv(REPO / "experimentos/baselines_tabla.csv").set_index("modelo")
 BASE_REZ = abl.loc["rezago_k10_r400m_unico_solo_valor", "rmse_A"]
 MEDIA_REG = bas.loc["media_regimen", "RMSE_A"]
 
-# 1. Rendimiento por municipio y régimen
-orden = (ent.groupby("municipio").agg(r=("regimen", "first"), m=("rendimiento", "mean"))
-         .sort_values(["r", "m"], ascending=[True, False]).index.tolist())
+# 1. Rendimiento por municipio y régimen, con el estado de cada municipio a la izquierda
+mun = ent.groupby("municipio").agg(r=("regimen", "first"), m=("rendimiento", "mean"), estado=("estado", "first"))
+mun["e"] = mun.estado.map({"Puebla": 0, "Hidalgo": 1, "Tlaxcala": 2})
+mun = mun.sort_values(["r", "e", "m"], ascending=[True, True, False])
+orden = mun.index.tolist()
 corto = {"Nanacamilpa de Mariano Arista": "Nanacamilpa", "Cuautepec de Hinojosa": "Cuautepec"}
-fig, ax = plt.subplots(figsize=(ANCHO, 2.5))
+fig, ax = plt.subplots(figsize=(ANCHO, 2.1))
 rng = np.random.default_rng(0)
 for i, m in enumerate(orden):
     d = ent[ent.municipio == m]
+    # Rasterizados para que los visores de PDF no dejen líneas blancas entre los puntos semitransparentes
     ax.scatter(d.rendimiento, i + rng.uniform(-0.18, 0.18, len(d)), s=8, alpha=0.7,
-               color=COL[d.regimen.iloc[0]], lw=0)
+               color=COL[d.regimen.iloc[0]], lw=0, rasterized=True)
 for g in "AB":
     ax.axvline(ent[ent.regimen == g].rendimiento.mean(), color=COL[g], lw=0.8, ls="--")
 ax.set_yticks(range(len(orden)), [f"{corto.get(m, m)} ({(ent.municipio == m).sum()})" for m in orden])
+# El estado va en gris a la izquierda del nombre, separado por el ancho del nombre más largo (en puntos)
+fig.canvas.draw()
+ancho = max(t.get_window_extent().width for t in ax.get_yticklabels()) * 72 / fig.dpi
+for i, e in enumerate(mun.estado):
+    ax.annotate(e, (0, i), xycoords=ax.get_yaxis_transform(), xytext=(-ancho - 10, 0), textcoords="offset points",
+                ha="right", va="center", fontsize=7, color=GRIS)
 ax.invert_yaxis()
 ax.set_xlabel("Rendimiento declarado (t/ha)")
 ax.scatter([], [], color=AZUL, s=10, label="Régimen A (dos decimales)")
 ax.scatter([], [], color=NARANJA, s=10, label="Régimen B (redondeado)")
-ax.legend(loc="lower center", bbox_to_anchor=(0.3, 1.0), ncol=2, fontsize=6.5, handletextpad=0.2)
+ax.legend(loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=2, fontsize=6.5, handletextpad=0.2,
+          bbox_transform=matplotlib.transforms.blended_transform_factory(fig.transFigure, ax.transAxes))
 ax.grid(axis="x", color=REJILLA, lw=0.5)
 guardar(fig, "f1_regimenes")
 
