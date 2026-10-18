@@ -17,7 +17,7 @@ Columnas que agrega.
     más parecidos a los vecinos de lo que son.
   - clave: nombre del municipio normalizado (sin acentos, minúsculas) para cruzar con INEGI.
   - ddr: Distrito de Desarrollo Rural del SIAP (solo en `tabla`), de
-    `scripts/descargar_siap_ddr.py`.
+    `scripts/descargar_ddr.py`.
 
 Filtro de superficie. Para el rendimiento oficial se excluyen las filas con superficie
 cosechada menor a MIN_COSECHADA_HA, porque su rendimiento depende de unas pocas parcelas. Para

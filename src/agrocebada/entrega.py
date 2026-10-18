@@ -8,8 +8,7 @@ Escribe
   outputs/predicciones.parquet            las 197 parcelas, para la app
   outputs/controles_entrega.csv           resultado de los controles
   outputs/margen_azar.csv                 variación esperada del RMSE sobre 59 parcelas
-  reporte/anexo_predicciones.md           tabla compacta de las 59
-  reporte/figuras/mapa_predicciones.png   coherencia espacial
+  outputs/figuras/mapa_predicciones.png   coherencia espacial
 Si algún control de tipo "falla" no se cumple, termina con error después de guardar
 `controles_entrega.csv`.
 """
@@ -22,12 +21,10 @@ import pandas as pd
 
 from . import controles
 from .cv import N_REP
-from .config import NOMBRE_EQUIPO, OUTPUTS, PROCESSED, REPORTE, SEED
+from .config import FIGURAS, NOMBRE_EQUIPO, OUTPUTS, PROCESSED, SEED
 from .predict import cargar_modelo, predict
 from .train_final import cargar_datos
 
-CORTO = {"Cuautepec de Hinojosa": "Cuautepec", "Nanacamilpa de Mariano Arista": "Nanacamilpa",
-         "Emiliano Zapata": "E. Zapata"}
 N_SUBMUESTRAS = 5000
 
 
@@ -88,23 +85,6 @@ def margen_azar(n_prediccion_por_regimen, semilla=SEED):
 
 
 
-def anexo_md(e, t):
-    """Tabla compacta (dos bloques de columnas) de las 59 predicciones."""
-    d = e.merge(t[["ID_POLIGONO", "municipio", "area_ha"]], on="ID_POLIGONO").sort_values("ID_POLIGONO")
-    fila = lambda r: [r.ID_POLIGONO, CORTO.get(r.municipio, r.municipio), r.regimen,
-                      f"{r.area_ha:.2f}", f"{r.RENDIMIENTO_T_HA:.2f}", f"{r.p10:.2f}", f"{r.p90:.2f}"]
-    filas = [fila(r) for r in d.itertuples()]
-    mitad = (len(filas) + 1) // 2
-    izq, der = filas[:mitad], filas[mitad:]
-    enc = ["ID", "Municipio", "Rég.", "Área (ha)", "Pred.", "p10", "p90"]
-    lineas = ["| " + " | ".join(enc + enc) + " |", "|" + "---|" * 14]
-    for i in range(mitad):
-        b = der[i] if i < len(der) else [""] * 7
-        lineas.append("| " + " | ".join(izq[i] + b) + " |")
-    texto = ("# Anexo. Predicciones de las 59 parcelas\n\n"
-             "Rendimiento predicho (Pred.) en toneladas por hectárea, con el intervalo de p10 a "
-             "p90. Rég. es el régimen de etiquetas de la parcela.\n\n" + "\n".join(lineas) + "\n")
-    return texto
 
 
 def mapa(t, ruta):
@@ -181,7 +161,6 @@ def main():
     t.to_parquet(OUTPUTS / "predicciones.parquet", index=False)
     cuenta = e["regimen"].value_counts().sort_index().to_dict()
     margen_azar(cuenta).round(4).to_csv(OUTPUTS / "margen_azar.csv", index=False)
-    (REPORTE / "anexo_predicciones.md").write_text(anexo_md(e, t), encoding="utf-8")
-    mapa(t, REPORTE / "figuras" / "mapa_predicciones.png")
+    mapa(t, FIGURAS / "mapa_predicciones.png")
     print(f"Entrega generada: {len(e)} predicciones en {OUTPUTS}")
     return 0

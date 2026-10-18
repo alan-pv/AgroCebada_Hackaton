@@ -3,13 +3,14 @@ from pathlib import Path
 
 # Raíz del repo: src/agrocebada/config.py -> subir tres niveles
 RAIZ = Path(__file__).resolve().parents[2]
-RAW = RAIZ / "DATASET_RETO_AGRO_2026"
+RAW = RAIZ / "data" / "reto"
 INTERIM = RAIZ / "data" / "interim"
 PROCESSED = RAIZ / "data" / "processed"
 OUTPUTS = RAIZ / "outputs"
 MODELS = RAIZ / "models"
 EXPERIMENTOS = RAIZ / "experimentos"
-REPORTE = RAIZ / "reporte"
+# Figuras de diagnóstico que escriben los scripts. No se versionan
+FIGURAS = OUTPUTS / "figuras"
 
 SEED = 2026
 
@@ -19,7 +20,7 @@ NOMBRE_EQUIPO = "los_bien_dotados"
 CRS_GEO = "EPSG:4326"
 CRS_METRICO = "EPSG:6372"  # México ITRF2008 / LCC, el mismo de la topografía
 
-# Régimen de etiquetas por municipio (ver ROADMAP.md, sección 2.1). Las claves son los
+# Régimen de etiquetas por municipio (ver docs/DATOS.md). Las claves son los
 # nombres exactos del campo Municipio del shapefile.
 REGIMEN_POR_MUNICIPIO = {
     # A: rendimientos con dos decimales

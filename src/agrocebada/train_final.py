@@ -62,7 +62,7 @@ def entrenar(ruta=RUTA_MODELO):
     resid = np.concatenate([(y - res["A"].oof[c]).to_numpy() for c in res["A"].oof.columns])
     if not np.allclose(resid, tabla_cal["residuo"].to_numpy(), atol=1e-6):
         raise RuntimeError("Los residuos de calibracion_v2.parquet no coinciden con la "
-                           "validación actual. Reejecute scripts/ensemble_intervalos.py")
+                           "validación actual. Reejecute scripts/intervalos.py")
     metricas = _metricas(res) | {
         "nombre_candidato": cfg["nombre"], "n_entrenamiento": int(len(X)),
         "intervalo": cfg["intervalo"]}

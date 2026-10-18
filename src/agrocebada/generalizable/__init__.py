@@ -2,7 +2,7 @@
 
 Se entrena con el cierre agrícola municipal del SIAP y con variables que pueden calcularse
 para cualquier lugar (clima, suelo y topografía). No usa las etiquetas del reto ni toca el
-modelo de la entrega. Ver ROADMAP_GENERALIZABLE.md.
+modelo de la entrega. Ver docs/MUNICIPAL.md.
 """
 from pathlib import Path
 

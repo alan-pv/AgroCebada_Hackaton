@@ -97,7 +97,7 @@ def test_entrenamiento_no_tiene_desglose(client, predicciones):
 
 def test_serie_2025_frente_a_2022_2024(client, predicciones):
     if not SERIE.exists():
-        pytest.skip("Falta data/processed/serie_ficha.parquet; genérelo con scripts/exportar_serie_ficha.py")
+        pytest.skip("Falta data/processed/serie_ficha.parquet; genérelo con scripts/serie_ficha.py")
     for pid in predicciones.index:
         serie = client.get(f"/api/parcels/{pid}").get_json()["series"]
         assert serie["year"] == 2025, pid

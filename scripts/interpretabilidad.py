@@ -5,7 +5,7 @@ Uso:
 
 Responde las tres preguntas guía separando lo que aporta cada variable de lo que aporta el
 régimen. Usa un modelo de análisis (bosque aleatorio poco profundo), que no es el candidato.
-Escribe tablas en outputs/ y figuras en reporte/figuras/.
+Escribe tablas en outputs/ y figuras en outputs/figuras/.
 """
 import argparse
 import time
@@ -20,13 +20,12 @@ import pandas as pd
 
 from agrocebada import cv, modelos
 from agrocebada import interpretabilidad as I
-from agrocebada.config import OUTPUTS, PROCESSED, REPORTE
+from agrocebada.config import FIGURAS, OUTPUTS, PROCESSED
 
 warnings.filterwarnings("ignore")
 N_JOBS = 8
 ALG = "rf"
 AZUL, NARANJA, GRIS = "#2a6f97", "#e07a1f", "#8a8f98"
-FIGURAS = REPORTE / "figuras"
 
 
 def cargar():

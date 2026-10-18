@@ -65,7 +65,7 @@ def features_table():
 
 @cache
 def series_table():
-    # Serie de scripts/exportar_serie_ficha.py. Si el archivo no existe, la ficha sale sin serie
+    # Serie de scripts/serie_ficha.py. Si el archivo no existe, la ficha sale sin serie
     ruta = PROCESSED / "serie_ficha.parquet"
     if not ruta.exists():
         return None
@@ -301,7 +301,7 @@ def _plain(value):
 
 def _probability(value):
     # Las probabilidades salen de una distribución empírica, así que 0 % y 100 % sugieren una certeza
-    # que no hay: los extremos se dicen con palabras (docs/capa_economica.md)
+    # que no hay: los extremos se dicen con palabras (docs/CREDITO.md)
     if value is None:
         return formatting.MISSING
     if value < 0.01:
