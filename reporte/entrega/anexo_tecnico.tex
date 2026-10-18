@@ -19,6 +19,7 @@
 \usepackage{xcolor}
 \usepackage{etoolbox}
 \usepackage{hyperref}
+\usepackage{eso-pic}
 \hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue!50!black}
 \graphicspath{{figuras/}}
 \gappto\captionsspanish{\renewcommand{\figurename}{Fig.}\renewcommand{\tablename}{Tabla}}
@@ -33,6 +34,11 @@
 \renewcommand{\textfraction}{0.1}
 
 \begin{document}
+% Logos de la BUAP y de la FCC en las esquinas superiores de la primera página.
+\AddToShipoutPictureFG*{%
+  \AtPageUpperLeft{\raisebox{-\height}{\hspace*{0.55in}\raisebox{-0.35in}{\includegraphics[height=0.62in]{logo_buap}}}}%
+  \AtPageUpperLeft{\raisebox{-\height}{\hspace*{\dimexpr\paperwidth-0.55in-0.62in\relax}\raisebox{-0.35in}{\includegraphics[height=0.62in]{logo_fcc}}}}%
+}
 
 \title{Anexo técnico. Rendimiento de cebada de temporal\\con régimen de registro y rezago espacial}
 
