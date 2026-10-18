@@ -57,6 +57,30 @@ const CONFIDENCE_LEVELS = new Map([
   ["media", { text: "Confianza media", badge: "badge--medio" }],
   ["baja", { text: "Confianza baja", badge: "badge--alto" }],
 ]);
+// Modelo municipal: clases de color de cada capa, en orden de leyenda. Rendimiento esperado en t/ha, con cortes fijos
+const MUN_YIELD_CLASSES = [
+  { to: 1.5, label: "Menos de 1.5", color: "#d3e5f9" },
+  { to: 2.0, label: "1.5 a 2.0", color: "#9ec5f4" },
+  { to: 2.5, label: "2.0 a 2.5", color: "#6da7ec" },
+  { to: 3.0, label: "2.5 a 3.0", color: "#3987e5" },
+  { to: Infinity, label: "3.0 o más", color: "#184f95" },
+];
+// Probabilidad de rendimiento bajo: los niveles del semáforo de riesgo (mismos cortes de 10 % y 30 %)
+const MUN_RISK_CLASSES = [...RISK_LEVELS.values()].map((level) => ({ label: capitalize(level.range), color: level.color }));
+// Confianza del modelo: paleta Okabe-Ito, tres colores distinguibles
+const MUN_CONFIDENCE_CLASSES = [
+  { key: "alta", label: "Confianza alta", color: "#0072B2" },
+  { key: "media", label: "Confianza media", color: "#F0E442" },
+  { key: "baja", label: "Confianza baja", color: "#CC79A7" },
+];
+// Municipios sin estimación (fuera del rango ambiental del modelo): gris claro con borde punteado
+const MUN_NO_ESTIMATE = { color: "#e7e6e0", border: "#898781" };
+// Capas del modelo municipal: título de su leyenda y clases
+const MUN_LAYERS = new Map([
+  ["mun-esperado", { title: "Rendimiento esperado (t/ha)", classes: MUN_YIELD_CLASSES }],
+  ["mun-riesgo", { title: "Probabilidad de rendimiento bajo (< 2 t/ha)", classes: MUN_RISK_CLASSES }],
+  ["mun-confianza", { title: "Confianza del modelo", classes: MUN_CONFIDENCE_CLASSES }],
+]);
 
 // Orden de la lista del panel. prob y light dicen qué riesgo muestra el badge de cada fila;
 // al ordenar por rendimiento, el badge sigue mostrando el riesgo de no pagar el crédito
@@ -127,6 +151,8 @@ const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 // Vista inicial sobre la zona de estudio; se ajusta al cargar las parcelas
 const map = L.map(mapElement).setView([19.8, -98.4], 10);
+// Municipios en su propio panel, por debajo de las parcelas (el de los polígonos de Leaflet es 400)
+map.createPane("municipal").style.zIndex = 350;
 
 let parcels = [];
 // Parcelas que pasan los filtros, en el último dibujo
@@ -137,6 +163,11 @@ let pointsLayer = null;
 const layersById = new Map();
 // Verdadero si la carga de economía falló; entonces las capas de riesgo están deshabilitadas
 let economicsFailed = false;
+// Modelo municipal: municipios (GeoJSON), pedido solo la primera vez que se elige una de sus capas; capa de Leaflet
+let municipalFeatures = null;
+let municipalRequest = null;
+let municipalFailed = false;
+let municipalLayer = null;
 
 // Estado del panel: parcela elegida (o null), si está abierto (en el celular, si la hoja está desplegada)
 // y a dónde vuelve el foco al cerrarlo
@@ -270,7 +301,10 @@ function featureStyle(feature) {
   const base = { weight: 1, color: BORDER, opacity: BORDER_OPACITY, fillOpacity: 0.85, dashArray: null };
   const fillColor = fillColorOf(p);
   let style = { ...base, fillColor };
-  if (fillColor === null) {
+  // Con una capa municipal, la parcela solo lleva contorno: el color lo ponen los municipios de abajo
+  if (isMunicipalMode()) {
+    style = { ...base, fillColor: BORDER, fillOpacity: 0 };
+  } else if (fillColor === null) {
     // Sin valor en este modo: gris con borde punteado, para no depender solo del color
     style = { ...base, fillColor: NO_DATA.color, color: NO_DATA.border, opacity: 1, fillOpacity: 0.6, dashArray: "3 3" };
   }
@@ -281,7 +315,8 @@ function featureStyle(feature) {
 }
 
 function pointStyle(feature) {
-  const noData = fillColorOf(feature.properties) === null;
+  // Con una capa municipal no hay «sin dato»: el círculo va oscuro con anillo blanco, como las parcelas en contorno
+  const noData = !isMunicipalMode() && fillColorOf(feature.properties) === null;
   // Anillo blanco para separar los círculos que se enciman; punteado gris si no hay valor
   const style = {
     ...featureStyle(feature),
@@ -380,6 +415,7 @@ function updateCount(selected) {
   let text = `${total} ${noun}: ${training} de entrenamiento y ${total - training} por predecir`;
   // Sin economía, el aviso va en el contador (aria-live polite)
   if (economicsFailed) text += ". No se pudo cargar la economía; las capas de riesgo no están disponibles.";
+  if (municipalFailed && isMunicipalMode()) text += ". No se pudo cargar el modelo municipal.";
   countLabel.textContent = text;
 }
 
@@ -430,9 +466,9 @@ function legendRow(color, label, count, extraClass = "") {
 }
 
 // Leyenda plegable: el título (con el rótulo de la columna de conteos) abre y cierra las filas
-function legendHtml(title, rows, note = "") {
+function legendHtml(title, rows, note = "", countTitle = "Parcelas") {
   return `<details class="legend-details"${legendOpen ? " open" : ""}>`
-    + `<summary class="legend-head"><strong>${title}</strong><span class="legend-count-title">Parcelas</span></summary>`
+    + `<summary class="legend-head"><strong>${title}</strong><span class="legend-count-title">${countTitle}</span></summary>`
     + `<div class="legend-body">${rows.join("")}${note ? `<p class="legend-note">${note}</p>` : ""}</div></details>`;
 }
 
@@ -464,7 +500,9 @@ legend.addTo(map);
 function updateLegend(selected) {
   const div = legend.getContainer();
   const mode = layerSelect.value;
-  if (mode === "set") {
+  if (MUN_LAYERS.has(mode)) {
+    div.innerHTML = municipalLegendHtml(mode);
+  } else if (mode === "set") {
     const counts = countBy(selected, (p) => p.set);
     div.innerHTML = legendHtml("Conjunto",
       Object.keys(SET_COLORS).map((k) => legendRow(SET_COLORS[k], SET_LABELS[k], counts.get(k) ?? 0)));
@@ -560,6 +598,7 @@ function draw(fit) {
   }
   renderList();
   if (fit && selected.length) map.fitBounds(polygonsLayer.getBounds(), { padding: [20, 20] });
+  drawMunicipal(fit);
   showByZoom();
 }
 
@@ -574,6 +613,131 @@ function setSelected(id) {
     entry.marker.setStyle(pointStyle(entry.feature));
   }
   raiseSelected();
+}
+
+// Modelo municipal
+
+// Verdadero si la capa elegida es una del modelo municipal
+function isMunicipalMode() {
+  return MUN_LAYERS.has(layerSelect.value);
+}
+
+// Índice del nivel del semáforo para una probabilidad de 0 a 1: menos de 10 % bajo, de 10 a menos de 30 % medio, lo demás alto
+function probabilityIndex(probability) {
+  if (probability < 0.1) return 0;
+  return probability < 0.3 ? 1 : 2;
+}
+
+// Clase de un municipio en la capa activa (rótulo y color); null si no tiene estimación
+function municipalClassOf(mode, p) {
+  if (typeof p.esperado !== "number") return null;
+  if (mode === "mun-esperado") return MUN_YIELD_CLASSES.find((c) => p.esperado < c.to);
+  if (mode === "mun-riesgo") return MUN_RISK_CLASSES[probabilityIndex(p.prob_bajo_2)];
+  return MUN_CONFIDENCE_CLASSES.find((c) => c.key === p.confianza) ?? null;
+}
+
+// Municipio elegido en el filtro (dentro del estado elegido, si hay): se resalta y, al elegirlo, el mapa se centra en él
+function isChosenMunicipality(p) {
+  return Boolean(municipalitySelect.value) && p.municipio === municipalitySelect.value
+    && (!stateSelect.value || p.estado === stateSelect.value);
+}
+
+// Pide el modelo municipal la primera vez que se elige una de sus capas; si falló, se vuelve a pedir al volver a elegirla
+function requestMunicipal() {
+  if (!isMunicipalMode() || municipalFeatures || municipalRequest) return;
+  municipalFailed = false;
+  municipalRequest = fetchJson(mapElement.dataset.municipalUrl)
+    .then((geojson) => {
+      municipalFeatures = geojson.features;
+    })
+    .catch(() => {
+      // Sin el modelo, el mapa sigue igual; el aviso va en el contador y en la leyenda
+      municipalFailed = true;
+    })
+    .then(() => {
+      municipalRequest = null;
+      // Al llegar (o fallar), se redibuja con la capa elegida; si ya se eligió un municipio, el mapa se centra en él
+      if (isMunicipalMode()) draw(Boolean(municipalitySelect.value));
+    });
+}
+
+// Mini tarjeta del tooltip de un municipio: nombre y estado, la cifra esperada o, sin estimación, el aviso y la distancia al SIAP
+function municipalTooltipHtml(p) {
+  const rows = [];
+  let value = '<p class="tip__caption">Fuera del rango ambiental del modelo: sin estimación</p>';
+  if (typeof p.esperado === "number") {
+    const confidence = CONFIDENCE_LEVELS.get(p.confianza);
+    value = `<p class="tip__value">${formatNumber(p.esperado, 2)} <span class="tip__unit">t/ha</span></p>`
+      + '<p class="tip__caption">Rendimiento esperado</p>';
+    rows.push(tipRow("Intervalo p10 a p90", `${formatNumber(p.p10, 2)} a ${formatNumber(p.p90, 2)} t/ha`));
+    rows.push(tipRow("Probabilidad bajo 2 t/ha", formatPercent(p.prob_bajo_2)));
+    rows.push(tipRow("Confianza", confidence ? `<span class="badge ${confidence.badge}">${confidence.text}</span>` : "Sin dato"));
+  } else if (typeof p.dist_siap_km === "number") {
+    rows.push(tipRow("Distancia al SIAP más cercano", `${formatNumber(p.dist_siap_km, 1)} km`));
+  }
+  // Historial de la estadística SIAP del municipio, si lo tiene
+  if (p.con_siap) {
+    rows.push(tipRow("Historial SIAP", `${formatNumber(p.siap_media, 2)} t/ha en ${p.siap_anios} años`));
+    rows.push(tipRow("Años bajo 2 t/ha", formatPercent(p.siap_frac_bajo_2)));
+  }
+  return '<div class="tip">'
+    + `<div class="tip__head"><strong class="tip__id">${p.municipio}</strong><span class="tip__set">${p.estado}</span></div>`
+    + value
+    + `<dl class="tip__rows">${rows.join("")}</dl>`
+    + "</div>";
+}
+
+// Color y borde de cada municipio: en gris punteado si no tiene estimación; el municipio elegido, con borde negro grueso
+function municipalStyle(feature) {
+  const p = feature.properties;
+  const cls = municipalClassOf(layerSelect.value, p);
+  let style = { weight: 0.6, color: "#ffffff", opacity: 1, fillColor: cls ? cls.color : MUN_NO_ESTIMATE.color, fillOpacity: 0.85, dashArray: null };
+  if (!cls) style = { ...style, weight: 1, color: MUN_NO_ESTIMATE.border, fillOpacity: 0.6, dashArray: "4 3" };
+  if (isChosenMunicipality(p)) style = { ...style, weight: 3, color: BORDER_HOVER, opacity: 1 };
+  return style;
+}
+
+// Dibuja los municipios del estado elegido (o de todo el país) en su panel; si hay municipio elegido y se pide, centra el mapa en él
+function drawMunicipal(fit) {
+  if (municipalLayer) municipalLayer.remove();
+  municipalLayer = null;
+  if (!isMunicipalMode() || !municipalFeatures) return;
+  const features = municipalFeatures.filter((f) => !stateSelect.value || f.properties.estado === stateSelect.value);
+  municipalLayer = L.geoJSON(features, {
+    pane: "municipal",
+    style: municipalStyle,
+    onEachFeature: (feature, layer) => {
+      layer.bindTooltip(municipalTooltipHtml(feature.properties), { sticky: true, className: "parcel-tip", opacity: 1 });
+      layer.on({
+        mouseover: () => {
+          layer.setStyle({ weight: 3, color: BORDER_HOVER, opacity: 1 });
+          layer.bringToFront();
+        },
+        mouseout: () => {
+          if (municipalLayer) municipalLayer.resetStyle(layer);
+        },
+      });
+    },
+  }).addTo(map);
+  const chosen = municipalLayer.getLayers().filter((layer) => isChosenMunicipality(layer.feature.properties));
+  if (fit && chosen.length) map.fitBounds(L.featureGroup(chosen).getBounds(), { padding: [20, 20] });
+}
+
+// Leyenda de la capa municipal: sus clases con el número de municipios del estado elegido, y la nota del modelo
+function municipalLegendHtml(mode) {
+  const { title, classes } = MUN_LAYERS.get(mode);
+  if (municipalFailed) return legendHtml(title, [], "No se pudo cargar el modelo municipal.");
+  if (!municipalFeatures) return legendHtml(title, [], "Cargando el modelo municipal…");
+  const inState = municipalFeatures.filter((f) => !stateSelect.value || f.properties.estado === stateSelect.value);
+  const counts = countBy(inState, (p) => municipalClassOf(mode, p));
+  const rows = [
+    ...classes.map((c) => legendRow(c.color, c.label, counts.get(c) ?? 0)),
+    legendRow(MUN_NO_ESTIMATE.color, "Sin estimación (fuera del rango del modelo)", counts.get(null) ?? 0, "legend-swatch--no-data"),
+  ];
+  // El modelo y su año de referencia vienen en cada municipio
+  const meta = municipalFeatures[0]?.properties;
+  const note = meta ? `Modelo municipal (${meta.modelo}); año de referencia ${meta.anio_referencia}` : "";
+  return legendHtml(title, rows, note, "Municipios");
 }
 
 // Lista de parcelas por predecir
@@ -921,6 +1085,8 @@ map.on("zoomend", showByZoom);
 // se abren): Leaflet y el mapa base se enteran aquí para no dejar franjas vacías
 if (window.ResizeObserver) new ResizeObserver(layoutChanged).observe(mapElement);
 layerSelect.addEventListener("change", () => {
+  // Una capa municipal pide su GeoJSON la primera vez (o vuelve a pedirlo si antes falló)
+  requestMunicipal();
   draw(false);
   syncState();
 });
@@ -1046,6 +1212,8 @@ Promise.all([fetchJson(mapElement.dataset.parcelsUrl), fetchJson(mapElement.data
     // La capa y los filtros vienen del hash si son válidos; luego se dibuja
     restoreState();
     updateDownloadLinks();
+    // Si el hash trae una capa municipal, su modelo se pide ahora; mientras llega, el mapa se dibuja sin él
+    requestMunicipal();
     draw(true);
   })
   .catch(() => {
