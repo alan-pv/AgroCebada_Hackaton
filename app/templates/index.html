@@ -3,48 +3,170 @@
 {% block head %}
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css"
+        integrity="sha384-uTttxo/aOKbdE5RlD/SPzSDoDmNvGlUYPjONi2MN/b7c9HPSvW07OIuyP7uL6jxK" crossorigin="">
   <link rel="stylesheet" href="{{ url_for('static', filename='map.css') }}">
 {% endblock %}
 
 {% block body_class %}map-page{% endblock %}
 
 {% block content %}
-  <section class="controls">
-    <label>Colorear por
-      <select id="layer">
-        <option value="set">Conjunto</option>
-        <option value="yield">Rendimiento observado</option>
-        <option value="pred">Predicción del modelo</option>
-        <option value="risk_costs">Riesgo de no cubrir costos (semáforo)</option>
-        <option value="risk_credit">Riesgo de no pagar el crédito (semáforo)</option>
-      </select>
-    </label>
-    <label>Estado
-      <select id="state">
-        <option value="">Todos</option>
-      </select>
-    </label>
-    <label>Municipio
-      <select id="municipality">
-        <option value="">Todos</option>
-      </select>
-    </label>
-    <div class="download" role="group" aria-labelledby="download-title">
-      <span id="download-title" class="download__title">Descargar</span>
-      <a id="download-predictions" class="btn" href="{{ url_for('predictions.predictions', format='csv') }}" download>Predicciones (CSV)</a>
-      <a id="download-economics" class="btn" href="{{ url_for('economics.economics_table', format='csv') }}" download>Economía por parcela (CSV)</a>
+  {# Barra de controles: capa y filtros a la izquierda; menú de descargas a la derecha.
+     En el celular, la capa y los filtros se pliegan tras el botón «Capa y filtros» #}
+  <section class="map-toolbar" aria-label="Capa, filtros y descargas">
+    <button type="button" id="filters-toggle" class="btn filters-toggle" aria-expanded="false" aria-controls="filters">
+      Capa y filtros<span id="filters-active" class="filters-toggle__active"></span>
+    </button>
+    <div id="filters" class="controls">
+      <label class="field"><span class="field__label">Colorear por</span>
+        <select id="layer">
+          <optgroup label="Datos">
+            <option value="set">Conjunto</option>
+            <option value="yield">Rendimiento observado</option>
+            <option value="pred">Predicción del modelo</option>
+          </optgroup>
+          <optgroup label="Riesgo">
+            <option value="risk_costs">No cubrir costos</option>
+            <option value="risk_credit">No pagar el crédito</option>
+          </optgroup>
+        </select>
+      </label>
+      <label class="field"><span class="field__label">Estado</span>
+        <select id="state">
+          <option value="">Todos</option>
+        </select>
+      </label>
+      <label class="field"><span class="field__label">Municipio</span>
+        <select id="municipality">
+          <option value="">Todos</option>
+        </select>
+      </label>
     </div>
-    <span id="count" class="count" aria-live="polite"></span>
+    <div class="map-toolbar__end">
+      {# El contador repite lo que dicen los indicadores: solo lo leen los lectores de pantalla (aria-live) #}
+      <span id="count" class="count visually-hidden" aria-live="polite"></span>
+      {# Menú «Descargar»: <details> abre y cierra sin JavaScript; el script lo cierra con Esc o al hacer clic fuera #}
+      <details class="download-menu">
+        <summary id="download-title" class="btn">Descargar</summary>
+        <div class="download" role="group" aria-labelledby="download-title">
+          <a id="download-predictions" class="download__link" href="{{ url_for('predictions.predictions', format='csv') }}" download>Predicciones (CSV)</a>
+          <a id="download-economics" class="download__link" href="{{ url_for('economics.economics_table', format='csv') }}" download>Economía por parcela (CSV)</a>
+        </div>
+      </details>
+    </div>
   </section>
-  <div id="map"
-       data-parcels-url="{{ url_for('parcels.parcels') }}"
-       data-predictions-url="{{ url_for('predictions.predictions') }}"
-       data-economics-url="{{ url_for('economics.economics_table') }}"
-       data-detail-url="{{ url_for('detail.page', parcel_id='__ID__') }}"></div>
+
+  {# Columna del mapa (indicadores y mapa) y, a la derecha, el panel con la lista o el resumen de una parcela.
+     En el celular el panel es una hoja plegable debajo del mapa #}
+  <div class="map-layout">
+    <div class="map-main">
+      {# Indicadores de las parcelas mostradas; el script los recalcula con cada filtro.
+         En el celular van en una fila que se desplaza de lado #}
+      <section class="map-stats" aria-label="Resumen de las parcelas mostradas">
+        <div class="stat-grid">
+          <div class="stat">
+            <p class="stat__label">Parcelas mostradas</p>
+            <p class="stat__value" id="stat-shown">—</p>
+            <p class="stat__note" id="stat-shown-note"></p>
+          </div>
+          <div class="stat">
+            <p class="stat__label">Parcelas por predecir</p>
+            <p class="stat__value" id="stat-to-predict">—</p>
+            <p class="stat__note" id="stat-to-predict-note"></p>
+          </div>
+          <div class="stat">
+            <p class="stat__label">Rendimiento predicho medio</p>
+            <p class="stat__value" id="stat-pred-mean">—</p>
+            <p class="stat__note" id="stat-pred-mean-note"></p>
+          </div>
+          <div class="stat">
+            <p class="stat__label">Parcelas con riesgo alto de no pagar el crédito</p>
+            <p class="stat__value" id="stat-risk">—</p>
+            <p class="stat__note" id="stat-risk-note"></p>
+          </div>
+        </div>
+      </section>
+
+      <div class="map-frame">
+        <div id="map"
+             data-parcels-url="{{ url_for('parcels.parcels') }}"
+             data-predictions-url="{{ url_for('predictions.predictions') }}"
+             data-economics-url="{{ url_for('economics.economics_table') }}"
+             data-detail-url="{{ url_for('detail.page', parcel_id='__ID__') }}"
+             data-detail-api-url="{{ url_for('detail.parcel_detail', parcel_id='__ID__') }}"></div>
+        {# Solo en escritorio: vuelve a abrir el panel si se cerró #}
+        <button type="button" id="panel-open" class="btn map-panel-open" aria-controls="map-panel" hidden>Lista de parcelas</button>
+      </div>
+    </div>
+
+    <aside id="map-panel" class="map-panel" aria-label="Parcelas por predecir y resumen de la parcela elegida">
+      {# Solo en el celular: título de la hoja, que la abre o la pliega #}
+      <button type="button" id="panel-toggle" class="map-panel__toggle" aria-expanded="false" aria-controls="panel-body">
+        <span id="panel-toggle-text">Parcelas por predecir</span>
+      </button>
+
+      <div id="panel-body" class="map-panel__body">
+        {# Vista 1: parcelas por predecir, ordenadas por riesgo. Es también la vía de teclado para llegar a cada parcela #}
+        <section id="panel-list" class="plist" aria-labelledby="plist-title">
+          <div class="map-panel__head">
+            <div>
+              <h2 id="plist-title" class="map-panel__title" tabindex="-1">Parcelas por predecir</h2>
+              <p id="plist-summary" class="map-panel__sub"></p>
+            </div>
+            <button type="button" class="map-panel__close" data-close aria-label="Cerrar el panel">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="plist__tools">
+            <label class="plist__sort"><span>Ordenar por</span>
+              <select id="plist-sort">
+                <option value="credit">Riesgo de no pagar el crédito</option>
+                <option value="costs">Riesgo de no cubrir costos</option>
+                <option value="pred">Rendimiento predicho</option>
+              </select>
+            </label>
+            <details class="help-inline">
+              <summary>¿Cómo se lee el semáforo?</summary>
+              <div class="help-inline__body">
+                <p>Mide la probabilidad de que la cosecha no cubra el costo total o no pague el crédito, con el precio promedio del municipio. Bajo: menos de 10 %. Medio: de 10 a menos de 30 %. Alto: 30 % o más. Es una señal para ordenar parcelas y abrir la conversación, no una probabilidad de incumplimiento.</p>
+                <p><strong>¿Por qué tantas parcelas salen en medio o alto?</strong> No significa que la predicción sea poco confiable: la confianza se mide aparte. Viene de los costos y precios que se usan por defecto.</p>
+                <ul>
+                  <li><strong>Costo total.</strong> El punto de equilibrio total queda arriba del rendimiento esperado en casi todas las parcelas. El costo es el paquete de FIRA de 2022 actualizado con la inflación general, con renta de la tierra y gastos que el crédito no financia. El precio del SIAP queda abajo de los contratos reportados en la prensa, de 6,800 a 7,400 $ por tonelada.</li>
+                  <li><strong>Crédito.</strong> A la probabilidad se le suma la pérdida histórica de la cosecha en el municipio: donde pasa de 10 %, ninguna parcela sale en bajo aunque rinda bien. Y donde el punto de equilibrio del crédito queda arriba del rendimiento esperado, o a menos de lo que el modelo se equivoca en promedio, sale en medio o alto.</li>
+                </ul>
+                <p>Con los valores por defecto, el semáforo sirve sobre todo para comparar parcelas entre sí. En la ficha de cada parcela se pueden cambiar el precio y el punto de equilibrio.</p>
+              </div>
+            </details>
+          </div>
+          <p id="plist-note" class="plist__note" hidden></p>
+          <div class="plist__cols" aria-hidden="true">
+            <span>Parcela</span><span>Predicción</span><span id="plist-col-risk">No pagar el crédito</span>
+          </div>
+          <ol id="plist-items" class="plist__items"></ol>
+        </section>
+
+        {# Vista 2: resumen de la parcela elegida en el mapa o en la lista #}
+        <section id="panel-parcel" class="psum" aria-labelledby="psum-id" hidden>
+          <div class="map-panel__head">
+            <button type="button" id="psum-back" class="btn btn--sm psum__back">← Volver a la lista</button>
+            <button type="button" class="map-panel__close" data-close aria-label="Cerrar el resumen">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div id="psum-content" class="psum__content"></div>
+        </section>
+      </div>
+    </aside>
+  </div>
 {% endblock %}
 
 {% block scripts %}
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  {# Mapa base vectorial (MapLibre GL) dentro de Leaflet. Si no carga, map.js usa los mosaicos de OpenStreetMap #}
+  <script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"
+          integrity="sha384-5+cfbwT0iiub6VsQAdn6yz16nr6sDiQoHx6tm4O8OVYXHYOxcffFmCJBL0dgdvGp" crossorigin=""></script>
+  <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.1.4/leaflet-maplibre-gl.js"
+          integrity="sha384-tXYNKOHx4T02jMP7YYCtBxPIv1B5gaA5mcVPBzqMp6d7VzWzxJgI2aWF/nJLrQdS" crossorigin=""></script>
   <script src="{{ url_for('scripts', filename='map.js') }}"></script>
 {% endblock %}

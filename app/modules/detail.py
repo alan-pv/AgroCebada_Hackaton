@@ -21,6 +21,7 @@ bp = Blueprint("detail", __name__)
 bp.add_app_template_global(charts.interval_bar, "interval_bar")
 bp.add_app_template_global(charts.breakdown_bars, "breakdown_bars")
 bp.add_app_template_global(charts.line_chart, "line_chart")
+bp.add_app_template_global(charts.responsive_chart, "responsive_chart")
 
 # Columnas que usa la ficha de cada fuente. Se leen con columns= para no cargar todo
 PREDICTION_COLS = ["ID_POLIGONO", "conjunto", "regimen", "estado", "municipio", "lon", "lat", "area_ha",
@@ -256,6 +257,13 @@ SET_LABELS = {"ENTRENAMIENTO": "Parcela de entrenamiento", "PREDICCION": "Parcel
 LIGHTS = {"verde": ("Riesgo bajo", "bajo"), "amarillo": ("Riesgo medio", "medio"), "rojo": ("Riesgo alto", "alto")}
 CONFIDENCE = {"alta": ("Confianza alta", "bajo"), "media": ("Confianza media", "medio"),
               "baja": ("Confianza baja", "alto")}
+# Los tres niveles de confianza de menor a mayor, con lo que significa cada uno
+CONFIDENCE_STEPS = [
+    ("baja", "Baja", "la más cercana está a más de 800 m, o el área de la parcela queda fuera del rango de su "
+                     "régimen."),
+    ("media", "Media", "ninguna a 400 m, pero la más cercana está a 800 m o menos."),
+    ("alta", "Alta", "al menos una parcela medida a 400 m o menos."),
+]
 # Periodo del SIAP del contexto municipal; el número de años se cuenta con estos dos valores
 SIAP_FIRST, SIAP_LAST = 2003, 2025
 # Decimales de las variables de contexto de 2025; el pico de verdor es un día del año, sin decimales
@@ -301,6 +309,27 @@ def _probability(value):
     if value > 0.99:
         return "más de 99 %"
     return formatting.percent(value)
+
+
+def _share(value):
+    # Fracción de 0 a 1 como ancho de un medidor en %, de 0 a 100; sin dato, el medidor queda vacío
+    if value is None:
+        return 0.0
+    return round(min(max(value, 0.0), 1.0) * 100, 1)
+
+
+def _money_signed(value):
+    # Dinero con el menos tipográfico: −$12,669
+    text = formatting.money(value)
+    return "−" + text[1:] if text.startswith("-") else text
+
+
+def _confidence_steps(level):
+    # Indicador de tres pasos: cada nivel con su significado; el de la parcela marcado como actual.
+    # filled dice si el segmento del paso va relleno (los niveles hasta el actual)
+    rank = next((i for i, (key, _, _) in enumerate(CONFIDENCE_STEPS) if key == level), -1)
+    return [{"key": key, "label": label, "help": help_text, "current": i == rank, "filled": i <= rank}
+            for i, (key, label, help_text) in enumerate(CONFIDENCE_STEPS)]
 
 
 def _signed(value):
@@ -357,7 +386,19 @@ def _context_rows(items):
             for item in items]
 
 
-def _view(ficha, econ, breakeven):
+def _basis_text(econ, price, breakeven):
+    # Con qué precio y equilibrio salen los riesgos de la franja de arriba: los del municipio o los que
+    # eligió la persona en Economía
+    if price is None:
+        text = f"Con el precio del municipio, {formatting.money(econ['price'])} por tonelada"
+    else:
+        text = f"Con el precio elegido, {formatting.money(econ['price'])} por tonelada"
+    if breakeven is not None:
+        text += f", y el punto de equilibrio elegido, {formatting.number(breakeven, 2)} t/ha"
+    return text + "."
+
+
+def _view(ficha, econ, breakeven, price=None, adjust_open=False):
     # Textos y cuentas de la página, en el orden en que aparecen
     costs_label, costs_class = LIGHTS.get(econ["light_costs"], ("Sin semáforo", "neutro"))
     credit_label, credit_class = LIGHTS.get(econ["light_credit"], ("Sin semáforo", "neutro"))
@@ -365,6 +406,9 @@ def _view(ficha, econ, breakeven):
     cuts = econ["light_cuts"]
     return {
         "set_label": SET_LABELS.get(ficha["set"], "Parcela"),
+        "basis_text": _basis_text(econ, price, breakeven),
+        # El formulario de Economía se abre si la persona ya lo usó o si trae un parámetro no válido
+        "adjust_open": adjust_open,
         "prob_below": _probability(ficha["prob_below"]),
         "conf_label": conf_label,
         "conf_class": conf_class,
@@ -374,6 +418,15 @@ def _view(ficha, econ, breakeven):
         "credit_text": _probability(econ["prob_not_pay_credit"]),
         "credit_label": credit_label,
         "credit_class": credit_class,
+        # Ancho del relleno de cada medidor y posición de los cortes del semáforo, en % de la barra
+        "costs_pct": _share(econ["prob_not_cover_costs"]),
+        "credit_pct": _share(econ["prob_not_pay_credit"]),
+        "cut_low_pct": _share(cuts["green_below"]),
+        "cut_high_pct": _share(cuts["red_from"]),
+        "conf_steps": _confidence_steps(ficha["confidence"]["level"]),
+        # Margen con su signo; si es negativo la página lo dice con texto, no solo con color
+        "margin_text": _money_signed(econ["margin_ha"]),
+        "margin_negative": econ["margin_ha"] is not None and econ["margin_ha"] < 0,
         "loss_text": formatting.percent(econ["prob_loss"], 1),
         "cut_low": formatting.percent(cuts["green_below"]),
         "cut_high": formatting.percent(cuts["red_from"]),
@@ -399,17 +452,18 @@ def page(parcel_id):
         ficha = parcel_detail_data(parcel_id)
     except KeyError:
         return render_template("parcel.html", parcel_id=parcel_id, missing=True), 404
-    error, breakeven = None, None
+    error, price, breakeven = None, None, None
     try:
         price = _query_number("price", "El precio", economics.PRICE_RANGE, PRICE_TEXT)
         breakeven = _query_number("breakeven", "El punto de equilibrio", economics.BREAKEVEN_RANGE,
                                   BREAKEVEN_TEXT)
         econ = economics.parcel_economics_data(parcel_id, price=price, breakeven=breakeven)
     except ValueError as e:
-        # Con un parámetro no válido, la página muestra la economía por defecto y avisa arriba del formulario
-        error, breakeven = str(e), None
+        # Con un parámetro no válido, la página muestra la economía por defecto y avisa arriba de la franja
+        error, price, breakeven = str(e), None, None
         econ = economics.parcel_economics_data(parcel_id)
-    view = _view(ficha, econ, breakeven)
+    adjust_open = error is not None or "price" in request.args or "breakeven" in request.args
+    view = _view(ficha, econ, breakeven, price=price, adjust_open=adjust_open)
     status = 400 if error else 200
     return render_template("parcel.html", parcel_id=parcel_id, missing=False, ficha=ficha, econ=econ,
                            view=view, error=error), status

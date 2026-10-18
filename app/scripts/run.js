@@ -24,12 +24,17 @@
     "id", "state", "municipality", "set", "pred", "p10", "p90", "prob_below",
     "confidence", "neighbors_400m", "nearest_neighbor_m", "threshold", "model_version",
   ];
-  // Encabezados de la tabla de resultados; también son la etiqueta de cada celda en el celular
-  const RESULT_LABELS = [
-    "Parcela", "Estado", "Municipio", "Predicción (t/ha)", "Intervalo p10–p90 (t/ha)",
-    "Probabilidad bajo el umbral (%)", "Confianza",
-  ];
+  // Encabezados de la tabla de resultados; también son la etiqueta de cada celda en el celular.
+  // Estado, municipio e intervalo p10–p90 no tienen columna: van en la celda de la parcela, en el
+  // texto de la barra de rango y en el CSV de descarga
+  const RESULT_LABELS = ["Parcela", "Predicción (t/ha)", "Probabilidad bajo el umbral", "Confianza"];
+  // Segunda línea de una parcela nueva: no está en el conjunto de datos y no tiene ficha
+  const NEW_PARCEL_NOTE = "Parcela nueva, sin ficha";
   const SET_LABELS = { ENTRENAMIENTO: "Entrenamiento", PREDICCION: "Predicción" };
+  // Punto de color de cada conjunto, el mismo del mapa
+  const SET_DOTS = { ENTRENAMIENTO: "dot--entrenamiento", PREDICCION: "dot--prediccion" };
+  // Paso de la escala de las barras de rango: sus extremos son múltiplos de 0.5 t/ha
+  const RANGE_STEP = 0.5;
   // Confianza con el mismo semáforo de riesgo de la app: alta en verde, baja en rojo
   const CONFIDENCE = {
     alta: { text: "Confianza alta", className: "badge--bajo" },
@@ -255,10 +260,38 @@
     return `${formatNumber(probability * 100, 0)} %`;
   }
 
-  // Intervalo p10 a p90 en t/ha; sin dato, "—"
-  function intervalText(p10, p90) {
-    if (p10 === null || p10 === undefined || p90 === null || p90 === undefined) return "—";
-    return `${formatNumber(p10, 2)}–${formatNumber(p90, 2)}`;
+  // Aviso al terminar un cálculo, en la barra de la pestaña; los resultados están en la tarjeta de abajo
+  function doneText(count) {
+    return `Listo: ${count} ${count === 1 ? "parcela calculada" : "parcelas calculadas"}. Los resultados están abajo.`;
+  }
+
+  // Lugar de una parcela del conjunto, en una línea: «Calpulalpan, Tlaxcala». Sin datos, ""
+  function placeText(row) {
+    return [row.municipality, row.state].filter(Boolean).join(", ");
+  }
+
+  // Escala común de las barras de rango: cubre todos los p10, p90 y predicciones y el umbral,
+  // con extremos redondeados a RANGE_STEP. Así todas las filas se comparan a simple vista
+  function rangeScale(rows, threshold) {
+    const values = [threshold];
+    for (const row of rows) {
+      for (const value of [row.p10, row.p90, row.pred]) {
+        if (Number.isFinite(value)) values.push(value);
+      }
+    }
+    let min = Math.floor(Math.min(...values) / RANGE_STEP) * RANGE_STEP;
+    let max = Math.ceil(Math.max(...values) / RANGE_STEP) * RANGE_STEP;
+    if (max - min < RANGE_STEP) {
+      min -= RANGE_STEP;
+      max += RANGE_STEP;
+    }
+    return { min: Math.max(0, min), max };
+  }
+
+  // Posición de un valor en la escala, en porcentaje de 0 a 100
+  function rangePercent(value, scale) {
+    const percent = ((value - scale.min) / (scale.max - scale.min)) * 100;
+    return Math.min(100, Math.max(0, percent));
   }
 
   // Valida los campos del formulario de parcela nueva. Devuelve la parcela lista para la API
@@ -368,6 +401,7 @@
     const selectionCount = el("selection-count");
     const tableBody = el("dataset-rows");
     const thresholdInput = el("threshold");
+    const thresholdMessage = el("threshold-message");
     const runButton = el("run-button");
     const datasetMessage = el("dataset-message");
     const newForm = el("new-form");
@@ -377,6 +411,8 @@
     const csvRun = el("csv-run");
     const csvMessage = el("csv-message");
     const csvTemplate = el("csv-template");
+    const csvFileName = el("csv-file-name");
+    const resultsCard = el("results");
     const resultsZone = el("results-zone");
     const downloadButton = el("download-button");
 
@@ -405,23 +441,33 @@
       box.type = "checkbox";
       box.checked = view.selected.has(row.id);
       box.setAttribute("aria-label", `Seleccionar ${row.id}`);
+      // La fila elegida se resalta; la casilla marcada ya lo dice sin depender del color
+      tr.classList.toggle("is-selected", box.checked);
       box.addEventListener("change", () => {
         if (box.checked) view.selected.add(row.id);
         else view.selected.delete(row.id);
+        tr.classList.toggle("is-selected", box.checked);
         updateSelectionInfo();
       });
       boxCell.append(box);
       const idCell = makeCell("th", row.id);
       idCell.scope = "row";
+      // Conjunto con su punto de color, el mismo del mapa; el texto lo nombra
+      const setNode = document.createElement("span");
+      setNode.className = "set";
+      const dot = document.createElement("span");
+      dot.className = `dot ${SET_DOTS[row.set] || ""}`;
+      dot.setAttribute("aria-hidden", "true");
+      setNode.append(dot, SET_LABELS[row.set] || row.set);
       // Conjunto, Régimen y Estado se ocultan en el celular (clase hide-sm)
       tr.append(
         boxCell,
         idCell,
-        makeCell("td", SET_LABELS[row.set] || row.set, { className: "hide-sm" }),
+        makeCell("td", setNode, { className: "hide-sm" }),
         makeCell("td", row.regime, { className: "hide-sm" }),
         makeCell("td", row.state, { className: "hide-sm" }),
         makeCell("td", row.municipality),
-        makeCell("td", formatNumber(row.area_ha, 2)),
+        makeCell("td", formatNumber(row.area_ha, 2), { className: "num" }),
       );
       return tr;
     }
@@ -458,14 +504,25 @@
       selectionCount.textContent = `${total} ${total === 1 ? "seleccionada" : "seleccionadas"}`;
     }
 
-    // Umbral del campo de la primera tarjeta. Si no es válido, avisa en `messageEl` y devuelve null
+    // Umbral común a las tres pestañas. Si no es válido, marca el campo, avisa junto a él, limpia
+    // `messageEl` (la barra de la pestaña activa) y devuelve null
     function readThreshold(messageEl) {
       const value = parseNumber(thresholdInput.value);
       if (value === null || value < thresholdMin || value > thresholdMax) {
-        showMessage(messageEl, `El umbral debe ser un número entre ${thresholdMin.toFixed(1)} y ${thresholdMax.toFixed(1)} t/ha.`, true);
+        thresholdInput.setAttribute("aria-invalid", "true");
+        showMessage(thresholdMessage, `El umbral debe ser un número entre ${thresholdMin.toFixed(1)} y ${thresholdMax.toFixed(1)} t/ha.`, true);
+        showMessage(messageEl, "");
+        // El campo está arriba de las pestañas: el foco lleva a él aunque la vista esté más abajo
+        thresholdInput.focus();
         return null;
       }
+      clearThresholdError();
       return value;
+    }
+
+    function clearThresholdError() {
+      thresholdInput.removeAttribute("aria-invalid");
+      showMessage(thresholdMessage, "");
     }
 
     // Mientras hay un cálculo, los botones de calcular no responden
@@ -475,14 +532,95 @@
       resultsZone.setAttribute("aria-busy", String(busy));
     }
 
-    function buildResultRow(row) {
+    // Barra de rango de una parcela: intervalo p10–p90, predicción como punto y umbral como línea,
+    // en la escala común. El texto accesible (y el del cursor) dice los mismos valores; sin datos, null
+    function buildRange(row, scale, threshold) {
+      if (![row.pred, row.p10, row.p90].every(Number.isFinite)) return null;
+      const text = `Predicción ${formatNumber(row.pred, 2)} t/ha; intervalo p10–p90 de ${formatNumber(row.p10, 2)} `
+        + `a ${formatNumber(row.p90, 2)} t/ha; umbral ${formatNumber(threshold, 1)} t/ha`;
+      const range = document.createElement("div");
+      range.className = "range";
+      range.setAttribute("role", "img");
+      range.setAttribute("aria-label", text);
+      range.title = text;
+      const band = document.createElement("span");
+      band.className = "range__band";
+      band.style.left = `${rangePercent(row.p10, scale)}%`;
+      band.style.width = `${rangePercent(row.p90, scale) - rangePercent(row.p10, scale)}%`;
+      const line = document.createElement("span");
+      line.className = "range__threshold";
+      line.style.left = `${rangePercent(threshold, scale)}%`;
+      const point = document.createElement("span");
+      point.className = "range__pred";
+      point.style.left = `${rangePercent(row.pred, scale)}%`;
+      range.append(band, line, point);
+      return range;
+    }
+
+    // Encabezado de la columna Predicción: su nombre y, bajo la parte de las barras, los extremos
+    // de la escala común
+    function buildPredHeader(scale) {
+      const th = makeCell("th", RESULT_LABELS[1]);
+      th.scope = "col";
+      th.className = "pred-col";
+      const axis = document.createElement("span");
+      axis.className = "range-axis";
+      axis.setAttribute("aria-hidden", "true");
+      axis.append(makeCell("span", formatNumber(scale.min, 1)), makeCell("span", formatNumber(scale.max, 1)));
+      th.append(axis);
+      return th;
+    }
+
+    // Leyenda de las barras, con la escala en texto: el celular no muestra el encabezado
+    function buildRangeLegend(scale, threshold) {
+      const legend = document.createElement("p");
+      legend.className = "range-legend";
+      const item = (keyClass, label) => {
+        const span = document.createElement("span");
+        span.className = "range-legend__item";
+        const key = document.createElement("span");
+        key.className = `range-legend__key ${keyClass}`;
+        key.setAttribute("aria-hidden", "true");
+        span.append(key, label);
+        return span;
+      };
+      legend.append(
+        item("range-legend__key--band", "Intervalo p10–p90"),
+        item("range-legend__key--pred", "Predicción"),
+        item("range-legend__key--threshold", `Umbral ${formatNumber(threshold, 1)} t/ha`),
+        makeCell("span", `Misma escala en todas las filas, de ${formatNumber(scale.min, 1)} a ${formatNumber(scale.max, 1)} t/ha`),
+      );
+      return legend;
+    }
+
+    // Celda de la parcela: el ID (enlace a la ficha si está en el conjunto) y, debajo en texto suave,
+    // su municipio y estado; una parcela nueva dice que no tiene ficha
+    function buildParcelCell(row) {
+      const cell = makeCell("th", "", { className: "parcel-col" });
+      cell.scope = "row";
       let idNode = row.id;
       if (row.inDataset) {
-        const link = document.createElement("a");
-        link.href = detailUrl.replace("__ID__", encodeURIComponent(row.id));
-        link.textContent = row.id;
-        idNode = link;
+        idNode = document.createElement("a");
+        idNode.href = detailUrl.replace("__ID__", encodeURIComponent(row.id));
+        idNode.textContent = row.id;
       }
+      const id = makeCell("span", idNode, { className: "parcel__id" });
+      const place = makeCell("span", row.inDataset ? placeText(row) || "—" : NEW_PARCEL_NOTE, { className: "parcel__place" });
+      cell.append(id, place);
+      return cell;
+    }
+
+    // Celda de la predicción: la cifra en t/ha y, a su lado, la barra de rango
+    function buildPredCell(row, scale, threshold) {
+      const wrap = document.createElement("div");
+      wrap.className = "pred";
+      wrap.append(makeCell("span", formatNumber(row.pred, 2), { className: "pred__value" }));
+      const range = buildRange(row, scale, threshold);
+      if (range) wrap.append(range);
+      return makeCell("td", wrap, { label: RESULT_LABELS[1], className: "pred-col" });
+    }
+
+    function buildResultRow(row, scale, threshold) {
       let confidenceNode = "—";
       const badge = confidenceBadge(row.confidence);
       if (badge) {
@@ -490,39 +628,61 @@
         confidenceNode.className = `badge ${badge.className}`;
         confidenceNode.textContent = badge.text;
       }
-      // Cada celda lleva su etiqueta (data-label) para mostrarla en la tarjeta del celular
-      const idCell = makeCell("th", idNode, { label: RESULT_LABELS[0] });
-      idCell.scope = "row";
       const tr = document.createElement("tr");
+      // Las filas con ficha se abren con un clic en cualquier parte (ver openRowLink)
+      if (row.inDataset) tr.className = "is-link";
+      // Las cifras llevan su etiqueta (data-label) para la tarjeta del celular; la parcela y la
+      // confianza («Confianza alta») se entienden solas
       tr.append(
-        idCell,
-        makeCell("td", row.state || "—", { label: RESULT_LABELS[1] }),
-        makeCell("td", row.municipality || "—", { label: RESULT_LABELS[2] }),
-        makeCell("td", formatNumber(row.pred, 2), { label: RESULT_LABELS[3] }),
-        makeCell("td", intervalText(row.p10, row.p90), { label: RESULT_LABELS[4] }),
-        makeCell("td", percentText(row.prob_below), { label: RESULT_LABELS[5] }),
-        makeCell("td", confidenceNode, { label: RESULT_LABELS[6] }),
+        buildParcelCell(row),
+        buildPredCell(row, scale, threshold),
+        makeCell("td", percentText(row.prob_below), { label: RESULT_LABELS[2], className: "num prob-col" }),
+        makeCell("td", confidenceNode, { className: "conf-col" }),
       );
       return tr;
     }
 
-    function buildResultsTable(rows) {
+    // Clic en una fila con ficha: abre la ficha como su enlace. No actúa si el clic fue en el propio
+    // enlace (o en otro control) ni si se estaba seleccionando texto. Con Ctrl, ⌘, Mayús o el botón
+    // del medio se abre en otra pestaña, como haría el enlace
+    function openRowLink(event) {
+      const tr = event.target.closest("tr.is-link");
+      if (!tr || event.target.closest("a, button, input, select, label, summary")) return;
+      if (event.type === "auxclick" && event.button !== 1) return;
+      if (String(window.getSelection())) return;
+      const link = tr.querySelector("a[href]");
+      if (!link) return;
+      if (event.type === "auxclick" || event.ctrlKey || event.metaKey || event.shiftKey) {
+        window.open(link.href, "_blank", "noopener");
+      } else {
+        location.href = link.href;
+      }
+    }
+
+    function buildResultsTable(rows, scale, threshold) {
       const wrap = document.createElement("div");
       wrap.className = "table-wrap";
       const table = document.createElement("table");
       table.className = "data results-table";
-      const caption = makeCell("caption", "Resultados de la predicción, una fila por parcela");
+      const caption = makeCell("caption", "Resultados de la predicción, una fila por parcela. El ID abre la ficha de la parcela.");
       caption.className = "visually-hidden";
       const head = document.createElement("thead");
       const headRow = document.createElement("tr");
-      for (const title of RESULT_LABELS) {
-        const th = makeCell("th", title);
+      const colClasses = ["parcel-col", null, "num prob-col", "conf-col"];
+      RESULT_LABELS.forEach((title, index) => {
+        if (index === 1) {
+          headRow.append(buildPredHeader(scale));
+          return;
+        }
+        const th = makeCell("th", title, { className: colClasses[index] });
         th.scope = "col";
         headRow.append(th);
-      }
+      });
       head.append(headRow);
       const body = document.createElement("tbody");
-      for (const row of rows) body.append(buildResultRow(row));
+      for (const row of rows) body.append(buildResultRow(row, scale, threshold));
+      body.addEventListener("click", openRowLink);
+      body.addEventListener("auxclick", openRowLink);
       table.append(caption, head, body);
       wrap.append(table);
       return wrap;
@@ -532,20 +692,38 @@
     function renderResults(rows, meta) {
       view.results = { rows, meta };
       resultsZone.replaceChildren();
+      // Resumen en una línea: cuántas parcelas, con qué umbral y qué versión del modelo
       const summary = document.createElement("p");
       summary.className = "summary";
-      summary.textContent = `Modelo versión ${meta.model_version} · umbral ${meta.threshold} t/ha · `
-        + `${rows.length} ${rows.length === 1 ? "parcela" : "parcelas"}`;
+      const count = document.createElement("strong");
+      count.textContent = `${rows.length} ${rows.length === 1 ? "parcela" : "parcelas"}`;
+      summary.append(count, ` · umbral ${meta.threshold} t/ha · modelo versión ${meta.model_version}`);
       resultsZone.append(summary);
       const lowIds = rows.filter((row) => row.confidence === "baja").map((row) => row.id);
       if (lowIds.length > 0) {
-        const warning = document.createElement("p");
+        const warning = document.createElement("div");
         warning.className = "warning";
-        warning.textContent = `${LOW_CONFIDENCE_WARNING} Confianza baja en: ${lowIds.join(", ")}.`;
+        const text = document.createElement("p");
+        text.textContent = LOW_CONFIDENCE_WARNING;
+        const ids = document.createElement("p");
+        ids.className = "warning__ids";
+        ids.textContent = `Confianza baja en: ${lowIds.join(", ")}.`;
+        warning.append(text, ids);
         resultsZone.append(warning);
       }
-      resultsZone.append(buildResultsTable(rows));
+      const scale = rangeScale(rows, meta.threshold);
+      resultsZone.append(buildRangeLegend(scale, meta.threshold), buildResultsTable(rows, scale, meta.threshold));
       downloadButton.hidden = false;
+      revealResults();
+    }
+
+    // Si el inicio de los resultados quedó fuera de la pantalla o en su mitad de abajo (debajo de la
+    // tarjeta de entrada), la vista baja hasta ellos. El foco se queda en el botón; el «Listo» ya se anunció
+    function revealResults() {
+      const top = resultsCard.getBoundingClientRect().top;
+      if (top >= 0 && top <= window.innerHeight / 2) return;
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      resultsCard.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
     }
 
     // Calcula las parcelas elegidas en lotes de como máximo `maxParcels` IDs, en orden
@@ -575,7 +753,7 @@
         const rows = ids.filter((id) => predictions.has(id))
           .map((id) => resultRow(predictions.get(id), view.byId.get(id), meta));
         renderResults(rows, meta);
-        showMessage(datasetMessage, `Listo: ${rows.length} ${rows.length === 1 ? "parcela calculada" : "parcelas calculadas"}.`);
+        showMessage(datasetMessage, doneText(rows.length));
       } catch (error) {
         showMessage(datasetMessage, error.message, true);
       } finally {
@@ -595,7 +773,7 @@
         const meta = { model_version: data.model_version, threshold: data.threshold };
         const rows = data.predictions.map((prediction) => resultRow(prediction, null, meta));
         renderResults(rows, meta);
-        showMessage(messageEl, `Listo: ${rows.length} ${rows.length === 1 ? "parcela calculada" : "parcelas calculadas"}.`);
+        showMessage(messageEl, doneText(rows.length));
       } catch (error) {
         showMessage(messageEl, error.message, true);
       } finally {
@@ -661,6 +839,8 @@
       renderTable();
     });
     runButton.addEventListener("click", runDataset);
+    // Al corregir el umbral se quitan su marca y su aviso; se vuelve a revisar al calcular
+    thresholdInput.addEventListener("input", clearThresholdError);
 
     newForm.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -681,6 +861,12 @@
       runNew([parcel], newMessage);
     });
     csvRun.addEventListener("click", runCsv);
+    // El selector propio muestra el nombre del archivo elegido
+    csvFile.addEventListener("change", () => {
+      const file = csvFile.files[0];
+      csvFileName.textContent = file ? file.name : "Ningún archivo seleccionado";
+      csvFileName.classList.toggle("file__name--chosen", Boolean(file));
+    });
 
     downloadButton.addEventListener("click", () => {
       if (!view.results) return;
@@ -709,6 +895,7 @@
     module.exports = {
       chunk, parseNumber, parseRecords, parseCsv, formatCsvErrors, toCsv, csvCell,
       filterRows, uniqueSorted, municipalitiesIn, resultRow, confidenceBadge, parseNewParcel,
+      rangeScale, rangePercent, placeText,
     };
   }
 

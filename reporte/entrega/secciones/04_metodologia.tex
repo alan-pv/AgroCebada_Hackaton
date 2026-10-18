@@ -4,14 +4,14 @@ Seguimos siete pasos. En cada uno explicamos qué decidimos y por qué.
 
 \textbf{1. Limpieza de los datos.} Usamos una observación de satélite solo si su nubosidad era de 20\,\% o menos.
 Elegimos ese umbral porque la nubosidad casi siempre vale 0 o 100\,\%, y cuando vale 100 los índices vienen vacíos. Con
-él cada parcela conserva entre 19 y 34 imágenes de Sentinel-2 en la temporada de 2025. Quitamos los picos aislados y suavizamos cada serie, porque un salto que regresa en pocos días suele
+él cada parcela conserva entre 19 y 34 imágenes de Sentinel-2 en la temporada de 2025~\cite{doc_modelo}. Quitamos los picos aislados y suavizamos cada serie, porque un salto que regresa en pocos días suele
 ser una nube no detectada. Dejamos fuera el índice de área foliar de Sentinel-2, porque su fórmula da valores negativos sobre
 suelo desnudo, algo sin sentido físico~\cite{ecuaciones}. Con lo demás construimos 91 variables por parcela, como el
 verdor máximo de 2025, las etapas del ciclo~\cite{zadoks1974}, la historia de 2022 a 2024, el clima y el terreno.
 
 \textbf{2. Asignación del régimen.} Asignamos el régimen por el nombre del municipio. No lo hicimos por los decimales de
 cada parcela, porque 7 de las 87 parcelas del régimen A tienen un solo decimal y se habrían clasificado mal. En seis parcelas de municipios muy pequeños el régimen se dedujo de
-su propia etiqueta. Sin ellas el error cambia de 0.458 a 0.464\,t/ha, un efecto pequeño.
+su propia etiqueta. Sin ellas el error cambia de 0.458 a 0.464\,t/ha~\cite{doc_modelo}.
 
 \textbf{3. Forma de evaluar.} Fijamos la forma de evaluar antes de probar ideas, para no acomodarla a los resultados.
 Medimos el error siempre en parcelas que el modelo no vio, con validación cruzada de cinco grupos repetida 10 veces, que
@@ -24,26 +24,26 @@ revuelve las variables nuevas dentro de cada régimen y repite la validación 50
 cada pieza tuvo que ganarle a la mejor versión aceptada hasta ese momento. Empezamos con la media de cada
 régimen. Después agregamos el rezago espacial, que es el promedio del rendimiento de las parcelas vecinas del mismo
 régimen, porque parcelas cercanas comparten suelo, clima y manejo~\cite{tobler1970}. Usamos vecinas a 400\,m o menos
-porque es el radio con menor error (anexo técnico, Fig.~\ref{A-fig:radio}). Luego probamos bloques de variables
-satelitales, climáticas y topográficas, y al final comparamos algoritmos. El modelo elegido es un proceso
-gaussiano~\cite{rasmussen2006}, cuyos parámetros se ajustan solo con las parcelas de entrenamiento de cada grupo (anexo
+porque es el radio con menor error~\cite{doc_modelo}. Luego probamos bloques de variables
+satelitales, climáticas y topográficas, y al final comparamos algoritmos. El elegido, por tener el menor error, es un
+proceso gaussiano~\cite{rasmussen2006}, cuyos parámetros se ajustan solo con las parcelas de entrenamiento de cada grupo (anexo
 técnico, ecuaciones~\ref{A-eq:rezago} y~\ref{A-eq:kernel}).
 
 \textbf{5. Confiabilidad.} Probar muchas variantes y quedarse con la mejor infla el resultado~\cite{cawley2010}. Para
 medir ese efecto repetimos toda la elección dentro de cada grupo, lo que se llama validación anidada~\cite{varma2006}.
 Todo lo que usa el rendimiento, como el rezago, se recalcula en cada grupo solo
-con las parcelas de entrenamiento, para que una parcela nunca influya en su propia predicción.  Para cada
+con las parcelas de entrenamiento, así que ninguna parcela del grupo evaluado influye en sus predicciones. Para cada
 parcela calculamos un intervalo del percentil 10 al 90 con predicción conformal~\cite{vovk2005,lei2018}, por separado
 en cada régimen porque sus errores son distintos (anexo técnico, ecuación~\ref{A-eq:intervalo}). Una prueba automatizada verifica que cambiar las etiquetas de prueba no
 cambia las predicciones~\cite{kaufman2012}.
 
 \textbf{6. Modelo municipal con datos públicos.} Usamos el rendimiento de cebada de temporal del SIAP de 2003 a 2025
 en 100 municipios de Hidalgo, México, Puebla y Tlaxcala~\cite{siap} y la temperatura máxima (Tmax) de julio y
-agosto~\cite{verdin2020}. Elegimos esa variable porque el calor durante el llenado reduce el peso del
+agosto~\cite{chirts}. Elegimos esa variable porque el calor durante el llenado reduce el peso del
 grano~\cite{passarella2002}. El modelo es una regresión con la Tmax más un kriging de sus errores~\cite{oliver2014} (anexo
 técnico, ecuación~\ref{A-eq:municipal}). Lo validamos prediciendo zonas completas sin usar municipios a menos de
 50\,km~\cite{roberts2017}, porque así se simula un lugar sin datos.
 
 \textbf{7. Traducción a pesos.} Valuamos la predicción con el precio medio rural del SIAP de 2023 a
-2025~\cite{siap2026} y con los costos de los paquetes de AgroCostos de FIRA~\cite{agrocostos}, actualizados a 2025 con
+2025~\cite{siap} y con los costos de los paquetes de AgroCostos de FIRA~\cite{agrocostos}, actualizados a 2025 con
 la inflación.

@@ -46,6 +46,106 @@ def test_page_has_sections(client):
     assert "methodology.css" in html
 
 
+def test_page_index_and_sections(client):
+    html = client.get("/metodologia").get_data(as_text=True)
+    # Índice con un enlace por sección, cada uno al id de su <section>
+    indice = re.search(r'<nav class="toc[^"]*" aria-label="En esta página">(.*?)</nav>', html, re.S).group(1)
+    anclas = re.findall(r'href="/metodologia#([\w-]+)">([^<]+)</a>', indice)
+    assert [titulo for _, titulo in anclas] == list(SECCIONES)
+    for ancla, titulo in anclas:
+        assert re.search(rf'<section id="{ancla}" class="card[^"]*">\s*<h2>{re.escape(titulo)}</h2>', html)
+
+
+def test_page_stats_come_from_methodology(client, payload):
+    html = client.get("/metodologia").get_data(as_text=True)
+    esquema_a = payload["validation"][0]
+    cobertura = next(f for f in payload["interval_coverage"] if f["group"] == "global")
+    indicadores = re.search(r'<dl class="stat-grid[^"]*"[^>]*>(.*?)</dl>', html, re.S).group(1)
+    valores = re.findall(r'<dd class="stat__value">([^<]+)', indicadores)
+    assert [v.strip() for v in valores] == [f"{esquema_a['rmse']:.3f}", f"{esquema_a['r2']:.3f}",
+                                           f"{cobertura['coverage'] * 100:.1f} %", str(payload["model"]["n_train"])]
+    assert "Meta 80 %" in indicadores
+
+
+def test_page_charts_have_table_below(client):
+    html = client.get("/metodologia").get_data(as_text=True)
+    figuras = re.findall(r'<figure class="method-figure">(.*?)</figure>\s*<details class="disclosure">\s*'
+                         r'<summary>Ver tabla</summary>(.*?)</details>', html, re.S)
+    # Cinco gráficas, cada una con su versión ancha y angosta, su pie y su tabla debajo
+    assert len(figuras) == 5
+    for figura, tabla in figuras:
+        assert "<figcaption>" in figura
+        assert figura.count('role="img"') == 2
+        assert figura.count("<title id=") == 2 and figura.count("<desc id=") == 2
+        assert '<table class="data' in tabla
+    # La página no usa JavaScript
+    assert "<script" not in html
+
+
+
+def resumen(html):
+    return re.search(r'<section class="card method__summary"[^>]*>(.*?)</section>', html, re.S).group(1)
+
+
+def test_page_summary_comes_from_methodology(client, payload):
+    html = client.get("/metodologia").get_data(as_text=True)
+    bloque = resumen(html)
+    # Va antes de los indicadores y responde tres preguntas
+    assert html.index("En resumen") < html.index('<dl class="stat-grid')
+    assert re.findall(r"<dt>([^<]+)</dt>", bloque) == ["Qué hace", "Qué tan bien funciona", "Para qué no sirve"]
+    # Las cifras salen de la validación, no del texto de la plantilla
+    esquema_a = payload["validation"][0]
+    cobertura = next(f for f in payload["interval_coverage"] if f["group"] == "global")
+    assert f"su error típico (RMSE) es de {esquema_a['rmse']:.3f} t/ha" in bloque
+    assert f"contuvo el rendimiento real en {cobertura['coverage'] * 100:.1f} % de las parcelas" in bloque
+    assert "verificación en campo" in bloque and "sequía, helada o plaga" in bloque
+    # Definiciones cortas junto al resumen, con enlace a las completas
+    assert '<details class="help-inline">' in bloque and 'href="/metodologia#terminos"' in bloque
+
+
+# Detalle técnico plegado: título del <summary> y una frase de su contenido, que debe seguir en el HTML
+PLEGADAS = {"Confianza frente a error": "Sin vecinos, el error absoluto sube",
+            "Margen de azar de la calificación": "es compatible con el mismo modelo",
+            "Otras variables que se probaron": "Cuando el régimen no está presente"}
+
+
+def plegadas(html):
+    # Cada <details class="disclosure method-more">: título y contenido, con sus <details> internos.
+    # Va hasta el siguiente plegado o hasta el fin de su sección
+    partes = html.split('<details class="disclosure method-more">')[1:]
+    salida = {}
+    for parte in (p.split("</section>")[0] for p in partes):
+        titulo = re.search(r'<span class="method-more__title">([^<]+)</span>', parte).group(1)
+        salida[titulo] = parte
+    return salida
+
+
+def test_page_technical_details_are_folded(client):
+    html = client.get("/metodologia").get_data(as_text=True)
+    bloques = plegadas(html)
+    for titulo, frase in PLEGADAS.items():
+        assert titulo in bloques
+        # Una línea de qué responde, y el contenido sigue en la página aunque esté plegado
+        assert re.search(r'<span class="method-more__hint">¿[^<]+\?</span>', bloques[titulo])
+        assert frase in bloques[titulo]
+        assert f"<h3>{titulo}</h3>" not in html
+    # Lo esencial queda a la vista, como subsección con su título
+    for titulo in ("Esquemas A y B", "Cobertura del intervalo p10 a p90"):
+        assert f"<h3>{titulo}</h3>" in html
+
+
+def test_page_limitations_top_three_and_rest_folded(client):
+    html = client.get("/metodologia").get_data(as_text=True)
+    seccion = re.search(r'<section id="limitaciones"[^>]*>(.*?)</section>', html, re.S).group(1)
+    vista = re.search(r'<ul class="limits limits--main">(.*?)</ul>', seccion, re.S).group(1)
+    assert re.findall(r"<strong>([^<]+)\.</strong>", vista) == ["Un solo año", "Rendimiento declarado",
+                                                               "Régimen inferido"]
+    # El resto va plegado, con el número calculado, y ninguna se pierde
+    todas = re.findall(r"<li><strong>([^<]+)\.</strong>", seccion)
+    assert len(todas) == 10 and len(set(todas)) == 10
+    assert f"Ver las {len(todas) - 3} limitaciones restantes" in seccion
+    assert "Parcelas pequeñas" in plegadas(html)["Ver las 7 limitaciones restantes"]
+
 def test_api_structure_is_strict_json(payload):
     assert set(payload) >= {"model", "validation", "interval_coverage", "confidence_vs_error",
                             "chance_margin", "final_model_contributions", "other_groups"}
@@ -132,4 +232,13 @@ def test_missing_outputs_omit_sections(client, sin_outputs):
     assert payload["model"] is not None  # el modelo no depende de outputs/
     res = client.get("/metodologia")
     assert res.status_code == 200
-    assert "no está disponible" in res.get_data(as_text=True)
+    html = res.get_data(as_text=True)
+    assert "no está disponible" in html
+    # Las gráficas que dependen de outputs/ desaparecen con su tabla; la del modelo se queda
+    assert html.count('<figure class="method-figure">') == 1
+    assert "RMSE del modelo y de la media por régimen" in html
+    # El resumen se queda con lo que hay: el error del modelo, sin la cobertura que falta
+    bloque = resumen(html)
+    assert "su error típico (RMSE) es de" in bloque and "contuvo el rendimiento real" not in bloque
+    # Las secciones plegadas conservan su aviso
+    assert "no está disponible" in plegadas(html)["Margen de azar de la calificación"]

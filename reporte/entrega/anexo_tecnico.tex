@@ -1,10 +1,10 @@
-% Anexo técnico del Reto AgroCebada FIRA 2026. Máximo 4 cuartillas de contenido, más las referencias, con la tabla de
-% ID y rendimiento predicho.
+% Anexo técnico del Reto AgroCebada FIRA 2026. Máximo 4 cuartillas, con la tabla de ID y rendimiento predicho. Las
+% referencias van en su propio PDF (bibliografia.tex).
 % Sigue la plantilla oficial de IEEE para conferencias (bare_conf.tex de IEEEtran v1.8b).
 % cite.sty e IEEEtran.cls van en esta carpeta porque no vienen en el TeX Live instalado.
 % Compilar desde reporte/entrega (dos veces):
 %   xelatex -interaction=nonstopmode anexo_tecnico.tex && xelatex -interaction=nonstopmode anexo_tecnico.tex
-% Las referencias van al final del mismo archivo (referencias.tex, que genera plataforma.py).
+% referencias.tex lo genera plataforma.py y se imprime solo en bibliografia.pdf.
 \documentclass[conference,letterpaper]{IEEEtran}
 \usepackage{fontspec}
 \setmainfont{TeX Gyre Termes}
@@ -36,7 +36,7 @@
 
 \title{Anexo técnico. Rendimiento de cebada de temporal\\con régimen de registro y rezago espacial}
 
-\author{\IEEEauthorblockN{José Alán Pomares Valdés, Vicente Josimar López Martínez, Luis Emmanuel Ramiro Luna\\y Luis Gustavo Olivares Soto (asesor)}
+\author{\IEEEauthorblockN{J.~A. Pomares Valdés, V.~J. López Martínez, L.~E. Ramiro Luna y L.~G. Olivares Soto (asesor)}
 \IEEEauthorblockA{Facultad de Ciencias de la Computación, Benemérita Universidad Autónoma de Puebla\\Puebla, México, 
 pv202351433@alm.buap.mx}}
 
@@ -44,45 +44,55 @@ pv202351433@alm.buap.mx}}
 
 
 \begin{abstract}
-Buscamos predecir el rendimiento de 59 parcelas de cebada de temporal a partir de 138 con rendimiento conocido. Vimos
-que cada municipio registra el rendimiento de una de dos formas, con medias muy distintas, y que esa diferencia pesa
-más que cualquier variable satelital, climática o topográfica. Sobre ella construimos el modelo de parcelas, y como
-solo sirve cerca de parcelas con rendimiento conocido, agregamos un modelo municipal con datos públicos de 2003 a 2025
-para toda la región. El primero es un proceso gaussiano~\cite{rasmussen2006} con el régimen de registro y el
-rendimiento de las parcelas vecinas, con raíz del error cuadrático medio (RMSE)~\cite{chai2014} esperada de 0.46 a
-0.49\,t/ha. El segundo es una regresión sobre la temperatura máxima de verano con un kriging~\cite{oliver2014} de sus
-errores, con RMSE de 0.44\,t/ha en municipios sin datos cercanos. La Tabla~\ref{tab:predicciones} lista el ID y el rendimiento predicho de las 59 parcelas. El detalle está
-en los reportes del equipo~\cite{doc_contexto,doc_modelo,doc_generalizable} y el código en su repositorio~\cite{repo}.
+Predecimos el rendimiento de 59 parcelas de cebada de temporal a partir de 138 con rendimiento conocido. Cada
+municipio registra el rendimiento de una de dos formas, y esa diferencia pesa más que cualquier variable satelital,
+climática o topográfica. El modelo de parcelas es un proceso gaussiano~\cite{rasmussen2006} con ese régimen de
+registro y el rendimiento de las parcelas vecinas, con raíz del error cuadrático medio (RMSE)~\cite{chai2014}
+esperada cercana a 0.49\,t/ha, casi igual a la de la media por régimen. Un modelo municipal con datos públicos de
+2003 a 2025, una regresión sobre la temperatura máxima de verano con un kriging~\cite{oliver2014} de sus errores,
+extiende la estimación a toda la región con RMSE de 0.44\,t/ha en promedios municipales, que no se compara con el de
+parcelas (Sección~\ref{sec:municipal}). La Tabla~\ref{tab:predicciones} lista el ID y el rendimiento predicho de las 59 parcelas. El detalle está
+en los reportes del equipo~\cite{doc_contexto,doc_modelo,doc_generalizable}, el código en su repositorio~\cite{repo}
+y las referencias en el archivo de bibliografía.
 \end{abstract}
 
 \begin{IEEEkeywords}
 rendimiento de cebada, régimen de registro, rezago espacial, proceso gaussiano, kriging, datos públicos, crédito agrícola.
 \end{IEEEkeywords}
 
-% La tabla obligatoria se define aquí para que quede arriba de la página 2.
-\input{tabla_predicciones}
-
 \section{Dos formas de registrar el rendimiento}
 
 \begin{figure}[!b]
 \centering
-\includegraphics[width=0.66\columnwidth]{f1_regimenes}
-\caption{Rendimiento de las 138 parcelas de entrenamiento por municipio. Cada municipio cae en un solo régimen. Las
-líneas punteadas son la media de cada régimen.}
+\includegraphics[width=\columnwidth]{f1_regimenes}
+\caption{Rendimiento de las 138 parcelas de entrenamiento por municipio y estado. Los valores del B se apilan en pocos
+números por el redondeo. Las líneas punteadas son la media de cada régimen.}
 \label{fig:regimenes}
 \end{figure}
 
-Cada municipio registra el rendimiento de una sola forma (Fig.~\ref{fig:regimenes}). En el régimen A los valores
+Cada municipio registra el rendimiento de una sola forma (Fig.~\ref{fig:regimenes})~\cite{doc_contexto}. En el régimen A los valores
 tienen dos decimales y promedian 4.49\,t/ha. En el B tienen un decimal y promedian 3.05\,t/ha. La diferencia entre
 medias, 1.4\,t/ha, es casi tres veces la desviación estándar dentro de cada régimen. Por eso el régimen es la primera
-pieza del modelo. No sabemos si el rendimiento se midió distinto o solo se anotó distinto (Sección~VIII).
+pieza del modelo. El B ocupa el sur y Singuilucan, a 9\,km de parcelas del A, y ninguna variable de clima, altitud,
+suelo o calendario que probamos explica la diferencia~\cite{doc_regimenes}.
+Así que no sabemos si el rendimiento se midió distinto o solo se anotó distinto (Sección~\ref{sec:alcance}).
+
+% La tabla obligatoria se define después del primer párrafo para que quede arriba de la columna siguiente, después
+% del resumen.
+\input{tabla_predicciones}
 
 
 \textbf{El régimen supera a la media por municipio.} La media
 por municipio se acerca a la del régimen en el esquema A, una validación cruzada~\cite{hastie2009} con 5 grupos
 estratificados por municipio repetida 10 veces como la partición de FIRA. Cuando la validación deja fuera zonas
-completas~\cite{roberts2017} (esquema B) sube a 0.955\,t/ha. El régimen se
-asigna por municipio y las 59 parcelas de prueba están en municipios con entrenamiento.
+completas~\cite{roberts2017} (esquema B) sube a 0.955\,t/ha, mientras la del régimen se mantiene en
+0.489~\cite{doc_modelo}. El régimen generaliza a zonas nuevas y el municipio no.
+
+\textbf{Cómo se asigna el régimen.} Es una regla fija por municipio, porque los decimales fallan en 7 de las 87
+parcelas del A, que tienen uno solo. La decidimos una vez con las 138 etiquetas, sin recalcularla en cada partición. En
+los cuatro municipios con una a tres parcelas, seis en total, el régimen salió de su propia etiqueta y de la cercanía
+a municipios del mismo formato. Sin ellas el RMSE pasa de 0.458 a 0.464\,t/ha~\cite{doc_modelo}. Las 59 de prueba están en municipios
+con entrenamiento, así que su régimen nunca usa su rendimiento.
 
 
 \section{Modelo}
@@ -94,18 +104,12 @@ inversa~\cite{shepard1968}
 \ell_i = \frac{\sum_{j\in\mathcal{N}_i} y_j / d_{ij}}{\sum_{j\in\mathcal{N}_i} 1 / d_{ij}},
 \label{eq:rezago}
 \end{equation}
-donde $\mathcal{N}_i$ son hasta 10 parcelas de entrenamiento del mismo régimen a 400\,m o menos, $y_j$ su rendimiento y
-$d_{ij}$ la distancia. Sin vecinos, $\ell_i$ es la media del régimen en el entrenamiento. La parcela evaluada nunca
-entra en su propio rezago. Elegimos 400\,m porque es el radio con menor error (Fig.~\ref{fig:radio}), aunque es el único bajo la media por
-régimen y por eso la ventaja es frágil. La validación anidada~\cite{varma2006} cobra esa elección
-(Sección~\ref{sec:confiabilidad}).
-
-\begin{figure}[!htb]
-\centering
-\includegraphics[width=0.60\columnwidth]{f3_radio}
-\caption{RMSE según el radio de búsqueda de vecinos, con la fracción de parcelas que tiene al menos un vecino.}
-\label{fig:radio}
-\end{figure}
+donde $\mathcal{N}_i$ son hasta 10 parcelas de entrenamiento del mismo régimen a 400\,m o menos, el radio con menor
+error en la validación~\cite{doc_modelo}, $y_j$ su rendimiento y
+$d_{ij}$ la distancia. Sin vecinos, $\ell_i$ es la media del régimen en el entrenamiento. En la validación el rezago
+de una parcela de prueba usa solo el entrenamiento de esa partición, así que quedan fuera ella y todo su grupo de
+prueba, y dentro del entrenamiento cada parcela se excluye de su propio rezago. La validación
+anidada~\cite{varma2006} cobra también la elección del radio (Sección~\ref{sec:confiabilidad}).
 
 
 
@@ -118,7 +122,8 @@ k(\mathbf{x},\mathbf{x}') = \sigma_f^2 \exp\!\left(-\frac{\lVert\mathbf{x}-\math
 \end{equation}
 donde $\lambda$ es la escala de parecido, $\sigma_f^2$ la variación explicada y $\sigma_n^2$ el ruido~\cite{rasmussen2006}.
 Los tres se ajustan por máxima verosimilitud solo con el entrenamiento de cada grupo de validación. Con las 138
-parcelas y el rendimiento estandarizado, $\sigma_n^2$ queda en 0.26, cerca de una cuarta parte de la variación.
+parcelas y el rendimiento estandarizado, $\sigma_n^2$ queda en 0.26, cerca de una cuarta parte de la
+variación~\cite{doc_modelo}.
 
 \textbf{Intervalo de predicción.} Con predicción conformal de Mondrian~\cite{vovk2005,lei2018}, el intervalo de la
 parcela $i$ del régimen $g$ es
@@ -127,57 +132,77 @@ parcela $i$ del régimen $g$ es
 \label{eq:intervalo}
 \end{equation}
 donde $r_g$ son los errores fuera de grupo con signo, $r = y - \hat y$, del régimen $g$ en las 10 repeticiones, y $q_\alpha$ su cuantil. Calibramos por régimen porque sus errores se distribuyen distinto.
+Cada parcela aporta 10 errores parecidos, así que la calibración equivale a 87 parcelas en el A y 51 en el B~\cite{doc_modelo}. Por eso
+la cobertura se mide remuestreando parcelas y no errores (Sección~\ref{sec:confiabilidad}).
 
 \section{Por qué cada pieza}
 
 Una idea entra solo si baja el RMSE en al menos 7 de 10 repeticiones y pasa una prueba de permutación~\cite{ojala2010}
 con $p\le0.05$, donde $p$ es la probabilidad de ver una mejora igual o mayor si las variables no tuvieran relación con
 el rendimiento~\cite{wasserstein2016}. Esa prueba revuelve 50 veces las variables nuevas dentro de cada régimen, sin tocar el
-rendimiento. Ningún bloque satelital, climático o topográfico pasó esa regla (Fig.~\ref{fig:bloques}).
+rendimiento. El rezago obtuvo $p=0.02$, el mínimo posible con 50 permutaciones, y $p=0.01$ con 200, y se sostiene al
+controlar las comparaciones múltiples con el criterio de Benjamini y Hochberg~\cite{benjamini1995,doc_modelo}. La
+validación anidada cobra además todas las elecciones (Sección~\ref{sec:confiabilidad}). Ningún bloque satelital, climático o topográfico pasó la regla (Fig.~\ref{fig:bloques}).
 
 \begin{figure}[!htb]
 \centering
-\includegraphics[width=0.60\columnwidth]{f4_bloques}
+\includegraphics[width=0.7\columnwidth]{f4_bloques}
 \caption{RMSE al agregar cada bloque de variables al modelo con régimen y rezago (línea punteada). Ninguno pasa la regla de decisión.}
 \label{fig:bloques}
 \end{figure}
 
 
 
-Con las entradas fijas comparamos algoritmos~\cite{doc_modelo}. Los modelos de árboles de decisión~\cite{hastie2009} quedan peor que la media por
-régimen. El proceso gaussiano obtiene el
-menor error, aunque no supera de forma significativa a un modelo lineal con las mismas entradas (Tabla~\ref{tab:error}).
+Con las entradas fijas, el proceso gaussiano obtuvo el menor error entre los algoritmos comparados~\cite{doc_modelo}
+(Tabla~\ref{tab:error}).
 
 
 
 \section{Confiabilidad del error}\label{sec:confiabilidad}
 
-\textbf{La ventaja sobre la media por régimen es pequeña y no concluyente.} Con las mismas particiones
-(Tabla~\ref{tab:error}) el modelo final obtiene un RMSE de 0.458\,t/ha y la media por régimen 0.489. La prueba $t$
-corregida de Nadeau y Bengio~\cite{nadeau2003}, que toma en cuenta que las particiones comparten parcelas, da $p=0.26$,
-así que una diferencia de 0.03\,t/ha es común aun sin ventaja real. Frente al lineal da $p=0.38$. El $p=0.02$ de la
-tabla viene de la prueba de permutación y solo indica que el rezago contiene información.
+\begin{figure}[!b]
+\centering
+\includegraphics[width=0.7\columnwidth]{f6_observado_predicho}
+\caption{Rendimiento declarado contra predicción fuera de grupo, promedio de las 10 repeticiones. La línea punteada es
+la identidad.}
+\label{fig:observado}
+\end{figure}
 
-\textbf{Elegir el mejor modelo también tiene un costo.} Quedarnos con la mejor de 12 variantes favorece a la que tuvo
-suerte con esas particiones~\cite{cawley2010}. La validación anidada repite la elección dentro de cada partición sin
-ver las parcelas evaluadas y da 0.490, igual que la media por régimen. Por eso esperamos de 0.46 a 0.49\,t/ha en
-parcelas nuevas.
+\textbf{Elegir el mejor modelo también tiene un costo.} El modelo final obtiene un RMSE de 0.458\,t/ha
+(Tabla~\ref{tab:error}), pero quedarnos con la mejor de 12 variantes favorece a la que tuvo suerte con esas
+particiones~\cite{cawley2010}. La validación anidada repite la elección dentro de cada partición sin ver las parcelas
+evaluadas y da 0.490~\cite{doc_modelo}, prácticamente igual a la media por régimen (0.489). Por eso el error que
+esperamos en las 59 parcelas ronda 0.49\,t/ha. El 0.458 es optimista, porque no cobra haber elegido el modelo, y no
+lo damos como un error asegurado.
+
+\textbf{Cómo medimos la ventaja sobre la media por régimen.} La Fig.~\ref{fig:observado} compara la predicción de
+cada parcela, hecha sin verla, con su rendimiento declarado. El régimen separa los dos niveles y el rezago corrige
+dentro de cada uno~\cite{doc_modelo}. Aun sin cobrar la elección, entre el 0.458 y el 0.489 de las mismas particiones
+la prueba $t$ corregida de Nadeau y Bengio~\cite{nadeau2003}, que toma en cuenta que comparten parcelas, da
+$p=0.26$~\cite{doc_modelo}, así que con 138 parcelas una diferencia de 0.03\,t/ha todavía puede deberse al azar.
 
 \textbf{Con 59 parcelas el azar pesa más que esas diferencias.} Lo medimos con un bootstrap~\cite{efron1993}, que
 sortea con reemplazo los errores observados, 37 del régimen A y 22 del B como en la partición oficial. El 90\,\% de
-5000 sorteos cae entre 0.35 y 0.56\,t/ha.
+5000 sorteos cae entre 0.35 y 0.56\,t/ha. Ese sorteo trata las parcelas como independientes, pero sus errores apenas
+se correlacionan (0.14 a 400\,m o menos) y sorteando grupos de parcelas cercanas el rango casi no cambia, de 0.33 a
+0.55~\cite{doc_modelo}.
 
 \textbf{El intervalo de predicción cubre lo esperado.} El intervalo del percentil 10 al 90 debería contener el
-rendimiento real en 80\,\% de los casos, y en la validación, sin usar la parcela evaluada, lo contiene en 83\,\%.
+rendimiento real en 80\,\% de los casos. En la validación anidada, sin usar la parcela evaluada ni para ajustar ni
+para calibrar, lo contiene en 83\,\%, con un intervalo de confianza del 95\,\% de 77 a 88\,\% al remuestrear
+parcelas~\cite{doc_modelo}.
 
-\textbf{No hay fuga de información.} Hay fuga cuando el rendimiento de una parcela se cuela en sus propias variables, y
-entonces el modelo acertaría aun con los rendimientos revueltos~\cite{kaufman2012}. Revueltos dentro de cada régimen,
-el RMSE nunca baja de 0.485 en 20 sorteos, contra 0.467 con los reales.
+\textbf{Cómo verificamos la fuga de información.} Hay fuga cuando el rendimiento de una parcela se cuela en sus
+variables~\cite{kaufman2012}. La buscamos de tres formas. Auditamos el código para que todo lo que usa el rendimiento
+se calcule solo con el entrenamiento de cada partición. Una prueba automatizada verifica que cambiar las etiquetas de
+prueba no cambia sus predicciones. Y en una reimplementación independiente, con los rendimientos revueltos dentro de
+cada régimen, el RMSE no baja de 0.485 en 20 sorteos, contra 0.467 con los reales~\cite{doc_modelo}. Ninguna prueba descarta la fuga
+por completo, pero ninguna de las tres la encontró.
 
 
 \begin{table}[!t]
 \centering
-\caption{Qué mide cada cifra de error (t/ha)}
+\caption{Qué mide cada cifra de error (t/ha)~\cite{doc_modelo}}
 \label{tab:error}
 \footnotesize
 \begin{tabular}{@{}l@{}r@{}}
@@ -186,8 +211,8 @@ Qué se mide & RMSE \\
 \midrule
 Media por régimen, validación cruzada repetida & 0.489 \\
 Más rezago, lineal (mejora en 9 de 10, $p=0.02$) & 0.470 \\
-Proceso gaussiano (contra el lineal, $p=0.38$) & 0.458 \\
-Elegir entre 12 variantes, validación anidada & 0.490 \\
+Proceso gaussiano, modelo final & 0.458 \\
+Error esperado: elegir entre 12, anidada & 0.490 \\
 Azar con 59 parcelas (90\,\% de 5000 sorteos)\quad & 0.35 a 0.56 \\
 \bottomrule
 \end{tabular}
@@ -196,22 +221,16 @@ Azar con 59 parcelas (90\,\% de 5000 sorteos)\quad & 0.35 a 0.56 \\
 
 \section{Preguntas guía}
 
-Las bases del reto plantean tres preguntas guía~\cite{bases}. El modelo final no usa índices ni clima, así
-que no puede ordenarlos. Para responder usamos un bosque aleatorio~\cite{breiman2001} de análisis con todas las variables y medimos cuánto
-sube su RMSE al revolver los valores de cada índice (Fig.~\ref{fig:indices}).
-
-\textbf{Índice satelital.} Sin el régimen, el índice de vegetación NDVI~\cite{tucker1979} es el más importante. Con régimen y rezago presentes, el índice de sequía NDDI~\cite{gu2007} es el mayor, con apenas
-0.004\,t/ha.
-
-\textbf{Variable climática.} En las parcelas ninguna aporta una vez conocido el régimen. A escala regional la de mayor
-peso es la temperatura máxima (Tmax) de julio y agosto~\cite{verdin2020} (Sección~\ref{sec:municipal}).
-
-\textbf{Combinación.} Régimen más rezago espacial. Conservamos el rezago porque no empeora el error, usa información local cuando la hay y pasó la regla de
-decisión fijada de antemano.
+El modelo final no usa índices ni clima, así que para las tres preguntas de las bases~\cite{bases} usamos un bosque
+aleatorio~\cite{breiman2001} de análisis y medimos cuánto sube su RMSE al revolver cada índice (Fig.~\ref{fig:indices}).
+\textbf{Índice satelital.} Sin el régimen es el NDVI~\cite{tucker1979}, y con régimen y rezago el índice de sequía
+NDDI~\cite{gu2007}, con apenas 0.004\,t/ha~\cite{doc_modelo}. \textbf{Variable climática.} En las parcelas ninguna aporta una vez
+conocido el régimen, y a escala regional es la temperatura máxima (Tmax) de julio y agosto
+(Sección~\ref{sec:municipal}). \textbf{Combinación.} Régimen más rezago espacial, que pasó la regla de decisión.
 
 \begin{figure}[!htb]
 \centering
-\includegraphics[width=0.60\columnwidth]{f11_indices}
+\includegraphics[width=0.72\columnwidth]{f11_indices}
 \caption{Aumento del RMSE al revolver cada índice~\cite{ecuaciones} en el bosque de análisis, sin régimen (izquierda) y con régimen y
 rezago (derecha). Las escalas horizontales son distintas.}
 \label{fig:indices}
@@ -222,7 +241,8 @@ rezago (derecha). Las escalas horizontales son distintas.}
 
 El modelo de parcelas solo sirve donde hay parcelas con rendimiento cerca. Para estimar en toda la región usamos el
 rendimiento municipal del Servicio de Información Agroalimentaria y Pesquera (SIAP)~\cite{siap} de 2003 a 2025 en
-Hidalgo, México, Puebla y Tlaxcala, con 100 municipios con historia, y la Tmax de julio y agosto~\cite{verdin2020}. La unidad es el municipio,
+Hidalgo, Puebla, Tlaxcala y el Estado de México, que comparte el altiplano cebadero y aporta datos de entrenamiento,
+con 100 municipios con historia, y la Tmax de julio y agosto de CHIRTS-ERA5~\cite{chirts}. La unidad es el municipio,
 con el promedio de sus años, porque los años de un mismo municipio no son independientes. El rendimiento esperado del
 municipio $m$ es
 \begin{equation}
@@ -230,17 +250,21 @@ municipio $m$ es
 \label{eq:municipal}
 \end{equation}
 donde $T_m$ es su Tmax y $\hat e$ un kriging de los errores de la regresión~\cite{oliver2014}, con covarianza Matérn~\cite{rasmussen2006}
-ajustada en cada partición. Lejos de los datos queda solo la predicción por clima.
+ajustada en cada partición. Lejos de los datos queda solo la predicción por clima~\cite{doc_generalizable}.
 
-\textbf{Funciona en lugares sin datos.} Predecimos zonas completas sin usar municipios a menos de 50\,km~\cite{roberts2017}.
-Ahí el modelo obtiene un RMSE de 0.44\,t/ha, contra 0.57 del kriging de vecinos, que no usa
-clima (Fig.~\ref{fig:municipal_modelos}). El intervalo de confianza del 95\,\% de la diferencia va de $-0.18$ a $-0.09$. Cada municipio pesa según su superficie sembrada, porque FIRA opera donde hay más, y la
-tendencia de los años se estima solo con el entrenamiento. Al repetir
-de forma anidada la elección de la variable la ventaja baja a unos 0.07\,t/ha. Con vecinos cerca ambos empatan.
+\textbf{Funciona en lugares sin datos.} Predecimos zonas completas sin usar municipios a menos de
+50\,km~\cite{roberts2017}, para simular un municipio sin datos cerca. Ahí el modelo obtiene un RMSE de 0.44\,t/ha,
+contra 0.49 de la Tmax sola y 0.57 del kriging de vecinos, sin clima, así que las dos piezas aportan
+(Fig.~\ref{fig:municipal_modelos}). Mide promedios municipales de varios años, que varían menos que una
+parcela en un año, y por eso no se compara con el error del modelo de parcelas. Como las 10 repeticiones comparten
+municipios, el intervalo de confianza del 95\,\% de la diferencia con el kriging remuestrea los 100 municipios y va
+de $-0.18$ a $-0.09$. Cada municipio pesa según su superficie sembrada,
+porque ahí se concentra la producción, y la tendencia de los años se estima solo con el entrenamiento. Al repetir de
+forma anidada la elección de la variable la ventaja sigue a favor, con unos 0.07\,t/ha~\cite{doc_generalizable}.
 
 \begin{figure}[!htb]
 \centering
-\includegraphics[width=\columnwidth]{g_modelos_simple}
+\includegraphics[width=0.84\columnwidth]{g_modelos_simple}
 \caption{Error de 13 modelos al predecir municipios sin datos del SIAP a menos de 50\,km, ponderado por superficie. En naranja el kriging de vecinos y en azul el modelo final. Lasso~\cite{tibshirani1996} y ridge~\cite{hoerl1970} usan 14 variables.}
 \label{fig:municipal_modelos}
 \end{figure}
@@ -248,68 +272,65 @@ de forma anidada la elección de la variable la ventaja baja a unos 0.07\,t/ha. 
 
 
 \textbf{El calor de verano es la variable climática clave.} Cada grado más de Tmax se asocia con 0.79\,t/ha menos de
-rendimiento (Fig.~\ref{fig:dispersion}), lo que concuerda con el daño del calor al llenado del grano~\cite{passarella2002}.
-En los 9 municipios del reto la Tmax solo va de 23.3 a 23.9\,$^\circ$C. Por eso el clima no ayudó al modelo de parcelas.
+rendimiento, lo que concuerda con el daño del calor al llenado del grano~\cite{passarella2002}. En los 9 municipios
+del reto la Tmax solo va de 23.3 a 23.9\,$^\circ$C~\cite{doc_generalizable}. Por eso el clima no ayudó al modelo de
+parcelas.
+
+
+
+\textbf{Mapa regional.} Como el modelo solo usa la Tmax, el mapa de los tres estados del reto (Fig.~\ref{fig:mapas})
+da un valor a los 202 de sus 361 municipios con la Tmax de julio y agosto dentro del rango de los 100 con SIAP, de
+23.0 a 25.7\,$^\circ$C, donde interpola. La Tmax baja con la altitud (correlación de $-0.98$): esos 202 están en el
+altiplano, a 2,340\,m en promedio, y los otros 159, a 1,230\,m, en las zonas bajas del norte de Hidalgo y de Puebla y
+del sur de Puebla~\cite{repo}. Son más cálidos que cualquier municipio con cebada registrada, así que la recta
+extrapola y no damos un valor puntual, sino que el modelo espera menos de 1.1\,t/ha. Por si la combinación de variables es
+rara, medimos la distancia al municipio con SIAP más parecido en Tmax, lluvia y elevación~\cite{meyer2021}, y
+45 de los 126 sin SIAP quedan lejos de todos~\cite{repo}. La confianza es alta en los 76 con
+SIAP, media en los de temporal a 25\,km o menos de uno de ellos, la distancia a la
+que 97 de los 100 con SIAP tienen otro, y baja en el resto, donde
+solo cuenta el clima~\cite{doc_generalizable,repo}.
 
 \begin{figure}[!htb]
 \centering
-\includegraphics[width=0.60\columnwidth]{g_dispersion}
-\caption{Rendimiento municipal llevado a 2025 contra la Tmax de julio y agosto y la lluvia de mayo a octubre. El tamaño del punto crece con la superficie sembrada.}
-\label{fig:dispersion}
-\end{figure}
-
-
-
-\textbf{Mapa regional.} La Fig.~\ref{fig:mapas} muestra el rendimiento esperado y la probabilidad de quedar bajo
-2\,t/ha. De los 486 municipios de la región mostramos 268, los que tienen la Tmax, la lluvia, la elevación y el suelo dentro del mínimo
-y el máximo de los 100 municipios con SIAP~\cite{meyer2021}. La probabilidad usa los errores anuales de otras
-zonas, reescalados a la variación del municipio. Sin ponderar predice 0.48 contra 0.41 observado, así que es una guía
-preliminar. La confianza es alta en los 100 con SIAP, media en los de temporal a 25\,km o menos de uno de ellos y
-baja en el resto, donde solo cuenta el clima.
-
-\begin{figure}[!htb]
-\centering
-\includegraphics[width=0.60\columnwidth]{g5_mapa_a}
-\caption{Rendimiento esperado en 2025. Rayado de puntos, confianza media, y de líneas, baja. En gris, ambiente fuera del rango de los datos.}
+\includegraphics[width=0.63\columnwidth]{g5_mapa_a}
+\caption{Rendimiento esperado en 2025. El tono más claro incluye los municipios más cálidos que cualquiera con SIAP.}
 \label{fig:mapas}
 \end{figure}
 
-\begin{figure}[!htb]
-\centering
-\includegraphics[width=0.60\columnwidth]{g5_mapa_b}
-\caption{Probabilidad de quedar bajo 2\,t/ha en un año cualquiera. Rayado y gris como en la Fig.~\ref{fig:mapas}.}
-\label{fig:mapas_prob}
-\end{figure}
 
-
-\section{Capa de crédito}
+\section{Capa de crédito}\label{sec:credito}
 
 La probabilidad de no cubrir un umbral $u$, que puede ser el crédito o el costo total por hectárea entre el precio, es
 \begin{equation}
 P = q + (1-q)\,\Pr\!\left(\hat y_i + r_g < u\right),
 \label{eq:credito}
 \end{equation}
-donde $q$ es la fracción de superficie que el municipio pierde históricamente~\cite{siap2026} y la segunda parte usa
-los mismos errores de~\eqref{eq:intervalo}. Si la cosecha se pierde el ingreso es cero, por eso se suma $q$. Es una ilustración al cierre de 2025
-(Sección~VIII). Antes de la siembra solo se conoce el régimen, y los $r_g$ son errores entre parcelas de 2025 que no
-incluyen la variación entre años, de la que $q$ y el modelo municipal capturan una parte.
+donde $q$ es la fracción de la superficie sembrada que el municipio no cosechó de 2003 a 2025~\cite{siap} y la segunda parte usa
+los mismos errores de~\eqref{eq:intervalo}. Si la cosecha se pierde el ingreso es cero, por eso se suma $q$. Usarla como
+probabilidad de perder la cosecha supone que el siniestro afecta parcelas completas, y entonces equivale a la
+probabilidad de perder una hectárea cualquiera. Si una parcela pierde solo una parte, $P$ exagera su riesgo de
+ingreso cero, no su pérdida esperada. Es una ilustración al
+cierre de 2025, porque el rezago usa rendimientos de vecinos que solo existen tras su cosecha, y los $r_g$ no incluyen
+la variación entre años.
 
-\textbf{Los parámetros salen de fuentes públicas} (Tabla~\ref{tab:credito}). El precio es el medio rural del SIAP de
-2023 a 2025 en cada municipio, ponderado por la producción~\cite{siap}. El costo total y el crédito son los del paquete
-de temporal 2022 de AgroCostos para la zona~\cite{agrocostos}, actualizados a 2025 con el INPC~\cite{inpc}.
+\textbf{Parámetros públicos} (Tabla~\ref{tab:credito}). Precio medio rural del SIAP por municipio, promedio de 2023 a
+2025 para no depender de un solo año, y costo total y crédito del paquete de temporal 2022 de
+AgroCostos~\cite{agrocostos}, el más reciente publicado, llevados a 2025 con el INPC~\cite{inpc,repo}.
 
 \textbf{Un semáforo resume la probabilidad.} Es verde si $P<0.10$, amarillo si $0.10\le P<0.30$ y rojo si
-$P\ge0.30$. La probabilidad es el resultado principal y el semáforo solo la resume, con cortes que FIRA puede mover. Con el costo total casi todas salen en rojo, porque su umbral supera casi todas las predicciones. Con el
-crédito el color depende sobre todo del municipio, porque el precio, el crédito y $q$ son municipales. Las 29 parcelas
-de Chignahuapan salen en amarillo y las 6 rojas son de Singuilucan.
+$P\ge0.30$. Para un crédito es más costoso dar por segura una parcela riesgosa que revisar una segura, así que el verde
+exige el mismo 10\,\% que deja el intervalo bajo su p10, y el rojo empieza cuando no cubrir ocurre en casi uno de cada
+tres casos. Con el costo total casi todas salen en rojo, porque su umbral supera casi todas las predicciones.
 
-\textbf{El error del modelo en pesos.} El error de 0.46\,t/ha por el precio de cada municipio
-(Tabla~\ref{tab:credito}) da de 2,000 a 3,300\,pesos/ha, de 7 a 12\,\% del costo total y de 13 a 45\,\% del crédito. Sin
-sumar $q$, 18 parcelas, todas del régimen B, tienen $\Pr(y<2.5\,\text{t/ha})>0.10$.
+\textbf{El error del modelo en pesos.} El error esperado de 0.49\,t/ha por el precio de cada municipio
+(Tabla~\ref{tab:credito}) da de 2,100 a 3,500\,pesos/ha, de 7 a 13\,\% del costo total y de 14 a 47\,\% del
+crédito~\cite{repo}. Sin
+sumar $q$, 18 parcelas, todas del régimen B, tienen $\Pr(y<2.5\,\text{t/ha})>0.10$, donde 2.5\,t/ha es el percentil
+10 de ese régimen en el entrenamiento~\cite{doc_modelo}.
 
 \begin{table}[!t]
 \centering
-\caption{Parámetros de la capa de crédito en las 59 parcelas}
+\caption{Parámetros de la capa de crédito en las 59 parcelas~\cite{repo}}
 \label{tab:credito}
 \footnotesize
 \begin{tabular}{@{}l@{}r@{}}
@@ -327,58 +348,50 @@ Verde, amarillo y rojo con el costo total\quad & 0, 4 y 55 \\
 \end{tabular}
 \end{table}
 
-\section{Alcance y limitaciones}
+\section{Alcance y limitaciones}\label{sec:alcance}
 
-\textbf{El modelo de parcelas estima al cierre de la temporada.} El rezago usa rendimientos de vecinos de la misma
-temporada, que solo existen después de su cosecha. En otros municipios no se conoce el régimen, y ahí sirve el modelo
-de la Sección~\ref{sec:municipal}.
+\textbf{Sin vecinos la predicción es la del régimen.} Las 23 de las 59 parcelas sin un vecino de entrenamiento del
+mismo régimen a 400\,m o menos reciben 4.54\,t/ha en el A y 3.02 en el B~\cite{doc_modelo}.
 
-\textbf{Sin vecinos la predicción es la del régimen.} De las 59 parcelas, 36 tienen al menos un vecino de entrenamiento
-del mismo régimen a 400\,m o menos, 28 del A y 8 del B. Las otras 23 usan como rezago la media de su régimen y
-reciben 4.54\,t/ha en el A y 3.02 en el B. Con vecinos la corrección es chica, de 4.54 a 4.58\,t/ha en 31 de las 37 A.
+\textbf{El origen de los regímenes es incierto.} Suponemos que cada régimen es una fuente, la comercializadora o el
+productor~\cite{preguntas,doc_regimenes}, pero FIRA no dará la fuente por parcela. El SIAP 2023 a 2025 no muestra la brecha (2.51\,t/ha en los municipios A y
+2.48 en los B, contra 4.51 y 3.02 en el reto)~\cite{doc_regimenes}. Si el B solo se anotó distinto, la capa de crédito castigaría a sus
+municipios, por eso el semáforo se lee con el régimen.
 
-\textbf{El origen de los regímenes es incierto.} Según FIRA, la comercializadora reporta la mayoría de los
-rendimientos y el productor el resto~\cite{preguntas}, y suponemos que cada régimen es una
-fuente~\cite{doc_regimenes}, pero FIRA no dará la fuente por parcela. El SIAP de 2023 a 2025 no muestra la brecha, pues promedia 2.51\,t/ha en
-los municipios A y 2.48 en los B, contra 4.51 y 3.02 en el reto, así que el B se parece más. Si el B solo se anotó distinto, la capa de crédito
-castigaría a sus municipios, por eso el semáforo debe leerse junto con el régimen.
+\section{Aportaciones y uso de inteligencia artificial}
+
+\textbf{Vicente Josimar López Martínez}, aplicación web, levantamiento de necesidades, pruebas de uso y despliegue.
+\textbf{Luis Emmanuel Ramiro Luna}, video, guion, grabación y edición, y revisión del modelo con ideas que ayudaron a
+desarrollarlo. \textbf{José Alán Pomares Valdés}, datos, variables, validación, modelos, capa
+de crédito y redacción. \textbf{Luis Gustavo Olivares Soto}, asesor, revisión crítica de la metodología y
+la redacción. Usamos Claude Code~\cite{claudecode} para programar, auditar y redactar, y verificamos
+cada resultado. La Tabla~\ref{tab:ia} resume los prompts principales, y su texto completo está en el registro del
+equipo~\cite{prompts}.
 
 \begin{table}[!b]
 \centering
 \caption{Síntesis de los prompts principales}
 \label{tab:ia}
-\scriptsize\renewcommand{\arraystretch}{1.35}
-\begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.7cm}>{\raggedright\arraybackslash}p{4.25cm}@{}}
+\fontsize{6.5}{7.5}\selectfont\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{4.6cm}@{}}
 \toprule
 Prompt & Resultado y uso \\
 \midrule
-Identificar el problema del dataset. & Diagnóstico del ruido de las etiquetas. \\
+Identificar el problema del dataset. & Diagnóstico de los dos regímenes de registro. \\
 Proponer un plan de validación. & Regla de decisión fijada de antemano. \\
-Auditar el código del modelo. & Rezago con la propia etiqueta, corregido. \\
+Auditar el código del modelo. & Rezago calculado solo con el entrenamiento. \\
 Auditar de forma independiente. & Motivó el modelo municipal. \\
-Investigar qué explica los regímenes. & Hipótesis de fuente mixta, no confirmada. \\
+Investigar qué explica los regímenes. & Hipótesis de fuente mixta. \\
 Diseñar la capa de crédito. & Capa con supuestos revisados. \\
-Atender al asesor. & Auditoría sin fuga y correcciones. \\
+Atender al asesor. & Aclaraciones del anexo técnico. \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\section{Aportaciones y uso de inteligencia artificial}
-
-\textbf{Vicente Josimar López Martínez}, aplicación web, levantamiento de necesidades [por confirmar], pruebas de uso
-[por confirmar] y despliegue [por confirmar]. \textbf{Luis Emmanuel Ramiro Luna}, video, guion [por confirmar] y
-grabación y edición [por confirmar]. \textbf{José Alán Pomares Valdés}, datos, variables, validación, modelos, capa
-de crédito y redacción. \textbf{Luis Gustavo Olivares Soto}, asesor, revisión crítica de la metodología y
-la redacción. Usamos Claude Code~\cite{claudecode}, de Anthropic, para programar, auditar y redactar, y verificamos cada resultado
-(Tabla~\ref{tab:ia}).
 
 
-
-% Referencias en estilo IEEE, numeradas en orden de primera cita (las genera plataforma.py).
-
-\clearpage
-% Unas líneas más para que las referencias quepan en una página.
-\enlargethispage{5\baselineskip}
-\input{referencias}
+% Las referencias se entregan aparte, en bibliografia.pdf, como pidió FIRA. Aquí se cargan en una caja que no se
+% imprime solo para que cada \cite tenga su número (las genera plataforma.py, en orden de primera cita).
+\setbox0=\vbox{\input{referencias}}
 
 \end{document}

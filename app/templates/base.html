@@ -4,20 +4,25 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}AgroCebada | APP{% endblock %}</title>
-  {% block head %}{% endblock %}
+  {# main.css va primero: el CSS de cada página, cargado en el bloque head, puede ajustar sus reglas #}
   <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+  {% block head %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
   <header class="topbar">
-    <h1>AgroCebada</h1>
-    <p>Rendimiento de cebada por parcela en Puebla, Hidalgo y Tlaxcala.</p>
-    {# Enlaces de sección; el de la página actual lleva aria-current="page" #}
-    {% set sections = [("Mapa", "index"), ("Ejecutar el modelo", "run.page"), ("Metodología", "methodology.page")] %}
-    <nav class="nav" aria-label="Secciones">
-      {% for label, endpoint in sections %}
-      <a href="{{ url_for(endpoint) }}"{% if request.endpoint == endpoint %} aria-current="page"{% endif %}>{{ label }}</a>
-      {% endfor %}
-    </nav>
+    <div class="topbar__inner">
+      <div class="brand">
+        <h1 class="brand__name"><a href="{{ url_for('index') }}">AgroCebada</a></h1>
+        <p class="brand__tagline">Rendimiento de cebada por parcela en Puebla, Hidalgo y Tlaxcala.</p>
+      </div>
+      {# Enlaces de sección; el de la página actual lleva aria-current="page" #}
+      {% set sections = [("Mapa", "index"), ("Ejecutar el modelo", "run.page"), ("Metodología", "methodology.page")] %}
+      <nav class="nav" aria-label="Secciones">
+        {% for label, endpoint in sections %}
+        <a href="{{ url_for(endpoint) }}"{% if request.endpoint == endpoint %} aria-current="page"{% endif %}>{{ label }}</a>
+        {% endfor %}
+      </nav>
+    </div>
   </header>
   {% block content %}{% endblock %}
   {% block scripts %}{% endblock %}

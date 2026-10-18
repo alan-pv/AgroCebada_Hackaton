@@ -1,65 +1,962 @@
-/* Página del mapa: grupo de descargas y tamaños táctiles de la barra de controles.
-   base.html carga este archivo antes que main.css, así que los selectores de aquí tienen
-   más especificidad que las reglas de main.css que reemplazan (.btn y .controls select). */
+/* Página del mapa: barra de controles, indicadores, mapa, leyenda, tooltip, menú de descargas y panel lateral.
+   base.html carga este archivo después de main.css. */
 
-/* Grupo «Descargar»: el título y los dos botones se envuelven sin desbordar la barra */
-.map-page .download {
+/* Barra de controles: capa y filtros a la izquierda; «Descargar» a la derecha */
+
+.map-toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  padding: 0.6rem 16px;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  min-width: 0;
+}
+
+/* Cada control: rótulo pequeño a la izquierda y el selector a su lado */
+.field {
+  display: flex;
+  align-items: center;
   gap: 0.5rem;
+  min-width: 0;
 }
 
-.download__title {
-  font-size: 0.95rem;
+.field__label {
+  font-size: var(--t-xs);
   font-weight: 600;
+  color: var(--texto-suave);
+  white-space: nowrap;
 }
 
-/* Selectores y botones de al menos 44 px de alto, para tocarlos bien con el dedo.
-   border-box hace que el alto incluya el relleno y el borde del botón */
-.map-page .controls select {
-  box-sizing: border-box;
+/* Selectores con el aspecto de .select de main.css; 44 px de alto para tocarlos bien con el dedo */
+.controls select,
+.plist__sort select {
   min-height: 44px;
   max-width: 100%;
+  padding: 0.4rem 2rem 0.4rem 0.65rem;
+  border: 1px solid var(--control-borde);
+  border-radius: var(--radio-sm);
+  background: var(--tarjeta);
+  color: var(--texto);
+  font: inherit;
+  font-size: var(--t-sm);
 }
 
-.map-page .controls .btn {
-  box-sizing: border-box;
+#layer {
+  min-width: 13rem;
+}
+
+#state {
+  min-width: 8rem;
+}
+
+#municipality {
+  min-width: 11rem;
+}
+
+.map-toolbar__end {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+/* El botón que pliega la capa y los filtros solo se ve en el celular */
+.filters-toggle {
+  display: none;
+}
+
+.filters-toggle__active {
+  font-weight: 500;
+  color: var(--texto-suave);
+}
+
+/* Menú «Descargar»: el panel flota bajo el botón, sobre el mapa */
+
+.download-menu {
+  position: relative;
+}
+
+.download-menu > summary {
+  min-height: 44px;
+  list-style: none;
+  user-select: none;
+}
+
+.download-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Cheurón dibujado con bordes; gira al abrir */
+.download-menu > summary::after {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-left: 0.15rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+}
+
+.download-menu[open] > summary::after {
+  transform: rotate(-135deg) translateY(-1px);
+}
+
+.download {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  min-width: 15rem;
+  padding: 0.3rem;
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: 0 4px 16px rgba(20, 30, 24, 0.1);
+}
+
+.download__link {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radio-sm);
+  color: var(--texto);
+  font-size: var(--t-sm);
+  text-decoration: none;
+}
+
+.download__link:hover {
+  background: var(--superficie-suave);
+  color: var(--texto);
+}
+
+/* Debajo de la barra: la columna del mapa (indicadores y mapa) y el panel a la derecha, a toda la altura */
+
+.map-layout {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.map-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Indicadores: una sola franja blanca sobre el mapa, con filetes de 1 px entre indicadores.
+   La cifra y su nota van en la misma línea para que la franja sea baja y el mapa mande */
+
+.map-stats {
+  padding: 0 16px 0.6rem;
+}
+
+.map-stats .stat-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.35fr) minmax(0, 1.5fr);
+  gap: 1px;
+  overflow: hidden;
+  background: var(--borde);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+
+.map-stats .stat {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.5rem;
+  padding: 0.45rem 0.9rem 0.5rem;
+  border: 0;
+  border-radius: 0;
+}
+
+.map-stats .stat__label {
+  flex-basis: 100%;
+}
+
+.map-stats .stat__value {
+  margin-top: 0.05rem;
+  font-size: var(--t-lg);
+  font-variant-numeric: tabular-nums;
+}
+
+.map-stats .stat__note {
+  flex: 1 1 8rem;
+  margin-top: 0;
+}
+
+/* Mapa: ocupa el resto de la altura. isolation deja los paneles de Leaflet por debajo del menú «Descargar» */
+
+.map-frame {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+#map {
+  flex: 1;
+  min-height: 160px;
+  border-top: 1px solid var(--borde);
+  isolation: isolate;
+  font: inherit;
+}
+
+/* Fondo del estilo Positron mientras cargan los mosaicos */
+#map.leaflet-container {
+  background: #f2f3f0;
+}
+
+/* Respaldo con OpenStreetMap: los mosaicos pierden el color y se aclaran.
+   El filtro solo toca los mosaicos; las parcelas van en otro panel y conservan su color */
+#map.map--osm .leaflet-tile-pane {
+  filter: grayscale(1) brightness(1.08) contrast(0.78);
+  opacity: 0.7;
+}
+
+/* Botones de zoom y atribución a juego con las tarjetas */
+.leaflet-bar {
+  border: 1px solid var(--borde) !important;
+  border-radius: var(--radio-sm) !important;
+  box-shadow: var(--sombra) !important;
+}
+
+.leaflet-bar a {
+  color: var(--texto);
+}
+
+.leaflet-container .leaflet-control-attribution {
+  font-size: 0.6875rem;
+  color: var(--texto-suave);
+}
+
+/* Botón que vuelve a abrir el panel cerrado; flota en la esquina del mapa */
+.map-panel-open {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  min-height: 44px;
+  box-shadow: var(--sombra);
+}
+
+.map-panel-open[hidden] {
+  display: none;
+}
+
+/* Panel lateral: lista de parcelas por predecir o resumen de la parcela elegida */
+
+.map-panel {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  width: 360px;
+  min-height: 0;
+  background: var(--tarjeta);
+  border-left: 1px solid var(--borde);
+}
+
+.map-panel[hidden] {
+  display: none;
+}
+
+/* El título plegable de la hoja solo existe en el celular */
+.map-panel__toggle {
+  display: none;
+}
+
+.map-panel__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Encabezado de cada vista: título (o «Volver») a la izquierda y el botón cerrar a la derecha */
+.map-panel__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem 0.5rem;
+}
+
+.map-panel__title {
+  margin: 0;
+  font-size: var(--t-lg);
+  font-weight: 650;
+}
+
+.map-panel__title:focus {
+  outline: none;
+}
+
+.map-panel__sub {
+  margin: 0.1rem 0 0;
+  font-size: var(--t-xs);
+  color: var(--texto-suave);
+}
+
+.map-panel__close {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: -0.5rem -0.6rem 0 0;
+  border: 0;
+  border-radius: var(--radio-sm);
+  background: none;
+  color: var(--texto-suave);
+  font: inherit;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.map-panel__close:hover {
+  background: var(--superficie-suave);
+  color: var(--texto);
+}
+
+/* Lista: encabezado y orden fijos; solo las filas se desplazan */
+
+.plist {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.plist[hidden] {
+  display: none;
+}
+
+.plist__tools {
+  padding: 0 1rem 0.5rem;
+}
+
+.plist__sort {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--texto-suave);
+  white-space: nowrap;
+}
+
+.plist__sort select {
+  flex: 1;
+  min-width: 0;
+  min-height: 2.5rem;
+  font-weight: 400;
+}
+
+.plist__tools .help-inline {
+  margin: 0.35rem 0 0;
+  font-size: var(--t-xs);
+}
+
+.plist__note {
+  margin: 0 1rem 0.5rem;
+  font-size: var(--t-xs);
+  color: var(--texto-suave);
+}
+
+/* Columnas: parcela y municipio, predicción y badge de riesgo */
+.plist__cols,
+.plist__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 4.5rem 7.25rem;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.plist__cols {
+  padding: 0.35rem 1rem;
+  background: var(--superficie-suave);
+  border-top: 1px solid var(--borde);
+  border-bottom: 1px solid var(--borde);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--texto-suave);
+}
+
+.plist__cols span + span {
+  text-align: right;
+}
+
+.plist__items {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.plist__row {
+  width: 100%;
+  min-height: 52px;
+  padding: 0.45rem 1rem;
+  border: 0;
+  border-bottom: 1px solid var(--borde);
+  background: none;
+  color: var(--texto);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.plist__row:hover {
+  background: var(--superficie-suave);
+}
+
+/* El foco va por dentro de la fila: la lista se desplaza y un contorno por fuera se cortaría */
+.plist__row:focus-visible {
+  outline-offset: -3px;
+}
+
+.plist__name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.plist__name strong {
+  font-size: var(--t-sm);
+}
+
+.plist__muni {
+  overflow: hidden;
+  font-size: var(--t-xs);
+  color: var(--texto-suave);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plist__pred {
+  font-size: var(--t-sm);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.plist__unit {
+  font-size: var(--t-xs);
+  color: var(--texto-suave);
+}
+
+.plist__risk {
+  justify-self: end;
+  font-size: var(--t-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.plist__empty {
+  padding: 1rem;
+  font-size: var(--t-sm);
+  color: var(--texto-suave);
+}
+
+/* Sin economía: solo parcela y predicción */
+.plist--no-risk .plist__cols,
+.plist--no-risk .plist__row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.plist--no-risk #plist-col-risk,
+.plist--no-risk .plist__tools .help-inline {
+  display: none;
+}
+
+/* Resumen de la parcela: se desplaza completo y «Ver ficha completa» queda fijo abajo */
+
+.psum {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.psum[hidden] {
+  display: none;
+}
+
+.psum .map-panel__head {
+  align-items: center;
+  padding-bottom: 0.25rem;
+}
+
+.psum__back {
+  min-height: 44px;
+  margin-left: -0.35rem;
+  border-color: transparent;
+  background: none;
+  color: var(--acento);
+}
+
+.psum__back:hover {
+  border-color: transparent;
+  background: var(--acento-suave);
+  color: var(--acento-hover);
+}
+
+.psum__content {
+  padding: 0 1rem;
+}
+
+.psum__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.psum__head .tip__set {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: var(--t-xs);
+  color: var(--texto-suave);
+}
+
+.psum__id {
+  margin: 0;
+  font-size: var(--t-xl);
+  font-weight: 700;
+}
+
+.psum__id:focus {
+  outline: none;
+}
+
+.psum__id:focus-visible {
+  outline: 3px solid var(--acento-foco);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.psum__place {
+  margin: 0.1rem 0 0;
+  font-size: var(--t-sm);
+  color: var(--texto-suave);
+}
+
+.psum__value {
+  margin: 0.85rem 0 0;
+  font-size: var(--t-2xl);
+  font-weight: 650;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.psum__unit {
+  font-size: var(--t-sm);
+  font-weight: 500;
+  color: var(--texto-suave);
+}
+
+.psum__caption {
+  margin: 0.15rem 0 0;
+  font-size: var(--t-xs);
+  color: var(--texto-suave);
+}
+
+.psum__rows {
+  margin: 0.75rem 0 0;
+  border-top: 1px solid var(--borde);
+}
+
+.psum__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--borde);
+  font-size: var(--t-sm);
+}
+
+.psum__row dt {
+  color: var(--texto-suave);
+}
+
+.psum__row dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.psum__row .badge {
+  margin-left: 0.25rem;
+  padding: 0 0.5rem;
+}
+
+.psum__reason {
+  margin: 0.4rem 0 0;
+  font-size: var(--t-xs);
+  color: var(--texto-suave);
+}
+
+.psum__error {
+  color: var(--riesgo-alto-texto);
+}
+
+/* Subtítulo con el estilo «eyebrow» de main.css */
+.psum__subtitle {
+  margin: 1.1rem 0 0;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+.psum__subtitle + .psum__rows {
+  margin-top: 0.35rem;
+}
+
+.psum__empty {
+  margin: 0.35rem 0 0;
+  font-size: var(--t-sm);
+  color: var(--texto-suave);
+}
+
+.psum .help-inline {
+  margin: 0.75rem 0 0;
+  font-size: var(--t-xs);
+}
+
+.psum .help-inline__body p {
+  margin: 0 0 0.4rem;
+}
+
+/* Barra fija al pie del resumen con el botón a la ficha */
+.psum__footer {
+  position: sticky;
+  bottom: 0;
+  margin: 1rem -1rem 0;
+  padding: 0.75rem 1rem;
+  background: var(--tarjeta);
+  border-top: 1px solid var(--borde);
+}
+
+.psum__cta {
+  width: 100%;
   min-height: 44px;
 }
 
-/* En pantallas chicas, la barra de controles es una cuadrícula de dos columnas para dejar más altura al mapa:
-   «Colorear por», las descargas y el contador ocupan todo el ancho; «Estado» y «Municipio» van lado a lado */
+/* Leyenda del mapa: tarjeta con título, muestras de color y número de parcelas por clase */
+
+.legend {
+  min-width: 13rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  font-size: var(--t-xs);
+  line-height: 1.4;
+  color: var(--texto);
+}
+
+.legend:empty {
+  display: none;
+}
+
+/* Título plegable: un clic abre o cierra las filas; el cheurón indica el estado */
+.legend-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.legend-head::-webkit-details-marker {
+  display: none;
+}
+
+.legend-head::after {
+  content: "";
+  flex: none;
+  width: 0.35rem;
+  height: 0.35rem;
+  margin-left: 0.1rem;
+  border-right: 1.5px solid var(--texto-suave);
+  border-bottom: 1.5px solid var(--texto-suave);
+  transform: rotate(-135deg) translateY(-1px);
+}
+
+.legend-details:not([open]) .legend-head::after {
+  transform: rotate(45deg) translateY(-2px);
+}
+
+.legend-head strong {
+  flex: 1;
+  font-size: var(--t-sm);
+  font-weight: 650;
+}
+
+.legend-count-title {
+  color: var(--texto-suave);
+}
+
+.legend-details:not([open]) .legend-count-title {
+  display: none;
+}
+
+.legend-body {
+  margin-top: 0.35rem;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.1rem 0;
+}
+
+.legend-label {
+  flex: 1;
+}
+
+/* Conteo en tinta secundaria, alineado a la derecha con cifras del mismo ancho */
+.legend-count {
+  min-width: 2ch;
+  text-align: right;
+  color: var(--texto-suave);
+  font-variant-numeric: tabular-nums;
+}
+
+.legend-swatch {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border: 1px solid rgba(61, 60, 56, 0.7);
+  border-radius: 3px;
+}
+
+/* Nota bajo las filas de la leyenda (capas de riesgo) */
+.legend-note {
+  max-width: 15rem;
+  margin: 0.4rem 0 0;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--borde);
+  font-size: var(--t-xs);
+  line-height: 1.4;
+  color: var(--texto-suave);
+}
+
+.legend-swatch--no-data {
+  border-style: dashed;
+  border-color: #898781;
+}
+
+/* Tooltip de la parcela: mini tarjeta con ID, cifra principal y filas etiqueta–valor */
+
+.leaflet-tooltip.parcel-tip {
+  width: 19.5rem;
+  padding: 0.7rem 0.85rem 0.6rem;
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: 0 4px 16px rgba(20, 30, 24, 0.12);
+  color: var(--texto);
+  font: inherit;
+  font-size: var(--t-xs);
+  line-height: 1.4;
+  white-space: normal;
+}
+
+/* Sin flecha: la tarjeta se separa del puntero con un margen */
+.leaflet-tooltip.parcel-tip::before {
+  display: none;
+}
+
+.leaflet-tooltip-right.parcel-tip {
+  margin-left: 14px;
+}
+
+.leaflet-tooltip-left.parcel-tip {
+  margin-left: -14px;
+}
+
+.tip__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.tip__id {
+  font-size: var(--t-sm);
+  font-weight: 700;
+}
+
+.tip__set {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--texto-suave);
+}
+
+.tip__value {
+  margin: 0.35rem 0 0;
+  font-size: var(--t-xl);
+  font-weight: 650;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+
+.tip__unit {
+  font-size: var(--t-sm);
+  font-weight: 500;
+  color: var(--texto-suave);
+}
+
+.tip__caption {
+  margin: 0;
+  color: var(--texto-suave);
+}
+
+.tip__rows {
+  margin: 0.5rem 0 0;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--borde);
+}
+
+.tip__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.1rem 0;
+}
+
+.tip__row dt {
+  color: var(--texto-suave);
+  white-space: nowrap;
+}
+
+.tip__row dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tip__row .badge {
+  margin-left: 0.25rem;
+  padding: 0 0.45rem;
+}
+
+.tip__hint {
+  margin: 0.45rem 0 0;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--borde);
+  color: var(--texto-suave);
+}
+
+/* Pantallas medianas: panel más angosto e indicadores en 2x2 */
+@media (max-width: 1000px) {
+  .map-panel {
+    width: 320px;
+  }
+
+  .map-stats .stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Celular: la capa y los filtros se pliegan tras un botón, los indicadores se desplazan de lado
+   y el panel es una hoja bajo el mapa que arranca plegada */
 @media (max-width: 600px) {
-  .map-page .controls {
+  .map-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 16px;
+  }
+
+  .filters-toggle {
+    display: inline-flex;
+    justify-self: start;
+    min-height: 44px;
+  }
+
+  /* Cheurón del botón plegable */
+  .filters-toggle::after {
+    content: "";
+    width: 0.4rem;
+    height: 0.4rem;
+    margin-left: 0.15rem;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg) translateY(-2px);
+  }
+
+  .filters-toggle[aria-expanded="true"]::after {
+    transform: rotate(-135deg) translateY(-1px);
+  }
+
+  .map-toolbar__end {
+    display: contents;
+  }
+
+  /* Orden en la cuadrícula: botón plegable y «Descargar» arriba, luego el panel de filtros */
+  .download-menu {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .controls {
+    grid-column: 1 / -1;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.5rem;
   }
 
-  .map-page .controls > label:first-of-type,
-  .map-page .controls > .download,
-  .map-page .controls > .count {
-    grid-column: 1 / -1;
+  .filters-toggle[aria-expanded="false"] ~ .controls {
+    display: none;
   }
 
-  /* Cada control es una columna: la etiqueta arriba y el selector a todo el ancho de su celda.
-     min-width: 0 deja que la celda se encoja; sin eso, el selector con la opción más larga la ensancha */
-  .map-page .controls label {
-    display: flex;
+  /* Rótulo encima del selector */
+  .field {
     flex-direction: column;
     align-items: stretch;
-    justify-content: flex-start;
-    gap: 0.25rem;
-    min-width: 0;
-    max-width: 100%;
+    gap: 0.2rem;
+  }
+
+  /* «Colorear por» ocupa todo el ancho; «Estado» y «Municipio» van lado a lado */
+  .controls .field:first-child {
+    grid-column: 1 / -1;
   }
 
   /* El selector llena su celda; 16 px de letra evitan que iOS acerque la página al abrirlo.
      Si el nombre no cabe, se recorta con puntos suspensivos */
-  .map-page .controls label select {
+  .controls select,
+  #layer,
+  #state,
+  #municipality {
     width: 100%;
-    max-width: 100%;
     min-width: 0;
     font-size: 1rem;
     overflow: hidden;
@@ -67,22 +964,141 @@
     white-space: nowrap;
   }
 
-  /* Los dos botones de descarga van en una fila, con el mismo ancho; si el texto no cabe, baja de línea dentro del botón */
-  .map-page .download {
-    align-items: stretch;
+  /* Indicadores en una fila que se desplaza de lado: la franja mide una sola tarjeta de alto */
+  .map-stats {
+    padding-bottom: 0.5rem;
+    overflow-x: auto;
+    scroll-padding: 0 16px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
   }
 
-  .map-page .download .btn {
-    flex: 1 1 0;
+  .map-stats .stat-grid {
+    grid-template-columns: none;
+    grid-auto-columns: 10.75rem;
+    grid-auto-flow: column;
+    width: max-content;
+  }
+
+  .map-stats .stat {
+    display: block;
+    padding: 0.4rem 0.7rem 0.45rem;
+    scroll-snap-align: start;
+  }
+
+  .map-stats .stat__value {
+    font-size: var(--t-lg);
+  }
+
+  /* Leyenda más chica para dejar ver el mapa; su título mide 44 px de alto para tocarlo con el dedo */
+  .legend {
     min-width: 0;
-    justify-content: center;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.9rem;
-    text-align: center;
+    padding: 0 0.7rem;
   }
 
-  /* El rótulo «Descargar» se oculta a la vista para ganar altura; el grupo conserva su nombre accesible */
-  .map-page .download__title {
+  .legend-head {
+    min-height: 44px;
+  }
+
+  .legend-head strong {
+    font-size: var(--t-xs);
+  }
+
+  .legend-body {
+    margin-top: 0;
+    padding-bottom: 0.5rem;
+  }
+
+  /* La hoja se monta 12 px sobre el borde del mapa; los controles de abajo del mapa suben lo mismo */
+  .map-layout {
+    flex-direction: column;
+  }
+
+  #map .leaflet-bottom {
+    bottom: 12px;
+  }
+
+  .map-panel {
+    position: relative;
+    z-index: 1;
+    width: auto;
+    margin-top: -12px;
+    border-top: 1px solid var(--borde);
+    border-left: 0;
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 -4px 16px rgba(20, 30, 24, 0.08);
+  }
+
+  /* Con la hoja abierta, los indicadores se ocultan para dejarle alto al mapa; vuelven al plegarla */
+  .map-layout:has(.map-panel:not(.is-collapsed)) .map-stats {
+    display: none;
+  }
+
+  /* Abierta, la hoja mide a lo más el 45 % de la pantalla; el mapa queda arriba */
+  .map-panel:not(.is-collapsed) {
+    height: 45vh;
+    height: 45dvh;
+  }
+
+  .map-panel.is-collapsed .map-panel__body {
+    display: none;
+  }
+
+  /* Título de la hoja: asa arriba, texto y cheurón; todo el renglón se toca */
+  .map-panel__toggle {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    position: relative;
+    width: 100%;
+    min-height: 52px;
+    padding: 0.85rem 16px 0.6rem;
+    border: 0;
+    border-radius: 12px 12px 0 0;
+    background: none;
+    color: var(--texto);
+    font: inherit;
+    font-size: var(--t-sm);
+    font-weight: 650;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .map-panel__toggle::before {
+    content: "";
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    width: 36px;
+    height: 4px;
+    margin-left: -18px;
+    border-radius: 2px;
+    background: var(--borde-fuerte);
+  }
+
+  .map-panel__toggle::after {
+    content: "";
+    flex: none;
+    width: 0.45rem;
+    height: 0.45rem;
+    margin-right: 0.2rem;
+    border-right: 1.5px solid var(--texto-suave);
+    border-bottom: 1.5px solid var(--texto-suave);
+    transform: rotate(-135deg) translateY(-2px);
+  }
+
+  .map-panel__toggle[aria-expanded="true"]::after {
+    transform: rotate(45deg) translateY(-2px);
+  }
+
+  .map-panel__toggle:focus-visible {
+    outline-offset: -3px;
+  }
+
+  /* En la hoja, el título ya lo dice el renglón de arriba: el de la lista queda solo para lectores de pantalla */
+  .plist .map-panel__head {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -93,5 +1109,27 @@
     clip-path: inset(50%);
     white-space: nowrap;
     border: 0;
+  }
+
+  .plist [data-close] {
+    display: none;
+  }
+
+  .plist__tools {
+    padding-top: 0.15rem;
+  }
+
+  .plist__sort select {
+    min-height: 44px;
+    font-size: 1rem;
+  }
+
+  .psum .map-panel__head {
+    padding-top: 0.25rem;
+  }
+
+  .psum__value {
+    margin-top: 0.5rem;
+    font-size: var(--t-xl);
   }
 }

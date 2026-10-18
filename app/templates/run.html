@@ -8,8 +8,8 @@
 
 {% block content %}
   <main class="page">
-    <h2>Ejecutar el modelo</h2>
-    <p class="muted">Elige parcelas del conjunto de datos o prueba una parcela nueva, y calcula su predicción con el modelo final.</p>
+    <h2 class="page-title">Ejecutar el modelo</h2>
+    <p class="page-lede">Elige parcelas del conjunto de datos o prueba una parcela nueva, y calcula su predicción con el modelo final.</p>
 
     {# Las rutas y los límites llegan por data-*; run.js no los escribe a mano #}
     <div class="run" id="run"
@@ -22,135 +22,162 @@
          data-threshold-max="{{ threshold_max }}"
          data-threshold-default="{{ threshold_default }}">
 
-      <section class="card" aria-labelledby="dataset-title">
-        <h3 id="dataset-title">Parcelas del conjunto de datos</h3>
-
-        <div class="filters">
-          <label>Estado
-            <select id="filter-state">
-              <option value="">Todos</option>
-            </select>
-          </label>
-          <label>Municipio
-            <select id="filter-municipality">
-              <option value="">Todos</option>
-            </select>
-          </label>
-          <label>Conjunto
-            <select id="filter-set">
-              <option value="">Todos</option>
-              <option value="ENTRENAMIENTO">Entrenamiento</option>
-              <option value="PREDICCION">Predicción</option>
-            </select>
-          </label>
-          <label>Buscar por ID
-            <input type="search" id="filter-id" autocomplete="off">
-          </label>
+      {# Una sola tarjeta de entrada: el umbral arriba, común a los tres caminos, y una pestaña por camino.
+         Cada pestaña termina en su botón; los resultados van en su propia tarjeta, debajo #}
+      <section class="card run-input" aria-labelledby="input-title">
+        <div class="run-input__head">
+          <h3 class="card__title" id="input-title">Parcelas a calcular</h3>
+          <div class="threshold-field">
+            <div class="threshold">
+              <label for="threshold">Umbral<span class="visually-hidden"> (t/ha)</span></label>
+              <input type="number" id="threshold" min="{{ threshold_min }}" max="{{ threshold_max }}" step="0.1"
+                     aria-describedby="threshold-help">
+              <span class="threshold__unit" aria-hidden="true">t/ha</span>
+            </div>
+            <p class="hint" id="threshold-help">Probabilidad de que el rendimiento quede por debajo de este valor. Vale para las tres pestañas.</p>
+            <div class="message" id="threshold-message" aria-live="polite"></div>
+          </div>
         </div>
 
-        <div class="selection">
-          <label class="checkbox">
-            <input type="checkbox" id="select-visible">
-            Seleccionar las visibles
-          </label>
-          <button type="button" class="btn" id="select-predicted">Las 59 por predecir</button>
-          <button type="button" class="btn" id="clear-selection">Limpiar selección</button>
-          <span class="muted" id="selection-count" aria-live="polite">0 seleccionadas</span>
-        </div>
+        <div class="tabs" data-tabs aria-label="De dónde salen las parcelas">
+          <section class="tabs__panel" id="del-conjunto" data-tab-label="Del conjunto de datos">
+            <div class="filters">
+              <label>Estado
+                <select id="filter-state">
+                  <option value="">Todos</option>
+                </select>
+              </label>
+              <label>Municipio
+                <select id="filter-municipality">
+                  <option value="">Todos</option>
+                </select>
+              </label>
+              <label>Conjunto
+                <select id="filter-set">
+                  <option value="">Todos</option>
+                  <option value="ENTRENAMIENTO">Entrenamiento</option>
+                  <option value="PREDICCION">Predicción</option>
+                </select>
+              </label>
+              <label>Buscar por ID
+                <input type="search" id="filter-id" autocomplete="off">
+              </label>
+            </div>
 
-        <div class="table-wrap list-wrap">
-          <table class="data">
-            <caption class="visually-hidden">Parcelas del conjunto de datos. Marca las que quieras calcular.</caption>
-            <thead>
-              <tr>
-                <th scope="col"><span class="visually-hidden">Seleccionar</span></th>
-                <th scope="col">Parcela</th>
-                <th scope="col" class="hide-sm">Conjunto</th>
-                <th scope="col" class="hide-sm">Régimen</th>
-                <th scope="col" class="hide-sm">Estado</th>
-                <th scope="col">Municipio</th>
-                <th scope="col">Área (ha)</th>
-              </tr>
-            </thead>
-            <tbody id="dataset-rows">
-              <tr><td colspan="7" class="muted">Cargando parcelas...</td></tr>
-            </tbody>
-          </table>
-        </div>
+            <div class="selection">
+              <label class="checkbox">
+                <input type="checkbox" id="select-visible">
+                Seleccionar las visibles
+              </label>
+              <button type="button" class="btn" id="select-predicted">Las 59 por predecir</button>
+              <button type="button" class="btn" id="clear-selection">Limpiar selección</button>
+            </div>
 
-        <div class="threshold">
-          <label for="threshold">Umbral (t/ha)</label>
-          <input type="number" id="threshold" min="{{ threshold_min }}" max="{{ threshold_max }}" step="0.1"
-                 aria-describedby="threshold-help">
-          <p class="hint" id="threshold-help">Probabilidad de que el rendimiento quede por debajo de este valor</p>
-        </div>
+            <div class="table-wrap list-wrap">
+              <table class="data">
+                <caption class="visually-hidden">Parcelas del conjunto de datos. Marca las que quieras calcular.</caption>
+                <thead>
+                  <tr>
+                    <th scope="col"><span class="visually-hidden">Seleccionar</span></th>
+                    <th scope="col">Parcela</th>
+                    <th scope="col" class="hide-sm">Conjunto</th>
+                    <th scope="col" class="hide-sm">Régimen</th>
+                    <th scope="col" class="hide-sm">Estado</th>
+                    <th scope="col">Municipio</th>
+                    <th scope="col" class="num">Área (ha)</th>
+                  </tr>
+                </thead>
+                <tbody id="dataset-rows">
+                  <tr><td colspan="7" class="muted">Cargando parcelas...</td></tr>
+                </tbody>
+              </table>
+            </div>
 
-        <div class="actions">
-          <button type="button" class="btn btn--primary" id="run-button">Ejecutar el modelo</button>
+            {# Barra de acción al pie de cada pestaña: lo elegido a la izquierda y el botón a la derecha #}
+            <div class="run-bar">
+              <div class="run-bar__row">
+                <span class="run-bar__count" id="selection-count" aria-live="polite">0 seleccionadas</span>
+                <button type="button" class="btn btn--primary run-bar__action" id="run-button">Ejecutar el modelo</button>
+              </div>
+              <div class="message" id="dataset-message" aria-live="polite"></div>
+            </div>
+          </section>
+
+          <section class="tabs__panel" id="parcela-nueva" data-tab-label="Parcela nueva">
+            <form id="new-form" novalidate>
+              <p class="hint intro">Calcula la predicción de una parcela que no está en el conjunto de datos.</p>
+              <div class="fields">
+                <div class="field">
+                  <label for="new-id">ID (opcional)</label>
+                  <input type="text" id="new-id" maxlength="40" autocomplete="off" aria-describedby="new-id-help">
+                  <p class="hint" id="new-id-help">Si lo dejas vacío, se asigna NUEVA_1, NUEVA_2 y así sucesivamente.</p>
+                </div>
+                <div class="field">
+                  <label for="new-lon">Longitud</label>
+                  <input type="number" id="new-lon" step="any" placeholder="-98.37">
+                </div>
+                <div class="field">
+                  <label for="new-lat">Latitud</label>
+                  <input type="number" id="new-lat" step="any" placeholder="19.82">
+                </div>
+                <div class="field">
+                  <label for="new-area">Superficie (ha)</label>
+                  <input type="number" id="new-area" step="any" placeholder="5.2">
+                </div>
+                <div class="field">
+                  <label for="new-regime">Régimen</label>
+                  <select id="new-regime" aria-describedby="new-regime-help">
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                  </select>
+                  <p class="hint" id="new-regime-help">Grupo de municipios según cómo reportan el rendimiento; si dudas, elige el de la parcela medida más cercana.</p>
+                </div>
+              </div>
+              <div class="run-bar">
+                <div class="run-bar__row">
+                  <button type="submit" class="btn btn--primary run-bar__action" id="new-submit">Calcular esta parcela</button>
+                </div>
+                <div class="message" id="new-message" aria-live="polite"></div>
+              </div>
+            </form>
+          </section>
+
+          <section class="tabs__panel" id="desde-csv" data-tab-label="Desde CSV">
+            <p class="hint intro">Calcula varias parcelas nuevas a la vez, hasta 59 por archivo.</p>
+            {# Formato del archivo, junto a la plantilla que ya lo cumple #}
+            <dl class="csv-format">
+              <dt>Columnas</dt>
+              <dd>id (opcional), lon, lat, area_ha y regimen</dd>
+              <dt>Separador</dt>
+              <dd>coma o punto y coma, con punto decimal</dd>
+            </dl>
+            <p class="hint"><a id="csv-template" download="plantilla_parcelas.csv">Descargar plantilla CSV</a></p>
+            <div class="run-bar">
+              <div class="run-bar__row">
+                {# Selector propio: el campo nativo queda oculto a la vista pero sigue en el teclado y en el lector #}
+                <div class="file">
+                  <input type="file" id="csv-file" class="visually-hidden" accept=".csv,text/csv"
+                         aria-describedby="csv-file-name">
+                  <label for="csv-file" class="btn file__button">Elegir archivo CSV</label>
+                  <span class="file__name" id="csv-file-name">Ningún archivo seleccionado</span>
+                </div>
+                <button type="button" class="btn btn--primary run-bar__action" id="csv-run">Calcular las parcelas del CSV</button>
+              </div>
+              <div class="message" id="csv-message" aria-live="polite"></div>
+            </div>
+          </section>
         </div>
-        <div class="message" id="dataset-message" aria-live="polite"></div>
       </section>
 
-      <section class="card" aria-labelledby="new-title">
-        <h3 id="new-title">Probar una parcela nueva</h3>
-        <p class="hint intro">Calcula la predicción de una parcela que no está en el conjunto de datos. Usa el umbral de la tarjeta anterior.</p>
-
-        <form id="new-form" novalidate>
-          <div class="fields">
-            <div class="field">
-              <label for="new-id">ID (opcional)</label>
-              <input type="text" id="new-id" maxlength="40" autocomplete="off" aria-describedby="new-id-help">
-              <p class="hint" id="new-id-help">Si lo dejas vacío, se asigna NUEVA_1, NUEVA_2 y así sucesivamente.</p>
-            </div>
-            <div class="field">
-              <label for="new-lon">Longitud</label>
-              <input type="number" id="new-lon" step="any" placeholder="-98.37">
-            </div>
-            <div class="field">
-              <label for="new-lat">Latitud</label>
-              <input type="number" id="new-lat" step="any" placeholder="19.82">
-            </div>
-            <div class="field">
-              <label for="new-area">Superficie (ha)</label>
-              <input type="number" id="new-area" step="any" placeholder="5.2">
-            </div>
-            <div class="field">
-              <label for="new-regime">Régimen</label>
-              <select id="new-regime" aria-describedby="new-regime-help">
-                <option value="A">A</option>
-                <option value="B">B</option>
-              </select>
-              <p class="hint" id="new-regime-help">Grupo de municipios según cómo reportan el rendimiento; si dudas, elige el de la parcela medida más cercana</p>
-            </div>
-          </div>
-          <div class="actions">
-            <button type="submit" class="btn btn--primary" id="new-submit">Calcular esta parcela</button>
-          </div>
-          <div class="message" id="new-message" aria-live="polite"></div>
-        </form>
-
-        <div class="csv">
-          <h4>O carga varias parcelas desde un CSV</h4>
-          <p class="hint">Columnas: id (opcional), lon, lat, area_ha y regimen. Hasta 59 filas, con coma o punto y coma como separador y punto decimal.</p>
-          <div class="field">
-            <label for="csv-file">Archivo CSV</label>
-            <input type="file" id="csv-file" accept=".csv,text/csv">
-          </div>
-          <div class="actions">
-            <a id="csv-template" download="plantilla_parcelas.csv">Descargar plantilla CSV</a>
-            <button type="button" class="btn" id="csv-run">Calcular las parcelas del CSV</button>
-          </div>
-          <div class="message" id="csv-message" aria-live="polite"></div>
-        </div>
-      </section>
-
+      {# Fuera de las pestañas y siempre visible. El «Listo» lo anuncia la barra de cada pestaña (aria-live);
+         la zona de resultados no se anuncia entera, para que el lector no recorra toda la tabla #}
       <section class="card" id="results" aria-labelledby="results-title">
-        <div class="results-head">
-          <h3 id="results-title">Resultados</h3>
+        <div class="card__head">
+          <h3 class="card__title" id="results-title">Resultados</h3>
           <button type="button" class="btn" id="download-button" hidden>Descargar resultados (CSV)</button>
         </div>
-        <div id="results-zone" aria-live="polite">
-          <p class="muted">Todavía no hay resultados. Ejecuta el modelo con parcelas del conjunto de datos o calcula una parcela nueva.</p>
+        <div id="results-zone">
+          <p class="muted">Todavía no hay resultados. Elige parcelas arriba, en cualquiera de las tres pestañas, y calcúlalas.</p>
         </div>
       </section>
     </div>
@@ -158,5 +185,6 @@
 {% endblock %}
 
 {% block scripts %}
+  <script src="{{ url_for('scripts', filename='tabs.js') }}"></script>
   <script src="{{ url_for('scripts', filename='run.js') }}"></script>
 {% endblock %}

@@ -146,3 +146,39 @@ def test_contexto_y_entradas_con_etiquetas_en_espanol(client):
                 if item["key"] == "fen_pico_doy")
     assert pico["value"] == 263
     assert pico["note"].endswith("Es el 20 de septiembre de 2025.")
+
+
+# Campos de la página que arma _view para el rediseño: medidores, margen con signo y pasos de confianza
+
+def test_ancho_del_medidor_va_de_0_a_100():
+    from app.modules import detail
+    assert detail._share(None) == 0.0
+    assert detail._share(0.2636) == 26.4
+    assert detail._share(1.0) == 100.0
+    # Fuera de 0 a 1 se recorta, para que el relleno nunca salga del riel
+    assert detail._share(-0.1) == 0.0
+    assert detail._share(1.2) == 100.0
+
+
+def test_margen_lleva_el_menos_tipografico():
+    from app.modules import detail
+    assert detail._money_signed(-12669.05) == "−$12,669"
+    assert detail._money_signed(3500) == "$3,500"
+    assert detail._money_signed(None) == "—"
+
+
+@pytest.mark.parametrize("nivel, actual", [("baja", 0), ("media", 1), ("alta", 2)])
+def test_pasos_de_confianza_marcan_el_nivel_actual(nivel, actual):
+    from app.modules import detail
+    pasos = detail._confidence_steps(nivel)
+    assert [p["label"] for p in pasos] == ["Baja", "Media", "Alta"]
+    assert [p["current"] for p in pasos] == [i == actual for i in range(3)]
+    # Los segmentos se rellenan hasta el nivel actual
+    assert [p["filled"] for p in pasos] == [i <= actual for i in range(3)]
+    assert all(en_espanol(p["help"]) for p in pasos)
+
+
+def test_sin_nivel_de_confianza_ningun_paso_es_el_actual():
+    from app.modules import detail
+    pasos = detail._confidence_steps(None)
+    assert not any(p["current"] or p["filled"] for p in pasos)

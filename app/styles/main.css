@@ -1,15 +1,88 @@
-/* Estilos base de la app AgroCebada */
+/* Estilos base de la app AgroCebada: tokens, barra superior y componentes compartidos.
+   base.html carga este archivo primero; el CSS de cada página va después y puede ajustar estas reglas. */
 
 :root {
-  --texto: #1f2a1f;
-  --fondo: #f7f6f1;
+  /* Superficies y tinta */
+  --fondo: #f6f6f2;
+  --tarjeta: #ffffff;
+  --superficie-suave: #f1f1ec;
+  --borde: #e3e2db;
+  --borde-fuerte: #cfcdc4;
+  --texto: #1c2420;
+  --texto-suave: #545954;
+  /* 3:1 contra blanco: borde de campos y casillas */
+  --control-borde: #8a8c86;
+
+  /* Acento de la interfaz (botones, enlaces, pestañas, foco). Verde pizarra: blanco encima da 9.7:1.
+     Para cambiar el tono basta con estas cuatro variables */
+  --acento: #2c4a3f;
+  --acento-hover: #1f3730;
+  --acento-suave: #e8eeeb;
+  --acento-foco: #4a7a66;
+
+  /* Color de los datos: nunca se usa en la interfaz, para que el color siempre signifique un dato */
+  --dato: #2a78d6;
+  --dato-oscuro: #184f95;
+  --dato-prediccion: #eb6834;
+
+  /* Semáforo de riesgo: fondo claro y texto oscuro, con al menos 4.5:1 de contraste */
+  --riesgo-bajo-texto: #14532d;
+  --riesgo-bajo-fondo: #dcf2e1;
+  --riesgo-medio-texto: #5c3b00;
+  --riesgo-medio-fondo: #fdefc3;
+  --riesgo-alto-texto: #7a1a10;
+  --riesgo-alto-fondo: #fbdcd7;
+  /* Semáforo como marca de color (medidores y mapa), paleta Okabe-Ito apta para daltonismo */
+  --riesgo-bajo: #009e73;
+  --riesgo-medio: #e69f00;
+  --riesgo-alto: #d55e00;
+
+  /* Escala tipográfica */
+  --t-xs: 0.8125rem;
+  --t-sm: 0.875rem;
+  --t-base: 1rem;
+  --t-lg: 1.125rem;
+  --t-xl: 1.375rem;
+  --t-2xl: 1.75rem;
+
+  /* Forma */
+  --radio: 10px;
+  --radio-sm: 6px;
+  --sombra: 0 1px 2px rgba(20, 30, 24, 0.05), 0 1px 3px rgba(20, 30, 24, 0.04);
+  --ancho-pagina: 1100px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: var(--t-base);
+  line-height: 1.5;
   color: var(--texto);
   background: var(--fondo);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+a {
+  color: var(--acento);
+  text-underline-offset: 2px;
+}
+
+a:hover {
+  color: var(--acento-hover);
 }
 
 main {
@@ -18,7 +91,89 @@ main {
   padding: 2rem 1rem;
 }
 
-/* Página del mapa: encabezado, controles y mapa a toda la altura */
+/* Barra superior: nombre a la izquierda y pestañas a la derecha, alineadas con el contenido */
+
+.topbar {
+  background: var(--tarjeta);
+  border-bottom: 1px solid var(--borde);
+}
+
+.topbar__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0 2rem;
+  max-width: var(--ancho-pagina);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.brand {
+  padding: 0.75rem 0;
+}
+
+.brand__name {
+  margin: 0;
+  font-size: var(--t-lg);
+  font-weight: 700;
+}
+
+.brand__name a {
+  color: var(--texto);
+  text-decoration: none;
+}
+
+.brand__tagline {
+  margin: 0.1rem 0 0;
+  font-size: var(--t-sm);
+  color: var(--texto-suave);
+}
+
+/* Pestañas: la página actual lleva una raya de 2 px y negrita, no solo otro color */
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.5rem;
+}
+
+.nav a {
+  display: inline-block;
+  padding: 0.85rem 0 calc(0.85rem - 2px);
+  border-bottom: 2px solid transparent;
+  color: var(--texto-suave);
+  font-size: var(--t-sm);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.nav a:hover {
+  color: var(--texto);
+  border-bottom-color: var(--borde-fuerte);
+}
+
+.nav a[aria-current="page"] {
+  color: var(--acento);
+  font-weight: 700;
+  border-bottom-color: var(--acento);
+}
+
+@media (max-width: 600px) {
+  .brand {
+    padding-bottom: 0.25rem;
+  }
+
+  .nav {
+    gap: 0 1.25rem;
+  }
+
+  .nav a {
+    padding-top: 0.6rem;
+    padding-bottom: calc(0.6rem - 2px);
+  }
+}
+
+/* Página del mapa: encabezado, controles y mapa a toda la altura; la barra superior usa todo el ancho */
 
 .map-page {
   display: flex;
@@ -27,148 +182,69 @@ main {
   height: 100dvh;
 }
 
-.topbar {
-  padding: 0.75rem 1rem 0.25rem;
-}
-
-.topbar h1 {
-  margin: 0;
-  font-size: 1.4rem;
-}
-
-.topbar p {
-  margin: 0.25rem 0 0;
-  color: #52514e;
-}
-
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 1rem;
-  padding: 0.5rem 1rem 0.75rem;
-}
-
-.controls label {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.95rem;
-}
-
-.controls select {
-  font: inherit;
-  padding: 0.25rem 0.4rem;
-}
-
-.count {
-  color: #52514e;
-  font-size: 0.9rem;
-}
-
-#map {
-  flex: 1;
-  min-height: 300px;
-}
-
-/* Leyenda del mapa */
-
-.legend {
-  background: #fff;
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  box-shadow: 0 1px 4px rgba(11, 11, 11, 0.25);
-  font-size: 0.85rem;
-  line-height: 1.5;
-  color: var(--texto);
-}
-
-.legend strong {
-  display: block;
-  margin-bottom: 0.25rem;
-}
-
-.legend-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.legend-swatch {
-  width: 14px;
-  height: 14px;
-  border: 1px solid #52514e;
-  border-radius: 3px;
-}
-
-.legend-swatch--no-data {
-  border-style: dashed;
-  border-color: #898781;
-}
-
-/* En el celular, cada control ocupa su propia línea */
-@media (max-width: 600px) {
-  .controls label {
-    flex: 1 1 100%;
-    justify-content: space-between;
-  }
-}
-
-/* Componentes compartidos por las páginas de la app */
-
-:root {
-  --tarjeta: #ffffff;
-  --borde: #d6d3c9;
-  --texto-suave: #52514e;
-  /* Blanco sobre --primario da 4.4:1; por eso los botones usan --primario-oscuro (8.1:1) */
-  --primario: #2a78d6;
-  --primario-oscuro: #184f95;
-  /* Semáforo de riesgo: fondo claro y texto oscuro, con al menos 4.5:1 de contraste */
-  --riesgo-bajo-texto: #14532d;
-  --riesgo-bajo-fondo: #dcf2e1;
-  --riesgo-medio-texto: #5c3b00;
-  --riesgo-medio-fondo: #fdefc3;
-  --riesgo-alto-texto: #7a1a10;
-  --riesgo-alto-fondo: #fbdcd7;
-}
-
-/* Navegación de la barra superior: en fila, y se envuelve en pantallas chicas */
-.nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 1.25rem;
-  margin-top: 0.5rem;
-}
-
-.nav a {
-  color: var(--primario-oscuro);
-  text-decoration: none;
-}
-
-.nav a:hover {
-  text-decoration: underline;
-}
-
-/* La página actual va en negrita y subrayada, no solo en otro color */
-.nav a[aria-current="page"] {
-  font-weight: 700;
-  text-decoration: underline;
+.map-page .topbar__inner {
+  max-width: none;
 }
 
 /* Contenedor de cada página: centrado, con margen interior y sin desbordar la pantalla */
 .page {
-  box-sizing: border-box;
   width: 100%;
-  max-width: 1100px;
+  max-width: var(--ancho-pagina);
   margin: 0 auto;
-  padding: 16px;
+  padding: 24px 16px 48px;
+}
+
+/* Título de página y su bajada */
+.page-title {
+  margin: 0;
+  font-size: var(--t-2xl);
+  font-weight: 700;
+}
+
+.page-lede {
+  margin: 0.4rem 0 0;
+  max-width: 70ch;
+  color: var(--texto-suave);
 }
 
 .card {
   background: var(--tarjeta);
   border: 1px solid var(--borde);
-  border-radius: 8px;
-  padding: 1rem 1.25rem;
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 1.25rem 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .card {
+    padding: 1rem;
+  }
+}
+
+/* Encabezado de tarjeta: título y, opcional, una acción a la derecha */
+.card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.card__title {
+  margin: 0;
+  font-size: var(--t-lg);
+  font-weight: 650;
+}
+
+/* Rótulo pequeño sobre un grupo (estilo «eyebrow») */
+.eyebrow {
+  margin: 0 0 0.25rem;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
 }
 
 /* Dos columnas en escritorio y una en pantallas de hasta 700px */
@@ -184,36 +260,80 @@ main {
   }
 }
 
+/* Botones: primario relleno con el acento, secundario con borde gris, pequeño para barras de herramientas */
+
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
   min-height: 2.5rem;
   padding: 0.5rem 1rem;
-  border: 1px solid var(--primario-oscuro);
-  border-radius: 6px;
+  border: 1px solid var(--borde-fuerte);
+  border-radius: var(--radio-sm);
   background: var(--tarjeta);
-  color: var(--primario-oscuro);
+  color: var(--texto);
   font: inherit;
+  font-size: var(--t-sm);
   font-weight: 600;
+  line-height: 1.2;
   text-decoration: none;
   cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
 }
 
 .btn:hover {
-  text-decoration: underline;
+  border-color: var(--control-borde);
+  background: var(--superficie-suave);
+  color: var(--texto);
 }
 
 .btn--primary {
-  background: var(--primario-oscuro);
+  border-color: var(--acento);
+  background: var(--acento);
   color: #ffffff;
 }
 
-/* Foco visible en enlaces y botones, también al usar el teclado */
+.btn--primary:hover {
+  border-color: var(--acento-hover);
+  background: var(--acento-hover);
+  color: #ffffff;
+}
+
+.btn--sm {
+  min-height: 2rem;
+  padding: 0.3rem 0.7rem;
+  font-size: var(--t-xs);
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Foco visible en enlaces, botones y campos, también al usar el teclado */
 a:focus-visible,
 button:focus-visible,
-.btn:focus-visible {
-  outline: 3px solid var(--primario);
+.btn:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: 3px solid var(--acento-foco);
   outline-offset: 2px;
+}
+
+/* Campos de formulario comunes */
+.input,
+.select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--control-borde);
+  border-radius: var(--radio-sm);
+  background: var(--tarjeta);
+  color: var(--texto);
+  font: inherit;
 }
 
 /* La tabla se desplaza dentro de su caja y no mueve la página */
@@ -221,34 +341,69 @@ button:focus-visible,
   overflow-x: auto;
 }
 
+.table-wrap:focus-visible {
+  outline: 3px solid var(--acento-foco);
+  outline-offset: 2px;
+}
+
 table.data {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.95rem;
+  font-size: 0.9375rem;
   line-height: 1.4;
   font-variant-numeric: tabular-nums;
 }
 
 table.data th,
 table.data td {
-  padding: 0.5rem 0.6rem;
+  padding: 0.6rem 0.75rem;
   border-bottom: 1px solid var(--borde);
   text-align: left;
   vertical-align: top;
 }
 
+/* Cabeceras de columna: rótulo pequeño en mayúsculas sobre un fondo suave */
 table.data th {
   font-weight: 600;
   border-bottom-width: 2px;
 }
 
+table.data thead th {
+  background: var(--superficie-suave);
+  border-bottom-color: var(--borde-fuerte);
+  font-size: var(--t-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+  vertical-align: bottom;
+}
+
+table.data tbody tr:hover {
+  background: #fafaf7;
+}
+
+table.data caption {
+  caption-side: top;
+  text-align: left;
+  font-weight: 600;
+  padding-bottom: 0.5rem;
+}
+
+table.data td.num,
+table.data th.num {
+  text-align: right;
+}
+
 /* Semáforo de riesgo: siempre lleva texto (Bajo, Medio, Alto), nunca solo color */
 .badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   padding: 0.15rem 0.6rem;
   border-radius: 999px;
-  font-size: 0.85rem;
+  font-size: var(--t-xs);
   font-weight: 600;
+  line-height: 1.5;
   white-space: nowrap;
 }
 
@@ -265,6 +420,31 @@ table.data th {
 .badge--alto {
   background: var(--riesgo-alto-fondo);
   color: var(--riesgo-alto-texto);
+}
+
+/* Badge para datos que no son un semáforo de riesgo */
+.badge--neutro {
+  background: var(--superficie-suave);
+  border: 1px solid var(--borde);
+  color: var(--texto);
+}
+
+/* Punto de color que acompaña a un texto (p. ej. el conjunto); el texto nunca depende solo del punto */
+.dot {
+  display: inline-block;
+  flex: none;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.dot--entrenamiento {
+  background: var(--dato);
+}
+
+.dot--prediccion {
+  background: var(--dato-prediccion);
 }
 
 .muted {
@@ -289,13 +469,310 @@ table.data th {
 .note {
   margin: 0.75rem 0;
   padding: 0.75rem 1rem;
-  background: var(--fondo);
+  background: var(--superficie-suave);
   border: 1px solid var(--borde);
-  border-left: 4px solid var(--primario-oscuro);
-  border-radius: 6px;
+  border-left: 3px solid var(--acento);
+  border-radius: var(--radio-sm);
 }
 
 /* Las cabeceras de fila del cuerpo usan el borde de 1 px de las celdas, sin escalón entre filas */
 table.data tbody th[scope="row"] {
   border-bottom-width: 1px;
+}
+
+/* Indicadores (stat tiles): rótulo, cifra y nota. La cifra usa números proporcionales */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.stat {
+  min-width: 0;
+  margin: 0;
+  padding: 0.85rem 1rem;
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+}
+
+/* Dentro de una tarjeta, el indicador va sobre fondo suave para no repetir el borde blanco */
+.card .stat {
+  background: var(--superficie-suave);
+  border-color: transparent;
+}
+
+.stat__label {
+  margin: 0;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--texto-suave);
+}
+
+.stat__value {
+  margin: 0.2rem 0 0;
+  font-size: var(--t-xl);
+  font-weight: 650;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.stat__unit {
+  font-size: var(--t-sm);
+  font-weight: 500;
+  color: var(--texto-suave);
+}
+
+.stat__note {
+  margin: 0.2rem 0 0;
+  font-size: var(--t-xs);
+  color: var(--texto-suave);
+}
+
+/* Acordeón con <details>: una pregunta por fila, el contenido se despliega al hacer clic */
+
+.disclosure {
+  border-top: 1px solid var(--borde);
+}
+
+.disclosure:last-of-type {
+  border-bottom: 1px solid var(--borde);
+}
+
+.disclosure > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 2.75rem;
+  padding: 0.6rem 0;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+.disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Cheurón dibujado con bordes; gira al abrir */
+.disclosure > summary::after {
+  content: "";
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-right: 0.25rem;
+  border-right: 2px solid var(--texto-suave);
+  border-bottom: 2px solid var(--texto-suave);
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 0.15s ease;
+}
+
+.disclosure[open] > summary::after {
+  transform: rotate(-135deg) translateY(-2px);
+}
+
+.disclosure__body {
+  padding: 0 0 0.85rem;
+}
+
+.disclosure__body > :first-child {
+  margin-top: 0;
+}
+
+/* Índice de la página: en fila con desplazamiento horizontal; las páginas pueden fijarlo arriba o al lado */
+
+.toc {
+  font-size: var(--t-sm);
+}
+
+.toc ol,
+.toc ul {
+  display: flex;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+}
+
+.toc a {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  color: var(--texto-suave);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.toc a:hover,
+.toc a[aria-current="true"] {
+  background: var(--acento-suave);
+  color: var(--acento);
+}
+
+/* Pestañas (app/scripts/tabs.js). Sin JavaScript no hay fila de pestañas y las secciones se ven apiladas */
+
+.tabs__list {
+  position: relative;
+  display: flex;
+  gap: 0 1.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--borde);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs__tab {
+  flex: none;
+  min-height: 2.75rem;
+  margin-bottom: -1px;
+  padding: 0.6rem 0 calc(0.6rem - 2px);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--texto-suave);
+  font: inherit;
+  font-size: var(--t-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tabs__tab:hover {
+  color: var(--texto);
+  border-bottom-color: var(--borde-fuerte);
+}
+
+.tabs__tab[aria-selected="true"] {
+  color: var(--acento);
+  font-weight: 700;
+  border-bottom-color: var(--acento);
+}
+
+/* Desvanecido en el borde cuando hay más pestañas fuera de la vista (tabs.js pone las clases) */
+.tabs__list--more-right {
+  -webkit-mask-image: linear-gradient(to right, #000 80%, transparent);
+  mask-image: linear-gradient(to right, #000 80%, transparent);
+}
+
+.tabs__list--more-left {
+  -webkit-mask-image: linear-gradient(to left, #000 80%, transparent);
+  mask-image: linear-gradient(to left, #000 80%, transparent);
+}
+
+.tabs__list--more-left.tabs__list--more-right {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 15%, #000 85%, transparent);
+}
+
+@media (max-width: 600px) {
+  .tabs__list {
+    gap: 0 1.1rem;
+  }
+}
+
+/* hidden debe ganar al display de la sección (p. ej. .card o una cuadrícula) */
+.tabs__panel[hidden] {
+  display: none !important;
+}
+
+.tabs__panel:focus-visible {
+  outline: 3px solid var(--acento-foco);
+  outline-offset: 4px;
+}
+
+/* Sin JavaScript, las secciones apiladas se separan entre sí */
+.tabs:not(.tabs--ready) > .tabs__panel + .tabs__panel {
+  margin-top: 1rem;
+}
+
+/* Ayuda junto a un dato: un <details> discreto con «¿Qué significa?» */
+.help-inline {
+  margin: 0.5rem 0;
+  font-size: var(--t-sm);
+}
+
+.help-inline > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2rem;
+  color: var(--acento);
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+.help-inline > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Círculo con «?» dibujado con CSS, sin íconos externos */
+.help-inline > summary::before {
+  content: "?";
+  display: inline-grid;
+  place-items: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.help-inline[open] > summary {
+  margin-bottom: 0.35rem;
+}
+
+.help-inline__body {
+  padding: 0.6rem 0.85rem;
+  background: var(--superficie-suave);
+  border-radius: var(--radio-sm);
+  color: var(--texto);
+}
+
+.help-inline__body ul {
+  margin: 0.4rem 0;
+  padding-left: 1.1rem;
+}
+
+.help-inline__body li + li {
+  margin-top: 0.3rem;
+}
+
+.help-inline__body > :first-child {
+  margin-top: 0;
+}
+
+.help-inline__body > :last-child {
+  margin-bottom: 0;
+}
+
+/* Aviso de un parámetro no válido o de un error */
+.alert {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--riesgo-alto-texto);
+  border-radius: var(--radio-sm);
+  background: var(--riesgo-alto-fondo);
+  color: var(--riesgo-alto-texto);
+}
+
+.alert p {
+  margin: 0;
+}
+
+/* Para quien prefiere menos movimiento: sin transiciones */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
 }
