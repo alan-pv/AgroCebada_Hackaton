@@ -1,4 +1,6 @@
-// Mapa de la página inicial: parcelas coloreadas por conjunto, rendimiento, predicción o riesgo económico; el clic abre la ficha
+// Mapa de la página inicial: parcelas coloreadas por conjunto, rendimiento, predicción o riesgo económico.
+// El clic en una parcela la elige y abre su resumen en el panel; sin parcela elegida, el panel lista las
+// parcelas por predecir ordenadas por riesgo. En el celular el panel es una hoja plegable bajo el mapa
 
 // Colores por conjunto (paleta categórica validada para daltonismo)
 const SET_COLORS = {
@@ -40,15 +42,53 @@ const RISK_LEVELS = new Map([
   ["amarillo", { text: "medio", range: "de 10 a 30 %", color: "#E69F00", badge: "badge--medio" }],
   ["rojo", { text: "alto", range: "30 % o más", color: "#D55E00", badge: "badge--alto" }],
 ]);
+// Nota de la leyenda en las capas de riesgo: cuántas de las mostradas salen en medio o alto, y que eso
+// viene de los costos y precios por defecto, no de poca confianza en la predicción
+function riskNote(counts) {
+  const withLight = [...RISK_LEVELS.keys()].reduce((sum, key) => sum + (counts.get(key) ?? 0), 0);
+  if (!withLight) return "";
+  const notLow = (counts.get("amarillo") ?? 0) + (counts.get("rojo") ?? 0);
+  return `${notLow} de ${withLight} salen en medio o alto con los costos y precios por defecto. `
+    + "No es poca confianza en la predicción: ver «¿Cómo se lee el semáforo?».";
+}
+// Nivel de confianza de /api/parcels/<id>: texto y clase del badge, como en la ficha
+const CONFIDENCE_LEVELS = new Map([
+  ["alta", { text: "Confianza alta", badge: "badge--bajo" }],
+  ["media", { text: "Confianza media", badge: "badge--medio" }],
+  ["baja", { text: "Confianza baja", badge: "badge--alto" }],
+]);
+
+// Orden de la lista del panel. prob y light dicen qué riesgo muestra el badge de cada fila;
+// al ordenar por rendimiento, el badge sigue mostrando el riesgo de no pagar el crédito
+const SORTS = {
+  credit: { prob: "prob_not_pay_credit", light: "light_credit", column: "No pagar el crédito",
+            text: "de mayor a menor riesgo de no pagar el crédito", by: "riesgo" },
+  costs: { prob: "prob_not_cover_costs", light: "light_costs", column: "No cubrir costos",
+           text: "de mayor a menor riesgo de no cubrir costos", by: "riesgo" },
+  pred: { prob: "prob_not_pay_credit", light: "light_credit", column: "No pagar el crédito",
+          text: "de menor a mayor rendimiento predicho", by: "rendimiento" },
+};
 
 // Borde de las parcelas: gris oscuro semitransparente, para que lean sobre el mapa base gris claro
 const BORDER = "#3d3c38";
 const BORDER_OPACITY = 0.7;
 const BORDER_HOVER = "#0b0b0b";
+// Parcela elegida: borde negro más grueso, que se queda al quitar el puntero
+const SELECTED_WEIGHT = 4;
 
 // Por debajo de este zoom las parcelas miden pocos píxeles y se dibujan como círculos en su centro
 const POINT_ZOOM = 13;
 const POINT_RADIUS = 6;
+// Zoom mínimo al centrar el mapa en una parcela elegida en la lista: ya se ve su polígono
+const FOCUS_ZOOM = 15;
+
+// Mapa base: estilo «Positron» de OpenFreeMap (vectorial, gratis y sin clave), dibujado con MapLibre GL dentro de Leaflet.
+// Si el navegador no tiene WebGL, o el estilo no carga a tiempo, se usan los mosaicos de OpenStreetMap en gris
+const BASEMAP_STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
+const BASEMAP_ATTRIBUTION = '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> '
+  + '<a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">&copy; OpenMapTiles</a> '
+  + 'Datos de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
+const BASEMAP_TIMEOUT_MS = 10000;
 
 const mapElement = document.getElementById("map");
 const layerSelect = document.getElementById("layer");
@@ -65,21 +105,137 @@ const stats = Object.fromEntries(["shown", "to-predict", "pred-mean", "risk"].ma
   value: document.getElementById(`stat-${key}`),
   note: document.getElementById(`stat-${key}-note`),
 }]));
+// Panel: lista de parcelas por predecir y resumen de la parcela elegida
+const panel = document.getElementById("map-panel");
+const panelToggle = document.getElementById("panel-toggle");
+const panelToggleText = document.getElementById("panel-toggle-text");
+const panelOpenButton = document.getElementById("panel-open");
+const listView = document.getElementById("panel-list");
+const listTitle = document.getElementById("plist-title");
+const listSummary = document.getElementById("plist-summary");
+const listNote = document.getElementById("plist-note");
+const listColumnRisk = document.getElementById("plist-col-risk");
+const listItems = document.getElementById("plist-items");
+const sortSelect = document.getElementById("plist-sort");
+const parcelView = document.getElementById("panel-parcel");
+const summaryContent = document.getElementById("psum-content");
+const backButton = document.getElementById("psum-back");
+
+// En el celular (hasta 600 px) el panel es una hoja inferior; en escritorio, una columna a la derecha
+const mobileQuery = window.matchMedia("(max-width: 600px)");
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 // Vista inicial sobre la zona de estudio; se ajusta al cargar las parcelas
 const map = L.map(mapElement).setView([19.8, -98.4], 10);
-// Mapa base de OpenStreetMap; map.css lo pasa a gris claro para que el color lo lleven solo las parcelas.
-// (Los mosaicos grises de CARTO ya piden clave de API: sin ella llegan con una marca de agua)
-L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  maxZoom: 19,
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-}).addTo(map);
 
 let parcels = [];
+// Parcelas que pasan los filtros, en el último dibujo
+let shown = [];
 let polygonsLayer = null;
 let pointsLayer = null;
+// Polígono y círculo de cada parcela mostrada, por ID: sirven para resaltar la elegida y centrar el mapa en ella
+const layersById = new Map();
 // Verdadero si la carga de economía falló; entonces las capas de riesgo están deshabilitadas
 let economicsFailed = false;
+
+// Estado del panel: parcela elegida (o null), si está abierto (en el celular, si la hoja está desplegada)
+// y a dónde vuelve el foco al cerrarlo
+let selectedId = null;
+let panelOpen = !mobileQuery.matches;
+let returnFocus = null;
+// Al cerrar el resumen, el panel vuelve a la lista si ya estaba abierto con ella; si estaba cerrado, se cierra
+let closeToList = false;
+// Confianza de cada parcela, pedida una sola vez a /api/parcels/<id>
+const confidenceRequests = new Map();
+
+// Mapa base
+
+function hasWebGL() {
+  try {
+    const canvas = document.createElement("canvas");
+    return Boolean(canvas.getContext("webgl2") || canvas.getContext("webgl"));
+  } catch {
+    return false;
+  }
+}
+
+// Respaldo: mosaicos de OpenStreetMap; map.css los pasa a gris claro (clase map--osm) para que el color lo lleven las parcelas.
+// (Los mosaicos grises de CARTO ya piden clave de API: sin ella llegan con una marca de agua)
+function useOsmTiles() {
+  mapElement.classList.add("map--osm");
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  }).addTo(map);
+}
+
+// Etiquetas en español: Positron prefiere el nombre en inglés (name_en); aquí va name:es o el nombre local
+function spanishLabels(style) {
+  for (const layer of style.layers) {
+    const field = layer.layout && layer.layout["text-field"];
+    if (field && JSON.stringify(field).includes("name_en")) {
+      layer.layout["text-field"] = ["coalesce", ["get", "name:es"], ["get", "name"]];
+    }
+  }
+  return style;
+}
+
+function addBaseMap() {
+  if (!window.maplibregl || !L.maplibreGL || !hasWebGL()) {
+    useOsmTiles();
+    return;
+  }
+  let glLayer = null;
+  let settled = false;
+  // Pasa al respaldo una sola vez y quita la capa vectorial si ya se había agregado
+  const fallBack = () => {
+    if (settled) return;
+    settled = true;
+    clearTimeout(timer);
+    if (glLayer && map.hasLayer(glLayer)) {
+      try {
+        map.removeLayer(glLayer);
+      } catch {
+        glLayer.getContainer()?.remove();
+      }
+    }
+    useOsmTiles();
+  };
+  const timer = setTimeout(fallBack, BASEMAP_TIMEOUT_MS);
+
+  // El estilo se pide aparte: si falla, el respaldo entra de inmediato y no queda un fondo vacío
+  fetchJson(BASEMAP_STYLE_URL).then((style) => {
+    if (settled) return;
+    glLayer = L.maplibreGL({
+      style: spanishLabels(style),
+      // Atribución fija: OpenFreeMap, OpenMapTiles y OpenStreetMap
+      attributionControl: { customAttribution: BASEMAP_ATTRIBUTION },
+    });
+    try {
+      glLayer.addTo(map);
+    } catch {
+      // Sin contexto WebGL, MapLibre falla al crearse; la capa queda a medias y se retira a mano
+      glLayer.getContainer()?.remove();
+      glLayer.onRemove = () => {};
+      map.removeLayer(glLayer);
+      glLayer = null;
+      fallBack();
+      return;
+    }
+    const glMap = glLayer.getMaplibreMap();
+    glMap.once("load", () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+    });
+    // Antes de cargar, un error del estilo o de sus fuentes manda al respaldo; un mosaico suelto que falle, no
+    glMap.on("error", (event) => {
+      if (!event.tile) fallBack();
+    });
+  }).catch(fallBack);
+}
+
+// Colores y estilos de las parcelas
 
 // Índice de la clase de rendimiento de un valor; menos de 2.0 cae en la primera y 5.6 o más en la última
 function yieldClassIndex(value) {
@@ -113,17 +269,21 @@ function featureStyle(feature) {
   const p = feature.properties;
   const base = { weight: 1, color: BORDER, opacity: BORDER_OPACITY, fillOpacity: 0.85, dashArray: null };
   const fillColor = fillColorOf(p);
+  let style = { ...base, fillColor };
   if (fillColor === null) {
     // Sin valor en este modo: gris con borde punteado, para no depender solo del color
-    return { ...base, fillColor: NO_DATA.color, color: NO_DATA.border, opacity: 1, fillOpacity: 0.6, dashArray: "3 3" };
+    style = { ...base, fillColor: NO_DATA.color, color: NO_DATA.border, opacity: 1, fillOpacity: 0.6, dashArray: "3 3" };
   }
-  return { ...base, fillColor };
+  if (p.id === selectedId) {
+    style = { ...style, weight: SELECTED_WEIGHT, color: BORDER_HOVER, opacity: 1, dashArray: null };
+  }
+  return style;
 }
 
 function pointStyle(feature) {
   const noData = fillColorOf(feature.properties) === null;
   // Anillo blanco para separar los círculos que se enciman; punteado gris si no hay valor
-  return {
+  const style = {
     ...featureStyle(feature),
     radius: POINT_RADIUS,
     weight: 1.5,
@@ -132,10 +292,25 @@ function pointStyle(feature) {
     dashArray: noData ? "2 2" : null,
     fillOpacity: noData ? 0.7 : 0.95,
   };
+  // La elegida: círculo más grande con anillo negro
+  if (feature.properties.id === selectedId) {
+    return { ...style, radius: POINT_RADIUS + 3, weight: 3, color: BORDER_HOVER, dashArray: null };
+  }
+  return style;
 }
+
+// Textos
 
 function formatNumber(value, digits) {
   return value.toLocaleString("es-MX", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+}
+
+function formatPercent(probability) {
+  return `${formatNumber(probability * 100, 0)} %`;
+}
+
+function capitalize(text) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 // Fila etiqueta–valor de la mini tarjeta del tooltip
@@ -147,7 +322,7 @@ function tipRow(label, value) {
 function riskRow(label, probability, light) {
   const level = RISK_LEVELS.get(light);
   const badge = level ? ` <span class="badge ${level.badge}">Riesgo ${level.text}</span>` : "";
-  return tipRow(label, `${formatNumber(probability * 100, 0)} %${badge}`);
+  return tipRow(label, `${formatPercent(probability)}${badge}`);
 }
 
 // Mini tarjeta del tooltip: ID y conjunto, la cifra principal grande y filas etiqueta–valor
@@ -157,7 +332,7 @@ function tooltipHtml(p) {
   const rows = [tipRow("Municipio", `${p.municipality}, ${p.state}`)];
   if (!training) {
     rows.push(tipRow("Intervalo p10 a p90", `${formatNumber(p.p10, 2)} a ${formatNumber(p.p90, 2)} t/ha`));
-    rows.push(tipRow("Probabilidad bajo 2.5 t/ha", `${formatNumber(p.prob_below * 100, 0)} %`));
+    rows.push(tipRow("Probabilidad bajo 2.5 t/ha", formatPercent(p.prob_below)));
   }
   rows.push(tipRow("Área", `${formatNumber(p.area_ha, 2)} ha`));
   // Riesgo económico, solo si se cargó la economía
@@ -173,10 +348,12 @@ function tooltipHtml(p) {
     + `<p class="tip__value">${formatNumber(training ? p.yield_t_ha : p.pred, 2)} <span class="tip__unit">t/ha</span></p>`
     + `<p class="tip__caption">${training ? "Rendimiento observado" : "Rendimiento predicho por el modelo"}</p>`
     + `<dl class="tip__rows">${rows.join("")}</dl>`
-    // Siempre es la última línea: avisa que el clic abre la ficha
-    + '<p class="tip__hint">Clic para ver la ficha</p>'
+    // Siempre es la última línea: avisa que el clic abre el resumen en el panel
+    + '<p class="tip__hint">Clic para ver el resumen</p>'
     + "</div>";
 }
+
+// Filtros, contador e indicadores
 
 function matchesFilters(p) {
   return (!stateSelect.value || p.state === stateSelect.value)
@@ -244,6 +421,8 @@ function updateStats(selected) {
     `${high} de ${withLight.length}, con probabilidad de 30 % o más`);
 }
 
+// Leyenda
+
 // Fila de la leyenda: muestra de color, rótulo y número de parcelas mostradas en esa clase
 function legendRow(color, label, count, extraClass = "") {
   return `<div class="legend-row"><span class="legend-swatch ${extraClass}" style="background:${color}"></span>`
@@ -251,10 +430,10 @@ function legendRow(color, label, count, extraClass = "") {
 }
 
 // Leyenda plegable: el título (con el rótulo de la columna de conteos) abre y cierra las filas
-function legendHtml(title, rows) {
+function legendHtml(title, rows, note = "") {
   return `<details class="legend-details"${legendOpen ? " open" : ""}>`
     + `<summary class="legend-head"><strong>${title}</strong><span class="legend-count-title">Parcelas</span></summary>`
-    + `<div class="legend-body">${rows.join("")}</div></details>`;
+    + `<div class="legend-body">${rows.join("")}${note ? `<p class="legend-note">${note}</p>` : ""}</div></details>`;
 }
 
 // Cuenta cuántas parcelas caen en cada clave; null agrupa las que no tienen valor
@@ -268,7 +447,7 @@ function countBy(selected, keyOf) {
 }
 
 // En el celular la leyenda empieza plegada para no tapar el mapa; se recuerda si el usuario la abre o la cierra
-let legendOpen = !window.matchMedia("(max-width: 600px)").matches;
+let legendOpen = !mobileQuery.matches;
 const legend = L.control({ position: "bottomright" });
 legend.onAdd = () => {
   const div = L.DomUtil.create("div", "legend");
@@ -296,7 +475,7 @@ function updateLegend(selected) {
     div.innerHTML = legendHtml(title, [
       ...[...RISK_LEVELS].map(([key, level]) => legendRow(level.color, `Riesgo ${level.text}: ${level.range}`, counts.get(key) ?? 0)),
       legendRow(NO_DATA.color, "Sin dato", counts.get(null) ?? 0, "legend-swatch--no-data"),
-    ]);
+    ], riskNote(counts));
   } else {
     const counts = countBy(selected, (p) => {
       const value = colorValue(p);
@@ -309,17 +488,31 @@ function updateLegend(selected) {
   }
 }
 
+// Capas de parcelas
+
 function bindInteractions(feature, layer, reset) {
   layer.bindTooltip(tooltipHtml(feature.properties), { sticky: true, className: "parcel-tip", opacity: 1 });
   layer.on({
     mouseover: () => {
-      layer.setStyle({ weight: 3, color: BORDER_HOVER, opacity: 1 });
+      const weight = feature.properties.id === selectedId ? SELECTED_WEIGHT : 3;
+      layer.setStyle({ weight, color: BORDER_HOVER, opacity: 1 });
       layer.bringToFront();
     },
     mouseout: reset,
-    // Clic: va a la ficha de la parcela
-    click: () => window.location.assign(detailUrl(feature.properties.id)),
+    // Clic: elige la parcela y abre su resumen en el panel. El tooltip se cierra para no tapar el mapa
+    click: () => {
+      layer.closeTooltip();
+      openParcel(feature.properties.id);
+    },
   });
+}
+
+// La parcela elegida va encima de sus vecinas
+function raiseSelected() {
+  const entry = layersById.get(selectedId);
+  if (!entry) return;
+  if (map.hasLayer(entry.polygon)) entry.polygon.bringToFront();
+  if (map.hasLayer(entry.marker)) entry.marker.bringToFront();
 }
 
 function showByZoom() {
@@ -329,21 +522,28 @@ function showByZoom() {
   const hide = usePoints ? polygonsLayer : pointsLayer;
   if (map.hasLayer(hide)) hide.remove();
   if (!map.hasLayer(show)) show.addTo(map);
+  raiseSelected();
 }
 
 function draw(fit) {
   if (polygonsLayer) polygonsLayer.remove();
   if (pointsLayer) pointsLayer.remove();
+  layersById.clear();
   const selected = parcels.filter((f) => matchesFilters(f.properties));
+  shown = selected;
 
   polygonsLayer = L.geoJSON(selected, {
     style: featureStyle,
-    onEachFeature: (feature, layer) => bindInteractions(feature, layer, () => polygonsLayer.resetStyle(layer)),
+    onEachFeature: (feature, layer) => {
+      bindInteractions(feature, layer, () => polygonsLayer.resetStyle(layer));
+      layersById.set(feature.properties.id, { feature, polygon: layer, marker: null });
+    },
   });
   pointsLayer = L.featureGroup(selected.map((feature) => {
     const center = L.geoJSON(feature).getBounds().getCenter();
     const marker = L.circleMarker(center, pointStyle(feature));
     bindInteractions(feature, marker, () => marker.setStyle(pointStyle(feature)));
+    layersById.get(feature.properties.id).marker = marker;
     return marker;
   }));
 
@@ -351,9 +551,284 @@ function draw(fit) {
   updateStats(selected);
   updateLegend(selected);
   updateActiveFilters();
+  // Si los filtros dejan fuera a la parcela elegida, el panel vuelve a la lista
+  if (selectedId !== null && !layersById.has(selectedId)) {
+    const focusWasInSummary = parcelView.contains(document.activeElement);
+    selectedId = null;
+    renderPanel();
+    if (focusWasInSummary) listTitle.focus();
+  }
+  renderList();
   if (fit && selected.length) map.fitBounds(polygonsLayer.getBounds(), { padding: [20, 20] });
   showByZoom();
 }
+
+// Cambia la parcela elegida y vuelve a pintar la anterior y la nueva
+function setSelected(id) {
+  const previous = selectedId;
+  selectedId = id;
+  for (const pid of [previous, id]) {
+    const entry = layersById.get(pid);
+    if (!entry) continue;
+    entry.polygon.setStyle(featureStyle(entry.feature));
+    entry.marker.setStyle(pointStyle(entry.feature));
+  }
+  raiseSelected();
+}
+
+// Lista de parcelas por predecir
+
+// Número para ordenar: los que faltan van al final de la lista
+function sortValue(value, descending) {
+  if (typeof value !== "number") return descending ? -Infinity : Infinity;
+  return value;
+}
+
+function compareParcels(key) {
+  const desc = (field) => (a, b) => sortValue(b[field], true) - sortValue(a[field], true);
+  const asc = (field) => (a, b) => sortValue(a[field], false) - sortValue(b[field], false);
+  // Criterio principal y desempates; al final, el ID para que el orden sea estable
+  const criteria = {
+    credit: [desc("prob_not_pay_credit"), desc("prob_not_cover_costs"), asc("pred")],
+    costs: [desc("prob_not_cover_costs"), desc("prob_not_pay_credit"), asc("pred")],
+    pred: [asc("pred"), desc("prob_not_pay_credit")],
+  }[key];
+  return (a, b) => {
+    for (const compare of criteria) {
+      const result = compare(a, b);
+      if (result) return result;
+    }
+    return a.id.localeCompare(b.id);
+  };
+}
+
+// Badge del riesgo de una fila, con el nivel y la probabilidad en texto
+function listRiskHtml(p, sort) {
+  const level = RISK_LEVELS.get(p[sort.light]);
+  if (!level || typeof p[sort.prob] !== "number") return '<span class="plist__risk muted">Sin dato</span>';
+  return `<span class="plist__risk badge ${level.badge}"><span class="visually-hidden">Riesgo de ${sort.column.toLowerCase()}: </span>`
+    + `${capitalize(level.text)} · ${formatPercent(p[sort.prob])}</span>`;
+}
+
+function listRowHtml(p, sort) {
+  const pred = typeof p.pred === "number" ? `${formatNumber(p.pred, 2)} <span class="plist__unit">t/ha</span>` : "—";
+  return `<li><button type="button" class="plist__row" data-id="${p.id}">`
+    + `<span class="plist__name"><strong>${p.id}</strong><span class="plist__muni">${p.municipality}</span></span>`
+    + `<span class="plist__pred"><span class="visually-hidden">Predicción: </span>${pred}</span>`
+    + (economicsFailed ? "" : listRiskHtml(p, sort))
+    + "</button></li>";
+}
+
+// Arma la lista con las parcelas por predecir que pasan los filtros, en el orden elegido
+function renderList() {
+  const key = economicsFailed ? "pred" : sortSelect.value;
+  const sort = SORTS[key];
+  const rows = shown.map((f) => f.properties).filter((p) => p.set === "PREDICCION").sort(compareParcels(key));
+  const total = rows.length;
+
+  listItems.innerHTML = total
+    ? rows.map((p) => listRowHtml(p, sort)).join("")
+    : '<li class="plist__empty">No hay parcelas por predecir con estos filtros.</li>';
+  listSummary.textContent = total ? `${total} ${total === 1 ? "parcela" : "parcelas"}, ${sort.text}` : "";
+  listColumnRisk.textContent = sort.column;
+  listView.classList.toggle("plist--no-risk", economicsFailed);
+  updateToggleText(total, sort);
+}
+
+// Título de la hoja en el celular: cuántas hay y cómo van ordenadas, o qué muestra la hoja
+function updateToggleText(total = listItems.querySelectorAll(".plist__row").length, sort = SORTS[sortSelect.value]) {
+  if (selectedId !== null) {
+    panelToggleText.textContent = `Resumen de ${selectedId}`;
+  } else if (!total) {
+    panelToggleText.textContent = "Ninguna por predecir con estos filtros";
+  } else {
+    panelToggleText.textContent = `${total} por predecir · ordenadas por ${economicsFailed ? "rendimiento" : sort.by}`;
+  }
+}
+
+// Resumen de la parcela elegida
+
+function summaryRow(label, value, attrs = "") {
+  return `<div class="psum__row"><dt>${label}</dt><dd${attrs}>${value}</dd></div>`;
+}
+
+function summaryRiskRow(label, probability, light) {
+  if (typeof probability !== "number") return summaryRow(label, '<span class="muted">Sin dato</span>');
+  const level = RISK_LEVELS.get(light);
+  const badge = level ? ` <span class="badge ${level.badge}">Riesgo ${level.text}</span>` : "";
+  return summaryRow(label, `${formatPercent(probability)}${badge}`);
+}
+
+function summaryHtml(p) {
+  const training = p.set === "ENTRENAMIENTO";
+  const dot = training ? "dot--entrenamiento" : "dot--prediccion";
+  const value = training ? p.yield_t_ha : p.pred;
+  const rows = [];
+  if (training && typeof p.pred === "number") rows.push(summaryRow("Predicción validada", `${formatNumber(p.pred, 2)} t/ha`));
+  if (typeof p.p10 === "number") rows.push(summaryRow("Rango p10 a p90", `${formatNumber(p.p10, 2)} a ${formatNumber(p.p90, 2)} t/ha`));
+  if (typeof p.prob_below === "number") rows.push(summaryRow("Probabilidad bajo 2.5 t/ha", formatPercent(p.prob_below)));
+  // La confianza llega aparte, de /api/parcels/<id>
+  rows.push(summaryRow("Confianza", '<span class="muted">Cargando…</span>', ' id="psum-conf" aria-busy="true"'));
+  rows.push(summaryRow("Área", `${formatNumber(p.area_ha, 2)} ha`));
+
+  const risk = economicsFailed
+    ? '<p class="psum__empty">No se pudo cargar la economía.</p>'
+    : `<dl class="psum__rows">${summaryRiskRow("No cubrir costos", p.prob_not_cover_costs, p.light_costs)}`
+      + `${summaryRiskRow("No pagar el crédito", p.prob_not_pay_credit, p.light_credit)}</dl>`;
+
+  return `<div class="psum__head"><h2 id="psum-id" class="psum__id" tabindex="-1">${p.id}</h2>`
+    + `<span class="tip__set"><span class="dot ${dot}"></span>${SET_LABELS[p.set]}</span></div>`
+    + `<p class="psum__place">${p.municipality}, ${p.state}</p>`
+    + `<p class="psum__value">${typeof value === "number" ? formatNumber(value, 2) : "—"} <span class="psum__unit">t/ha</span></p>`
+    + `<p class="psum__caption">${training ? "Rendimiento observado" : "Rendimiento predicho por el modelo"}</p>`
+    + `<dl class="psum__rows">${rows.join("")}</dl>`
+    + '<p id="psum-conf-reason" class="psum__reason" hidden></p>'
+    + (training ? '<p class="psum__reason">Parcela de entrenamiento: la predicción es la validada fuera de entrenamiento.</p>' : "")
+    + '<h3 class="psum__subtitle">Riesgo económico</h3>'
+    + risk
+    + '<details class="help-inline"><summary>¿Qué significan estas cifras?</summary><div class="help-inline__body">'
+    + "<p>El rango p10 a p90 es donde se espera que caiga el rendimiento real. El p10 es un rendimiento conservador: "
+    + "9 de cada 10 parcelas rinden más que ese valor.</p>"
+    + "<p>La confianza depende de las parcelas medidas cercanas: alta, al menos una a 400 m o menos; media, ninguna a 400 m, "
+    + "pero la más cercana a 800 m o menos; baja, la más cercana a más de 800 m, o el área queda fuera del rango de su régimen. "
+    + "No cambia el intervalo.</p>"
+    + "<p>El semáforo de riesgo es bajo con menos de 10 %, medio de 10 a menos de 30 % y alto con 30 % o más. "
+    + "Con los costos y precios por defecto, muchas parcelas salen en medio o alto. No significa poca confianza en la "
+    + "predicción: el costo total suele pedir más rendimiento del esperado, y en el crédito se suma la pérdida histórica "
+    + "del municipio. En la ficha se explica y se pueden cambiar el precio y el punto de equilibrio.</p>"
+    + "</div></details>"
+    + `<div class="psum__footer"><a class="btn btn--primary psum__cta" href="${detailUrl(p.id)}">Ver ficha completa</a></div>`;
+}
+
+// Pide la confianza de la parcela (una vez) y la muestra si la parcela sigue elegida
+function loadConfidence(id) {
+  if (!confidenceRequests.has(id)) {
+    confidenceRequests.set(id, fetchJson(detailApiUrl(id)).then((data) => data.confidence));
+  }
+  confidenceRequests.get(id).then((confidence) => {
+    if (selectedId !== id) return;
+    const cell = document.getElementById("psum-conf");
+    const reason = document.getElementById("psum-conf-reason");
+    const level = CONFIDENCE_LEVELS.get(confidence && confidence.level);
+    cell.innerHTML = level ? `<span class="badge ${level.badge}">${level.text}</span>` : "Sin dato de confianza";
+    cell.removeAttribute("aria-busy");
+    if (confidence && confidence.reason) {
+      reason.textContent = `${capitalize(confidence.reason)}.`;
+      reason.hidden = false;
+    }
+  }).catch(() => {
+    // Se puede volver a pedir la próxima vez que se elija la parcela
+    confidenceRequests.delete(id);
+    if (selectedId !== id) return;
+    const cell = document.getElementById("psum-conf");
+    cell.innerHTML = '<span class="psum__error">No se pudo cargar</span>';
+    cell.removeAttribute("aria-busy");
+  });
+}
+
+// Panel: abrir, cerrar y volver a la lista
+
+// Muestra la vista que toca (lista o resumen) y abre o cierra el panel según el tamaño de la pantalla
+function renderPanel() {
+  const showParcel = selectedId !== null;
+  listView.hidden = showParcel;
+  parcelView.hidden = !showParcel;
+  if (mobileQuery.matches) {
+    panel.hidden = false;
+    panelOpenButton.hidden = true;
+    panel.classList.toggle("is-collapsed", !panelOpen);
+    panelToggle.setAttribute("aria-expanded", String(panelOpen));
+  } else {
+    panel.hidden = !panelOpen;
+    panel.classList.remove("is-collapsed");
+    panelOpenButton.hidden = panelOpen;
+  }
+  updateToggleText();
+}
+
+// El mapa cambia de tamaño al abrir o cerrar el panel; sin mover lo que ya se ve
+function layoutChanged() {
+  map.invalidateSize({ pan: false });
+}
+
+function parcelBounds(id) {
+  const entry = layersById.get(id);
+  return entry ? entry.polygon.getBounds() : null;
+}
+
+// Elige una parcela y muestra su resumen. Desde la lista, el mapa además se centra en ella
+function openParcel(id, { center = false } = {}) {
+  if (!layersById.has(id)) return;
+  // El foco vuelve a donde estaba al abrir (una fila de la lista, el mapa); cambiar de parcela no lo mueve
+  if (!parcelView.contains(document.activeElement)) returnFocus = document.activeElement;
+  const wasOpen = panelOpen;
+  if (selectedId === null) closeToList = wasOpen;
+  setSelected(id);
+  panelOpen = true;
+  summaryContent.innerHTML = summaryHtml(layersById.get(id).feature.properties);
+  renderPanel();
+  if (!wasOpen) layoutChanged();
+  const bounds = parcelBounds(id);
+  if (center) {
+    map.setView(bounds.getCenter(), Math.max(map.getZoom(), FOCUS_ZOOM), { animate: !reducedMotion.matches });
+  } else {
+    // Si el panel tapó la parcela (la hoja del celular), el mapa se mueve lo justo para verla
+    map.panInside(bounds.getCenter(), { padding: [40, 40] });
+  }
+  document.getElementById("psum-id").focus({ preventScroll: true });
+  parcelView.scrollTop = 0;
+  loadConfidence(id);
+}
+
+// Lleva el foco a un elemento si sigue en la página y se ve; si no, a la alternativa (por omisión, el control
+// que vuelve a abrir el panel). Si venía de una parcela del mapa, vuelve al mapa y no al polígono
+function restoreFocus(target, fallback = mobileQuery.matches ? panelToggle : panelOpenButton) {
+  if (target && target !== mapElement && mapElement.contains(target)) target = mapElement;
+  const visible = target && target !== document.body && target.isConnected && target.getClientRects().length > 0;
+  (visible ? target : fallback).focus({ preventScroll: true });
+}
+
+// Cerrar (botón ×, Esc o el título de la hoja): suelta la parcela y cierra el panel o pliega la hoja
+function closePanel() {
+  setSelected(null);
+  panelOpen = false;
+  renderPanel();
+  layoutChanged();
+  restoreFocus(returnFocus);
+  returnFocus = null;
+}
+
+// Cerrar el resumen (botón × o Esc): si el panel ya mostraba la lista, vuelve a ella y el foco regresa
+// a donde estaba al abrir (la fila o el mapa); si el panel estaba cerrado, se cierra de nuevo
+function closeSummary() {
+  if (!closeToList) {
+    closePanel();
+    return;
+  }
+  setSelected(null);
+  renderPanel();
+  restoreFocus(returnFocus, listTitle);
+  returnFocus = null;
+}
+
+// «Volver a la lista»: suelta la parcela y deja el foco en su fila
+function backToList() {
+  const id = selectedId;
+  setSelected(null);
+  renderPanel();
+  const row = [...listItems.querySelectorAll(".plist__row")].find((el) => el.dataset.id === id);
+  (row || listTitle).focus({ preventScroll: true });
+  if (row) row.scrollIntoView({ block: "nearest" });
+}
+
+// Abre el panel con la lista (botón de escritorio o título de la hoja en el celular)
+function openList() {
+  panelOpen = true;
+  renderPanel();
+  layoutChanged();
+}
+
+// Carga de datos y URLs
 
 function fetchJson(url) {
   return fetch(url).then((res) => {
@@ -365,6 +840,11 @@ function fetchJson(url) {
 // Ruta de la ficha: data-detail-url trae el marcador __ID__, que se cambia por el ID codificado
 function detailUrl(id) {
   return mapElement.dataset.detailUrl.replace("__ID__", encodeURIComponent(id));
+}
+
+// Igual para el JSON de la ficha, de donde sale la confianza
+function detailApiUrl(id) {
+  return mapElement.dataset.detailApiUrl.replace("__ID__", encodeURIComponent(id));
 }
 
 // URL de descarga en CSV: la base sale de data-* y solo se agregan los filtros que tienen valor
@@ -421,14 +901,25 @@ function updateActiveFilters() {
   filtersActive.textContent = active ? ` · ${active} ${active === 1 ? "filtro" : "filtros"}` : "";
 }
 
-// Sin economía, las capas de riesgo quedan deshabilitadas y el resto del mapa sigue igual
+// Sin economía, las capas de riesgo quedan deshabilitadas y la lista se ordena por rendimiento, y lo dice
 function disableRiskLayers() {
   for (const option of layerSelect.options) {
     if (RISK_LAYERS.has(option.value)) option.disabled = true;
   }
+  for (const option of sortSelect.options) {
+    if (option.value !== "pred") option.disabled = true;
+  }
+  sortSelect.value = "pred";
+  listNote.textContent = "No se pudo cargar la economía: la lista se ordena por rendimiento predicho, de menor a mayor.";
+  listNote.hidden = false;
 }
 
+// Eventos
+
 map.on("zoomend", showByZoom);
+// El alto del mapa cambia sin que cambie la ventana (indicadores que se llenan, filtros o la hoja del celular que
+// se abren): Leaflet y el mapa base se enteran aquí para no dejar franjas vacías
+if (window.ResizeObserver) new ResizeObserver(layoutChanged).observe(mapElement);
 layerSelect.addEventListener("change", () => {
   draw(false);
   syncState();
@@ -466,6 +957,60 @@ for (const link of [predictionsLink, economicsLink]) {
     downloadMenu.open = false;
   });
 }
+
+// Lista: clic o Enter en una fila elige la parcela y centra el mapa en ella; flechas, Inicio y Fin pasan de fila en fila
+listItems.addEventListener("click", (event) => {
+  const row = event.target.closest(".plist__row");
+  if (row) openParcel(row.dataset.id, { center: true });
+});
+listItems.addEventListener("keydown", (event) => {
+  const rows = [...listItems.querySelectorAll(".plist__row")];
+  const index = rows.indexOf(document.activeElement);
+  if (index === -1) return;
+  const next = { ArrowDown: index + 1, ArrowUp: index - 1, Home: 0, End: rows.length - 1 }[event.key];
+  if (next === undefined) return;
+  event.preventDefault();
+  rows[Math.max(0, Math.min(rows.length - 1, next))].focus();
+});
+sortSelect.addEventListener("change", renderList);
+
+backButton.addEventListener("click", backToList);
+// El × de la lista cierra el panel; el del resumen, solo el resumen
+listView.querySelector("[data-close]").addEventListener("click", closePanel);
+parcelView.querySelector("[data-close]").addEventListener("click", closeSummary);
+panelOpenButton.addEventListener("click", () => {
+  openList();
+  listTitle.focus({ preventScroll: true });
+});
+// Título de la hoja (celular): la despliega con la lista o la pliega
+panelToggle.addEventListener("click", () => {
+  if (panelOpen) {
+    closePanel();
+  } else {
+    returnFocus = panelToggle;
+    openList();
+  }
+});
+
+// Esc cierra el resumen (y vuelve a la lista) o el panel, salvo que lo atienda el menú «Descargar» o un selector abierto
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape" || downloadMenu.contains(event.target) || event.target.tagName === "SELECT") return;
+  if (selectedId !== null) {
+    closeSummary();
+  } else if (panelOpen && (panel.contains(document.activeElement) || mobileQuery.matches)) {
+    closePanel();
+  }
+});
+
+// Al pasar de celular a escritorio (o al revés) el panel toma el estado por defecto de ese tamaño
+mobileQuery.addEventListener("change", () => {
+  if (selectedId === null) panelOpen = !mobileQuery.matches;
+  renderPanel();
+  layoutChanged();
+});
+
+addBaseMap();
+renderPanel();
 
 // La economía se pide a la par; si falla, el mapa se dibuja igual, sin las capas de riesgo
 const economicsRequest = fetchJson(mapElement.dataset.economicsUrl).catch(() => null);
@@ -505,4 +1050,5 @@ Promise.all([fetchJson(mapElement.dataset.parcelsUrl), fetchJson(mapElement.data
   })
   .catch(() => {
     countLabel.textContent = "No se pudieron cargar las parcelas.";
+    listItems.innerHTML = '<li class="plist__empty">No se pudieron cargar las parcelas.</li>';
   });

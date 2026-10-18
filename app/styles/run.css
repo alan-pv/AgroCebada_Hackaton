@@ -19,12 +19,6 @@
   display: none !important;
 }
 
-.run h4 {
-  margin: 0 0 0.25rem;
-  font-size: var(--t-base);
-  font-weight: 650;
-}
-
 .run .hint {
   margin: 0.3rem 0 0;
   font-size: var(--t-sm);
@@ -32,9 +26,10 @@
   color: var(--texto-suave);
 }
 
-/* Texto introductorio de una tarjeta, separado de sus campos */
+/* Texto introductorio de una pestaña, separado de sus campos */
 .run .hint.intro {
-  margin: -0.25rem 0 1rem;
+  max-width: 70ch;
+  margin: 0 0 1rem;
 }
 
 /* Enlace dentro de una ayuda: separado del texto y con el peso del resto de la interfaz */
@@ -191,9 +186,66 @@
   min-width: 36rem;
 }
 
-/* Barra de acción al pie de la tarjeta: selección, umbral y botón en una franja */
+/* Cabecera de la tarjeta de entrada: título a la izquierda y umbral, común a las tres pestañas, a la derecha */
+.run .run-input__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.run .run-input__head .card__title {
+  padding-top: 0.55rem;
+}
+
+.run .threshold-field {
+  max-width: 21rem;
+}
+
+/* Umbral en línea: «Umbral [2.5] t/ha» y, debajo, para qué sirve */
+.run .threshold {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.run .threshold label {
+  font-size: var(--t-sm);
+  font-weight: 600;
+}
+
+.run .threshold input {
+  width: 5.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.run .threshold__unit {
+  font-size: var(--t-sm);
+  color: var(--texto-suave);
+}
+
+.run .threshold-field .hint {
+  margin-top: 0.35rem;
+  font-size: var(--t-xs);
+}
+
+/* Aviso de umbral no válido, junto al campo */
+.run .threshold-field .message {
+  min-height: 0;
+  margin-top: 0.35rem;
+}
+
+/* Las pestañas no se pegan al borde de la cabecera de la tarjeta */
+.run .run-input .tabs__list {
+  margin-bottom: 1.25rem;
+}
+
+/* Barra de acción al pie de cada pestaña: lo elegido a la izquierda y el botón a la derecha, en una
+   franja que llega a los bordes de la tarjeta (la pestaña es lo último de la tarjeta) */
 .run .run-bar {
-  margin: 1rem -1.5rem -1.25rem;
+  margin: 1.25rem -1.5rem -1.25rem;
   padding: 0.85rem 1.5rem 1rem;
   background: var(--superficie-suave);
   border-top: 1px solid var(--borde);
@@ -212,37 +264,8 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Umbral en línea: «Umbral [2.5] t/ha», separado del contador por una raya fina */
-.run .threshold {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding-left: 1.25rem;
-  border-left: 1px solid var(--borde-fuerte);
-}
-
-.run .threshold label {
-  font-size: var(--t-sm);
-  font-weight: 600;
-}
-
-.run .threshold input {
-  width: 5.5rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.run .threshold__unit {
-  font-size: var(--t-sm);
-  color: var(--texto-suave);
-}
-
-/* El botón principal queda a la derecha de la franja */
-.run .run-bar #run-button {
+.run .run-bar__action {
   margin-left: auto;
-}
-
-.run .run-bar .hint {
-  margin-top: 0.5rem;
 }
 
 .run .actions {
@@ -260,7 +283,8 @@
 }
 
 /* Sin mensaje no ocupa lugar, pero sigue en la página para que aria-live lo anuncie al llenarse */
-.run .run-bar .message:empty {
+.run .run-bar .message:empty,
+.run .threshold-field .message:empty {
   min-height: 0;
   margin-top: 0;
 }
@@ -276,21 +300,40 @@
   font-weight: 600;
 }
 
-/* Carga de CSV, separada del formulario por una línea */
-.run .csv {
-  margin-top: 1rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--borde);
+/* Formato del CSV: rótulo y valor en dos columnas, con la plantilla debajo */
+.run .csv-format {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.2rem 1rem;
+  margin: 0;
+  font-size: var(--t-sm);
 }
 
-/* Selector de archivo propio: el campo nativo está oculto a la vista (.visually-hidden) y la
-   etiqueta hace de botón; el foco del campo se dibuja en ella */
+.run .csv-format dt {
+  font-weight: 600;
+  color: var(--texto-suave);
+}
+
+.run .csv-format dd {
+  margin: 0;
+}
+
+.run .csv-format + .hint {
+  margin-top: 0.6rem;
+}
+
+.run .csv-format + .hint a {
+  margin-left: 0;
+}
+
+/* Selector de archivo propio, en la barra de la pestaña CSV: el campo nativo está oculto a la vista
+   (.visually-hidden) y la etiqueta hace de botón; el foco del campo se dibuja en ella */
 .run .file {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem 0.75rem;
-  margin-top: 0.85rem;
+  min-width: 0;
 }
 
 .run .file input:focus-visible + .file__button {
@@ -342,9 +385,59 @@
   font-weight: 600;
 }
 
+/* Tabla de resultados: cuatro columnas. Parcela (ID y lugar), Predicción (cifra y barra de rango),
+   Probabilidad bajo el umbral y Confianza */
 .run .results-table th,
 .run .results-table td {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
   vertical-align: middle;
+}
+
+/* Al llevar la vista a los resultados, la tarjeta no queda pegada al borde de la ventana */
+.run #results {
+  scroll-margin-top: 1rem;
+}
+
+.run .results-table .parcel-col {
+  width: 28%;
+}
+
+.run .results-table .prob-col {
+  width: 8.5rem;
+}
+
+.run .results-table .conf-col {
+  width: 9.5rem;
+}
+
+/* Celda de la parcela: el ID arriba y, debajo, municipio y estado en texto suave */
+.run .results-table tbody .parcel-col {
+  font-weight: 400;
+}
+
+.run .parcel__id {
+  display: block;
+  font-weight: 600;
+}
+
+.run .parcel__place {
+  display: block;
+  font-size: var(--t-xs);
+  color: var(--texto-suave);
+}
+
+/* Filas con ficha: toda la fila abre la ficha; el enlace del ID sigue siendo el objetivo del teclado */
+.run .results-table tbody tr.is-link {
+  cursor: pointer;
+}
+
+.run .results-table tbody tr.is-link:hover {
+  background: var(--superficie-suave);
+}
+
+.run .results-table tbody tr.is-link:hover .parcel__id a {
+  text-decoration-thickness: 2px;
 }
 
 /* Leyenda de las barras de rango: muestra de cada marca y su nombre, en texto de tinta */
@@ -392,15 +485,29 @@
   background: var(--texto-suave);
 }
 
-/* Mini barra de rango: escala común en todas las filas. Raya base fina, intervalo p10–p90 como
-   franja clara, predicción como punto con anillo y umbral como línea vertical tenue */
-.run .range-col {
-  width: 13rem;
-  min-width: 10rem;
+/* Celda de la predicción: la cifra con ancho fijo y, a su lado, la barra con el resto del ancho */
+.run .pred {
+  --pred-cifra: 2.75rem;
+  --pred-hueco: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: var(--pred-hueco);
 }
 
+.run .pred__value {
+  flex: none;
+  width: var(--pred-cifra);
+  text-align: right;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Mini barra de rango: escala común en todas las filas. Raya base fina, intervalo p10–p90 como
+   franja clara, predicción como punto con anillo y umbral como línea vertical tenue */
 .run .range {
   position: relative;
+  flex: 1 1 auto;
+  min-width: 7rem;
   height: 1.125rem;
   margin: 0 5px;
   forced-color-adjust: none;
@@ -438,6 +545,7 @@
   background: var(--texto-suave);
 }
 
+/* El anillo toma el fondo de la fila, también al pasar el cursor */
 .run .range__pred {
   top: 50%;
   width: 10px;
@@ -448,14 +556,24 @@
   transform: translate(-50%, -50%);
 }
 
-/* Extremos de la escala bajo el encabezado de la columna, alineados con las barras */
+.run .results-table tbody tr.is-link:hover .range__pred {
+  box-shadow: 0 0 0 2px var(--superficie-suave);
+}
+
+/* Extremos de la escala bajo el encabezado de la columna, alineados con las barras (después de la cifra) */
 .run .range-axis {
   display: flex;
   justify-content: space-between;
-  margin: 0.2rem 5px 0;
+  margin: 0.2rem 5px 0 calc(2.75rem + 0.85rem + 5px);
   font-weight: 500;
   letter-spacing: 0;
   font-variant-numeric: tabular-nums;
+}
+
+/* Sin JavaScript las pestañas se ven apiladas: la franja de acción no invade la sección siguiente */
+.run .tabs:not(.tabs--ready) .run-bar {
+  margin-bottom: 0;
+  border-radius: 0;
 }
 
 /* Celular (hasta 600 px) */
@@ -476,21 +594,32 @@
     padding-right: 0.35rem;
   }
 
+  /* El umbral ocupa su propia línea bajo el título */
+  .run .run-input__head .card__title {
+    padding-top: 0;
+  }
+
+  .run .threshold-field {
+    max-width: none;
+  }
+
+  /* Las pestañas llegan a los bordes de la tarjeta para que las tres quepan en una fila */
+  .run .run-input .tabs__list {
+    gap: 0 1.1rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding: 0 1rem;
+  }
+
   /* La franja de acción sigue el relleno menor de la tarjeta; el botón ocupa todo el ancho */
   .run .run-bar {
     margin: 1rem -1rem -1rem;
     padding: 0.85rem 1rem 1rem;
   }
 
-  .run .run-bar #run-button {
+  .run .run-bar__action {
     width: 100%;
     margin-left: 0;
-  }
-
-  /* El umbral baja a su propia línea: sin la raya que lo separaba del contador */
-  .run .threshold {
-    padding-left: 0;
-    border-left: 0;
   }
 
   /* Tabla de resultados como tarjetas apiladas, una por parcela */
@@ -516,9 +645,17 @@
     border: 0;
   }
 
-  .run .results-table tr {
+  /* Cada tarjeta: parcela y confianza arriba, la predicción con su barra y la probabilidad debajo */
+  .run .results-table tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "parcela confianza"
+      "prediccion prediccion"
+      "probabilidad probabilidad";
+    gap: 0 0.75rem;
     margin-bottom: 0.75rem;
-    padding: 0.5rem 0.75rem;
+    padding: 0.6rem 0.85rem;
     background: var(--tarjeta);
     border: 1px solid var(--borde);
     border-radius: var(--radio-sm);
@@ -535,7 +672,28 @@
     overflow-wrap: break-word;
   }
 
-  /* Cada celda con etiqueta la muestra antes del valor: «Estado: Tlaxcala» (los encabezados no la llevan) */
+  .run .results-table .parcel-col {
+    grid-area: parcela;
+    width: auto;
+  }
+
+  .run .results-table .conf-col {
+    grid-area: confianza;
+    align-self: start;
+    width: auto;
+  }
+
+  .run .results-table .pred-col {
+    grid-area: prediccion;
+  }
+
+  .run .results-table .prob-col {
+    grid-area: probabilidad;
+    width: auto;
+  }
+
+  /* Cada cifra muestra su etiqueta antes del valor: «Probabilidad bajo el umbral: 19 %».
+     La parcela y la confianza («Confianza alta») se entienden sin etiqueta */
   .run .results-table th[data-label]::before,
   .run .results-table td[data-label]::before {
     content: attr(data-label) ": ";
@@ -543,9 +701,14 @@
     color: var(--texto-suave);
   }
 
-  /* La barra de rango va en su propia línea, bajo su etiqueta */
-  .run .results-table .range {
-    max-width: 20rem;
-    margin-top: 0.35rem;
+  /* La cifra y la barra de la predicción van en su propia línea, bajo la etiqueta */
+  .run .results-table .pred {
+    max-width: 22rem;
+    margin-top: 0.2rem;
+  }
+
+  .run .results-table .pred__value {
+    width: auto;
+    text-align: left;
   }
 }

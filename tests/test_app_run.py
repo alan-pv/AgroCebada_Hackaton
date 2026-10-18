@@ -194,8 +194,7 @@ def test_run_script_labels_result_cells(client):
     # Cada celda de la tabla de resultados lleva su etiqueta para la tarjeta del celular
     assert 'setAttribute("data-label", label)' in js
     assert "results-table" in js
-    for label in ("Parcela", "Estado", "Municipio", "Predicción (t/ha)", "Intervalo p10–p90 (t/ha)",
-                  "Probabilidad bajo el umbral (%)", "Confianza"):
+    for label in ("Parcela", "Predicción (t/ha)", "Probabilidad bajo el umbral", "Confianza"):
         assert f'"{label}"' in js
     # Conjunto, Régimen y Estado de la lista llevan la clase que las oculta en el celular
     assert js.count('className: "hide-sm"') == 3
@@ -241,3 +240,62 @@ def test_run_page_custom_controls_stay_accessible(client):
     # La barra de rango se lee como imagen con sus valores en texto
     assert 'setAttribute("role", "img")' in js
     assert 'range.setAttribute("aria-label", text)' in js
+
+
+def test_run_page_has_one_tab_per_path(client):
+    html = client.get("/ejecutar").get_data(as_text=True)
+    # Pestañas compartidas: tabs.js va antes que run.js
+    assert html.index("/scripts/tabs.js") < html.index("/scripts/run.js")
+    assert 'class="tabs" data-tabs' in html
+    labels = re.findall(r'class="tabs__panel" id="([\w-]+)" data-tab-label="([^"]+)"', html)
+    assert labels == [("del-conjunto", "Del conjunto de datos"), ("parcela-nueva", "Parcela nueva"),
+                      ("desde-csv", "Desde CSV")]
+    # Cada pestaña termina en su botón de acción, en su orden
+    panels = html.split('class="tabs__panel"')[1:]
+    for panel, button in zip(panels, ("run-button", "new-submit", "csv-run")):
+        assert f'id="{button}"' in panel
+    # Ningún texto remite a otra tarjeta: el umbral es común a las tres pestañas
+    assert "tarjeta anterior" not in html
+
+
+def test_run_page_threshold_is_shared_and_results_are_outside_tabs(client):
+    html = client.get("/ejecutar").get_data(as_text=True)
+    tabs_start = html.index('class="tabs" data-tabs')
+    # El umbral va arriba de las pestañas, con su ayuda y su aviso de error junto al campo
+    assert html.index('id="threshold"') < tabs_start
+    assert html.index('id="threshold-help"') < tabs_start
+    assert 'id="threshold-message" aria-live="polite"' in html
+    # Los resultados van después de la última pestaña, fuera de ellas
+    assert html.index('id="results"') > html.index('id="csv-message"')
+    assert 'class="tabs__panel"' not in html[html.index('id="results"'):]
+
+
+def test_run_script_results_rows_open_the_parcel_page(client):
+    js = client.get("/scripts/run.js").get_data(as_text=True)
+    # Toda la fila con ficha abre la ficha, sin estorbar al enlace ni a la selección de texto
+    assert 'tr.className = "is-link"' in js
+    assert "window.getSelection()" in js
+    assert 'event.target.closest("a, button' in js
+    # Las parcelas nuevas no tienen ficha y lo dicen
+    assert "Parcela nueva, sin ficha" in js
+    # La barra de rango lleva los valores p10–p90 en su texto accesible
+    assert "intervalo p10–p90 de" in js
+    # Al terminar, la vista se lleva a los resultados si quedaron abajo
+    assert "scrollIntoView" in js
+    # El CSV de descarga conserva todas sus columnas
+    columns = js[js.index("const RESULT_COLUMNS = ["):]
+    columns = re.findall(r'"(\w+)"', columns[:columns.index("];")])
+    assert columns == ["id", "state", "municipality", "set", "pred", "p10", "p90", "prob_below",
+                       "confidence", "neighbors_400m", "nearest_neighbor_m", "threshold", "model_version"]
+
+
+def test_run_css_results_cards_on_phones(client):
+    css = client.get("/styles/run.css").get_data(as_text=True)
+    block = mobile_block(css)
+    # Cada tarjeta del celular acomoda parcela, confianza, predicción y probabilidad en una rejilla
+    assert "grid-template-areas" in block
+    for area in ("parcela", "confianza", "prediccion", "probabilidad"):
+        assert f"grid-area: {area}" in block
+    # Botones de cada pestaña a todo el ancho y de 44 px
+    assert ".run-bar__action" in block
+    assert "min-height: 2.75rem" in css

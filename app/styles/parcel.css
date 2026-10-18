@@ -2,9 +2,29 @@
 
 /* Cada bloque de la página se separa del anterior */
 .page > section,
-.page > aside,
+.page > .alert,
 .page > footer {
   margin-top: 1rem;
+}
+
+.page > .tabs {
+  margin-top: 1.75rem;
+}
+
+/* Al llegar con #economia (p. ej. tras recalcular), la fila de pestañas queda a la vista sobre la sección */
+.parcel-tabs > .tabs__panel {
+  scroll-margin-top: 4.5rem;
+}
+
+/* Dentro de una pestaña, las tarjetas se separan entre sí */
+.tabs__panel > .card + .card {
+  margin-top: 1rem;
+}
+
+/* El enlace del aviso lleva la tinta del aviso, no el acento */
+.alert a {
+  color: inherit;
+  font-weight: 600;
 }
 
 .back {
@@ -38,28 +58,6 @@
   gap: 0.4rem;
 }
 
-/* Índice de la ficha: queda fijo arriba al desplazarse, sobre el fondo de la página */
-.parcel-toc {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  margin: 1rem -16px 0;
-  padding: 0.5rem 16px;
-  background: var(--fondo);
-  border-bottom: 1px solid var(--borde);
-}
-
-.parcel-toc a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.25rem;
-}
-
-/* Las secciones a las que lleva el índice no quedan tapadas por él */
-.parcel [id] {
-  scroll-margin-top: 5rem;
-}
-
 /* Títulos de tarjeta y de subsección */
 .parcel .card > .card__title {
   margin: 0 0 1rem;
@@ -81,12 +79,63 @@
   font-size: var(--t-sm);
 }
 
-/* Bloque principal: la cifra grande a la izquierda y sus tres indicadores a la derecha */
-.yield-summary {
+/* Franja de veredicto: la cifra grande a la izquierda, sus tres indicadores a la derecha y,
+   abajo a todo el ancho, con qué precio salen los riesgos y la ayuda sobre el error del modelo */
+.verdict {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 1rem 2.5rem;
   align-items: center;
+}
+
+.verdict__range,
+.verdict__observed {
+  margin: 0.35rem 0 0;
+  font-size: var(--t-sm);
+  color: var(--texto-suave);
+}
+
+.verdict__range strong {
+  color: var(--texto);
+  font-weight: 650;
+}
+
+/* El rendimiento reportado acompaña a la cifra sin competir con ella */
+.verdict__observed {
+  margin-top: 0.15rem;
+}
+
+.verdict__foot {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--borde);
+}
+
+.verdict__basis {
+  flex: 1 1 26rem;
+  font-size: var(--t-sm);
+  color: var(--texto-suave);
+}
+
+.verdict__basis p {
+  margin: 0;
+}
+
+.verdict__basis p + p {
+  margin-top: 0.25rem;
+}
+
+.verdict__foot .help-inline {
+  margin: 0;
+}
+
+/* Abierta, la ayuda baja a su propia fila a todo el ancho */
+.verdict__foot .help-inline[open] {
+  flex-basis: 100%;
 }
 
 .hero__label {
@@ -113,11 +162,20 @@
   color: var(--texto-suave);
 }
 
-/* La cifra de cada indicador queda abajo, alineada aunque el rótulo ocupe dos líneas */
-.yield-stats .stat {
+/* La cifra y el badge de cada indicador quedan abajo, alineados aunque el rótulo ocupe dos líneas */
+.verdict__stats .stat {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+}
+
+.verdict__stats .stat__label {
+  margin-bottom: auto;
+  padding-bottom: 0.35rem;
+}
+
+.stat__badge {
+  margin: 0.45rem 0 0;
+  line-height: 1;
 }
 
 .stat__value--badge {
@@ -129,8 +187,25 @@
   font-size: var(--t-sm);
 }
 
-.observed {
-  margin: 1.25rem 0 0;
+/* Probabilidad bajo el umbral, en una línea sobre la barra de intervalo */
+.below {
+  margin: 0;
+}
+
+/* Ayudas en fila bajo un dato; la que se abre ocupa toda la fila */
+.help-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.help-row .help-inline {
+  margin: 0;
+}
+
+.help-row .help-inline[open] {
+  flex-basis: 100%;
 }
 
 /* Gráficas SVG: la versión ancha en escritorio y la angosta en pantallas de hasta 900 px.
@@ -291,8 +366,18 @@ figcaption {
   margin: 0;
 }
 
-.confidence .disclosure {
-  margin-top: 1rem;
+/* El motivo de la confianza viene de los datos en minúscula; se lee como frase */
+.confidence__reason::first-letter,
+.stat--conf .stat__note::first-letter {
+  text-transform: uppercase;
+}
+
+.confidence .help-inline {
+  margin: 0.75rem 0 0;
+}
+
+.confidence__body .muted {
+  margin: 0.35rem 0 0;
 }
 
 ul.levels {
@@ -324,7 +409,7 @@ ol.steps li + li {
   grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
   gap: 1rem 1.25rem;
   align-items: start;
-  margin: 0 0 1.25rem;
+  margin: 0;
   padding: 1rem 1.1rem;
   background: var(--superficie-suave);
   border-radius: var(--radio);
@@ -484,9 +569,24 @@ ol.steps li + li {
   margin: 0.4rem 0 0;
 }
 
+.risks + .help-inline {
+  margin-top: 0.75rem;
+}
+
 .loss {
-  margin: 1rem 0 0;
+  margin: 0.5rem 0 0;
   max-width: 80ch;
+  font-size: var(--t-sm);
+  color: var(--texto-suave);
+}
+
+/* Segunda capa de la economía: ajuste, detalle y contexto, plegados bajo los medidores */
+.econ-more {
+  margin-top: 1.5rem;
+}
+
+.econ-more .table-wrap + .muted {
+  margin: 0.75rem 0 0;
 }
 
 /* Contexto del municipio: cuadrícula de indicadores; el rendimiento del SIAP ocupa toda la fila por su nota */
@@ -511,7 +611,7 @@ ol.steps li + li {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .yield-summary {
+  .verdict {
     grid-template-columns: minmax(0, 1fr);
   }
 }
@@ -604,9 +704,53 @@ ol.steps li + li {
     color: var(--texto-suave);
   }
 
-  /* Objetivos táctiles de 44 px en el índice */
-  .parcel-toc a {
+  /* Objetivos táctiles de 44 px en las ayudas junto a cada dato */
+  .parcel .help-inline > summary {
     min-height: 44px;
+  }
+
+  /* Franja de veredicto: cada indicador en una fila compacta. Los riesgos llevan el rótulo arriba y la cifra
+     con su badge abajo; la confianza, el badge junto al rótulo y el motivo debajo */
+  .verdict__stats {
+    gap: 0.5rem;
+  }
+
+  .verdict__stats .stat {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.25rem 0.75rem;
+    padding: 0.65rem 0.85rem;
+  }
+
+  .verdict__stats .stat__label {
+    grid-area: 1 / 1 / 2 / 3;
+    margin: 0;
+    padding-bottom: 0;
+  }
+
+  .verdict__stats .stat__value {
+    grid-area: 2 / 1;
+    margin: 0;
+    font-size: var(--t-lg);
+  }
+
+  .verdict__stats .stat__badge {
+    grid-area: 2 / 2;
+    margin: 0;
+  }
+
+  .verdict__stats .stat--conf .stat__label {
+    grid-area: 1 / 1;
+  }
+
+  .verdict__stats .stat--conf .stat__value {
+    grid-area: 1 / 2;
+  }
+
+  .verdict__stats .stat--conf .stat__note {
+    grid-area: 2 / 1 / 3 / 3;
+    margin: 0;
   }
 
   .confidence__body,

@@ -1,14 +1,73 @@
 /* Página de metodología: solo lo que main.css no trae */
 
-/* Encabezado: título, nota del modelo e indicadores */
+/* Encabezado: título, resumen con indicadores y nota del modelo */
 .method__head .note {
   max-width: 70ch;
+}
+
+/* Resumen arriba y, debajo, los indicadores con sus cifras */
+.method__overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+/* «En resumen»: cada pregunta a la izquierda y su respuesta a la derecha */
+.method__summary .eyebrow {
+  margin-bottom: 0.6rem;
+}
+
+dl.summary {
+  margin: 0;
+}
+
+dl.summary > div {
+  display: grid;
+  grid-template-columns: 9.5rem minmax(0, 1fr);
+  gap: 0.15rem 1rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--borde);
+}
+
+dl.summary > div:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+dl.summary dt {
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--texto-suave);
+  line-height: 1.6;
+}
+
+dl.summary dd {
+  margin: 0;
+  max-width: 78ch;
+}
+
+@media (max-width: 599px) {
+  dl.summary > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.method__summary .help-inline {
+  margin: 0.5rem 0 0;
 }
 
 /* Indicadores: en el celular van de dos en dos */
 .method__stats {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
-  margin-top: 1rem;
+}
+
+/* Procedencia de las cifras: una línea discreta bajo los indicadores */
+.method__meta {
+  margin: 0.75rem 0 0;
+  max-width: none;
+  font-size: var(--t-sm);
+  color: var(--texto-suave);
 }
 
 /* Índice y secciones: en escritorio el índice va en una columna fija a la izquierda */
@@ -103,8 +162,53 @@
 
 /* Párrafos a un ancho cómodo de lectura */
 .method__section > p:not(.note),
-.method__sub > p:not(.note) {
+.method__sub > p:not(.note),
+.method-more > .disclosure__body > p:not(.note) {
   max-width: 72ch;
+}
+
+/* Detalle técnico plegado: título y, debajo, la pregunta que responde. Va donde iría una subsección */
+.method-more {
+  margin-top: 1.5rem;
+}
+
+/* Varios seguidos forman un acordeón; el último no lleva línea abajo, porque ahí termina la tarjeta */
+.method-more + .method-more {
+  margin-top: 0;
+}
+
+.method-more:last-child {
+  border-bottom: 0;
+}
+
+.method-more > summary {
+  padding: 0.85rem 0;
+}
+
+.method-more__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.method-more__title {
+  font-size: var(--t-lg);
+  font-weight: 600;
+}
+
+.method-more__hint {
+  font-size: var(--t-sm);
+  font-weight: 400;
+  color: var(--texto-suave);
+}
+
+.method-more > summary:hover .method-more__title {
+  color: var(--acento);
+}
+
+.method-more > .disclosure__body {
+  padding-bottom: 0.5rem;
 }
 
 /* Un texto largo nunca empuja la página hacia la derecha */
@@ -252,6 +356,11 @@ dl.terms dd {
   max-width: 68ch;
 }
 
+/* Primera frase de cada término: la definición corta, para leer de corrido solo esas */
+.terms__lead {
+  font-weight: 600;
+}
+
 dl.terms dd ul {
   margin: 0.4rem 0;
   padding-left: 1.25rem;
@@ -340,6 +449,25 @@ table.data.wide {
 .limits strong {
   display: block;
   margin-bottom: 0.15rem;
+}
+
+/* Las tres que van a la vista: una por fila, a un ancho cómodo de lectura */
+.limits--main {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 72ch;
+}
+
+/* Las limitaciones plegadas: sin margen extra, la primera fila ya lleva su línea */
+.method-more .limits {
+  margin-top: 0;
+}
+
+#limitaciones .method-more {
+  margin-top: 0.5rem;
+}
+
+#limitaciones .method-more__title {
+  font-size: var(--t-base);
 }
 
 @media (max-width: 699px) {

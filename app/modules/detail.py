@@ -386,7 +386,19 @@ def _context_rows(items):
             for item in items]
 
 
-def _view(ficha, econ, breakeven):
+def _basis_text(econ, price, breakeven):
+    # Con qué precio y equilibrio salen los riesgos de la franja de arriba: los del municipio o los que
+    # eligió la persona en Economía
+    if price is None:
+        text = f"Con el precio del municipio, {formatting.money(econ['price'])} por tonelada"
+    else:
+        text = f"Con el precio elegido, {formatting.money(econ['price'])} por tonelada"
+    if breakeven is not None:
+        text += f", y el punto de equilibrio elegido, {formatting.number(breakeven, 2)} t/ha"
+    return text + "."
+
+
+def _view(ficha, econ, breakeven, price=None, adjust_open=False):
     # Textos y cuentas de la página, en el orden en que aparecen
     costs_label, costs_class = LIGHTS.get(econ["light_costs"], ("Sin semáforo", "neutro"))
     credit_label, credit_class = LIGHTS.get(econ["light_credit"], ("Sin semáforo", "neutro"))
@@ -394,6 +406,9 @@ def _view(ficha, econ, breakeven):
     cuts = econ["light_cuts"]
     return {
         "set_label": SET_LABELS.get(ficha["set"], "Parcela"),
+        "basis_text": _basis_text(econ, price, breakeven),
+        # El formulario de Economía se abre si la persona ya lo usó o si trae un parámetro no válido
+        "adjust_open": adjust_open,
         "prob_below": _probability(ficha["prob_below"]),
         "conf_label": conf_label,
         "conf_class": conf_class,
@@ -437,17 +452,18 @@ def page(parcel_id):
         ficha = parcel_detail_data(parcel_id)
     except KeyError:
         return render_template("parcel.html", parcel_id=parcel_id, missing=True), 404
-    error, breakeven = None, None
+    error, price, breakeven = None, None, None
     try:
         price = _query_number("price", "El precio", economics.PRICE_RANGE, PRICE_TEXT)
         breakeven = _query_number("breakeven", "El punto de equilibrio", economics.BREAKEVEN_RANGE,
                                   BREAKEVEN_TEXT)
         econ = economics.parcel_economics_data(parcel_id, price=price, breakeven=breakeven)
     except ValueError as e:
-        # Con un parámetro no válido, la página muestra la economía por defecto y avisa arriba del formulario
-        error, breakeven = str(e), None
+        # Con un parámetro no válido, la página muestra la economía por defecto y avisa arriba de la franja
+        error, price, breakeven = str(e), None, None
         econ = economics.parcel_economics_data(parcel_id)
-    view = _view(ficha, econ, breakeven)
+    adjust_open = error is not None or "price" in request.args or "breakeven" in request.args
+    view = _view(ficha, econ, breakeven, price=price, adjust_open=adjust_open)
     status = 400 if error else 200
     return render_template("parcel.html", parcel_id=parcel_id, missing=False, ficha=ficha, econ=econ,
                            view=view, error=error), status

@@ -18,9 +18,12 @@ PREDICCIONES = OUTPUTS / "predicciones.parquet"
 SERIE = PROCESSED / "serie_ficha.parquet"
 NOTA_ENTRENAMIENTO = ("Esta parcela se usó para entrenar el modelo; la predicción que se muestra es la "
                       "validada fuera de entrenamiento y no se desglosa con el mismo método.")
-SECCIONES = ("Rendimiento esperado", "¿Cuánto significa en pesos?", "En palabras sencillas",
+SECCIONES = ("Rendimiento esperado", "Rango de la predicción y confianza", "¿Cuánto significa en pesos?",
              "Cómo se llegó a este número", "Verdor y sequía en 2025 frente a 2022 a 2024",
              "Contexto de 2025 (no entra al modelo final)")
+# Pestañas de la ficha: id de la sección y texto de la pestaña, en orden
+PESTANAS = [("rendimiento", "Rendimiento"), ("economia", "Economía"), ("calculo", "Cómo se calculó"),
+            ("satelite", "Satélite y clima")]
 # Palabras de Python que nunca deben aparecer como texto de la página
 PALABRAS_PROHIBIDAS = re.compile(r"\b(nan|inf|None)\b")
 # Etiquetas HTML que no tienen cierre
@@ -97,6 +100,27 @@ def badge_tras(html, texto):
     i = html.index(texto)
     m = re.search(r'<span class="badge badge--(\w+)">([^<]+)</span>', html[i:])
     return m.group(1), m.group(2)
+
+
+def panel(html, ident):
+    # Contenido de una pestaña de la ficha (<section class="tabs__panel" id="...">)
+    m = re.search(rf'<section class="tabs__panel" id="{ident}"[^>]*>(.*?)</section>', html, re.S)
+    assert m, ident
+    return m.group(1)
+
+
+def desplegable(html, resumen):
+    # Etiqueta de apertura y contenido del <details> cuyo <summary> es `resumen`
+    m = re.search(rf'(<details [^>]*>)\s*<summary>{re.escape(resumen)}</summary>(.*?)</details>', html, re.S)
+    assert m, resumen
+    return m.group(1) + m.group(2)
+
+
+def franja(html):
+    # Franja de veredicto: lo que se ve siempre, arriba de las pestañas
+    m = re.search(r'<section class="card verdict" aria-labelledby="veredicto">(.*?)</section>', html, re.S)
+    assert m
+    return m.group(1)
 
 
 @pytest.fixture(scope="module")
@@ -305,8 +329,10 @@ NOTA_COSTOS = ("Los costos son los del paquete tecnológico de FIRA del ciclo pr
 def test_nota_de_costos_queda_bajo_la_tabla_de_resultados(client):
     html = client.get("/parcela/AGC_003").get_data(as_text=True)
     assert NOTA_COSTOS in html
-    # La nota va justo después de la tabla de resultados y antes de los bloques de riesgo
-    assert html.index("</table>") < html.index(NOTA_COSTOS) < html.index('class="grid-2 risks"')
+    # La tabla y la nota de fuentes van juntas en el desplegable «Ver detalle y supuestos», después de los medidores
+    detalle = desplegable(html, "Ver detalle y supuestos")
+    assert detalle.index("</table>") < detalle.index(NOTA_COSTOS)
+    assert html.index('class="grid-2 risks"') < html.index("<summary>Ver detalle y supuestos</summary>")
 
 
 def test_contexto_municipal_cuenta_los_anios_del_siap(client):
@@ -323,12 +349,14 @@ def test_rutas_siguen_al_punto_de_montaje(client):
     html = client.get("/parcela/AGC_003", base_url="http://localhost/sub/").get_data(as_text=True)
     rutas = re.findall(r'(?:href|src|action|data-[\w-]+-url)="([^"]+)"', html)
     assert rutas
-    # Los enlaces del índice de la ficha son anclas de la misma página (#rendimiento...)
+    # Los enlaces a otra pestaña de la ficha son anclas de la misma página (#economia...)
     externas = [r for r in rutas if not r.startswith("#")]
     assert all(r.startswith(("/sub/", "https://")) for r in externas), [r for r in externas if not r.startswith("/sub/")]
-    assert 'action="/sub/parcela/AGC_003"' in html
-    assert 'href="/sub/parcela/AGC_003"' in html
+    # El formulario y «Restablecer valores» vuelven a la pestaña Economía
+    assert 'action="/sub/parcela/AGC_003#economia"' in html
+    assert 'href="/sub/parcela/AGC_003#economia"' in html
     assert 'href="/sub/metodologia"' in html
+    assert 'src="/sub/scripts/tabs.js"' in html
 
 
 def test_graficas_de_la_serie_o_aviso(client):
@@ -353,34 +381,74 @@ def test_html_bien_formado_y_graficas_con_titulo(client):
     assert all(any(t for t in titulos) for titulos in m.imagenes)
 
 
-# Rediseño de la ficha: índice fijo, bloque principal, confianza en tres pasos, medidores y gráficas dobles
+# Rediseño de la ficha: franja de veredicto, pestañas, confianza en tres pasos, medidores y gráficas dobles
 
-def test_indice_lleva_a_secciones_que_existen(client):
+def test_pestanas_en_orden_y_sin_indice_fijo(client):
     html = client.get("/parcela/AGC_003").get_data(as_text=True)
-    indice = re.search(r'<nav class="toc parcel-toc" aria-label="Secciones de la ficha">(.*?)</nav>', html, re.S)
-    assert indice
-    enlaces = re.findall(r'<a href="#([\w-]+)">([^<]+)</a>', indice.group(1))
-    assert [texto for _, texto in enlaces] == ["Rendimiento", "Pesos", "Desglose", "Satélite", "Contexto"]
-    for ancla, _ in enlaces:
-        assert html.count(f'id="{ancla}"') == 1, ancla
+    assert '<div class="tabs parcel-tabs" data-tabs aria-label="Detalle de la ficha">' in html
+    pestanas = re.findall(r'<section class="tabs__panel" id="([\w-]+)" data-tab-label="([^"]+)">', html)
+    assert pestanas == PESTANAS
+    for ident, _ in PESTANAS:
+        assert html.count(f'id="{ident}"') == 1, ident
+    # Las pestañas reemplazan al índice fijo; tabs.js arma la fila de pestañas
+    assert 'class="toc' not in html
+    assert re.search(r'<script src="[^"]*/scripts/tabs\.js"></script>', html)
+    # La franja va antes de las pestañas, fuera de ellas
+    assert html.index('class="card verdict"') < html.index("data-tabs")
 
 
-def test_css_indice_fijo_y_secciones_con_margen():
+def test_css_sin_indice_fijo():
     css = (ROOT / "app" / "styles" / "parcel.css").read_text(encoding="utf-8")
-    bloque = re.search(r"\.parcel-toc \{([^}]*)\}", css).group(1)
-    assert "position: sticky" in bloque and "top: 0" in bloque
-    assert re.search(r"\.parcel \[id\] \{\s*scroll-margin-top: [\d.]+rem;", css)
+    assert ".toc" not in css
+    assert "parcel-toc" not in css
+    assert "position: sticky" not in css
 
 
-def test_bloque_principal_con_cifra_y_tres_indicadores(client):
+def test_cada_pestana_trae_su_contenido(client):
+    html = client.get("/parcela/AGC_003").get_data(as_text=True)
+    rendimiento, economia = panel(html, "rendimiento"), panel(html, "economia")
+    calculo, satelite = panel(html, "calculo"), panel(html, "satelite")
+    assert "Probabilidad de quedar por debajo de 2.5 t/ha" in texto_visible(rendimiento)
+    assert '<div class="chart-ancha">' in rendimiento and 'class="conf-steps"' in rendimiento
+    assert 'class="stat-grid econ-stats"' in economia and 'class="grid-2 risks"' in economia
+    assert "Cómo se llegó a este número" in calculo and "Entradas del modelo en esta parcela" in calculo
+    assert "Verdor y sequía en 2025 frente a 2022 a 2024" in satelite
+    assert "Contexto de 2025 (no entra al modelo final)" in satelite
+
+
+def test_franja_de_veredicto_con_cifra_rango_y_tres_indicadores(client):
     html = client.get("/parcela/AGC_003").get_data(as_text=True)
     ficha = client.get("/api/parcels/AGC_003").get_json()
-    texto = texto_visible(html)
-    assert f'<p class="cifra">{formatting.number(ficha["pred"], 2)} <span class="cifra__unit">t/ha</span></p>' in html
-    resumen = re.search(r'<dl class="stat-grid yield-stats">(.*?)</dl>', html, re.S).group(1)
-    assert resumen.count('<div class="stat">') == 3
-    assert f'{formatting.number(ficha["p10"], 2)} a {formatting.number(ficha["p90"], 2)}' in resumen
-    assert "Probabilidad de quedar por debajo de 2.5 t/ha" in texto
+    econ = economics.parcel_economics_data("AGC_003")
+    arriba = franja(html)
+    # La cifra principal es la única grande de la página y va en la franja, con su rango p10 a p90
+    assert html.count('class="cifra"') == 1
+    assert f'<p class="cifra">{formatting.number(ficha["pred"], 2)} <span class="cifra__unit">t/ha</span></p>' in arriba
+    assert (f'Rango p10 a p90: <strong>{formatting.number(ficha["p10"], 2)} a '
+            f'{formatting.number(ficha["p90"], 2)} t/ha</strong>') in arriba
+    # Tres indicadores: confianza, crédito y costos, cada uno con su badge con texto
+    indicadores = re.search(r'<dl class="stat-grid verdict__stats">(.*?)</dl>', arriba, re.S).group(1)
+    assert len(re.findall(r'<div class="stat[ "]', indicadores)) == 3
+    assert badge_tras(indicadores, "Confianza")[1].startswith("Confianza ")
+    assert badge_tras(indicadores, "Probabilidad de no pagar el crédito") == LUCES[econ["light_credit"]]
+    assert badge_tras(indicadores, "Probabilidad de no cubrir los costos totales") == LUCES[econ["light_costs"]]
+    assert "más de 99 %" in indicadores
+    # Con qué precio salen los riesgos, y un enlace a la economía
+    assert f"Con el precio del municipio, {formatting.money(econ['price'])} por tonelada." in arriba
+    assert 'href="#economia"' in arriba
+    # Una parcela por predecir no lleva rendimiento reportado
+    assert "Rendimiento reportado" not in arriba
+
+
+def test_franja_de_entrenamiento_con_reportado_y_nota(client):
+    arriba = franja(client.get("/parcela/AGC_001").get_data(as_text=True))
+    assert '<p class="verdict__observed">Rendimiento reportado: 3.50 t/ha</p>' in arriba
+    assert "La predicción que se muestra es la validada fuera de entrenamiento" in arriba
+
+
+def test_franja_dice_el_precio_y_equilibrio_elegidos(client):
+    html = client.get("/parcela/AGC_003", query_string={"price": "9000", "breakeven": "4"}).get_data(as_text=True)
+    assert "Con el precio elegido, $9,000 por tonelada, y el punto de equilibrio elegido, 4.00 t/ha." in franja(html)
 
 
 @pytest.mark.parametrize("pid", ["AGC_003", "AGC_001"])
@@ -391,8 +459,8 @@ def test_confianza_marca_el_nivel_actual_con_texto(client, pid):
     assert len(actuales) == 1
     assert f'<span class="conf-step__name">{nivel.capitalize()}</span>' in actuales[0]
     assert "nivel actual" in actuales[0]
-    # La explicación de los tres niveles sigue en la página, dentro de un desplegable
-    assert "<summary>Lo que significa cada nivel</summary>" in html
+    # La explicación de los tres niveles sigue en la página, en una ayuda junto al indicador
+    assert re.search(r'<details class="help-inline">\s*<summary>¿Qué significa cada nivel\?</summary>', html)
     for texto in ("al menos una parcela medida a 400 m o menos.",
                   "ninguna a 400 m, pero la más cercana está a 800 m o menos.",
                   "la más cercana está a más de 800 m, o el área de la parcela queda fuera del rango de su régimen."):
@@ -437,9 +505,86 @@ def test_graficas_en_dos_anchos_con_ids_unicos(client):
     assert re.search(r"@media \(max-width: 900px\) \{\s*\.chart-ancha \{\s*display: none;", css)
 
 
-def test_palabras_sencillas_en_desplegables(client):
+def test_explicaciones_junto_a_su_dato(client):
     html = client.get("/parcela/AGC_003").get_data(as_text=True)
-    aparte = re.search(r'<aside class="card plain" aria-labelledby="sencillas">(.*?)</aside>', html, re.S).group(1)
-    preguntas = re.findall(r'<details class="disclosure">\s*<summary>([^<]+)</summary>', aparte)
-    assert preguntas == ["Cómo sale la predicción", "Qué significa el intervalo p10 a p90", "Cómo leer el semáforo",
-                         "Cuánto puede fallar el modelo", "Lo que el intervalo no cubre"]
+    econ = economics.parcel_economics_data("AGC_003")
+    # El bloque «En palabras sencillas» ya no existe: cada explicación va en una ayuda junto a su dato
+    assert "En palabras sencillas" not in html
+    assert 'class="card plain"' not in html
+    rendimiento, economia, calculo = panel(html, "rendimiento"), panel(html, "economia"), panel(html, "calculo")
+    ayudas = {
+        "¿Qué significa el rango p10 a p90?": (rendimiento, "9 de cada 10 parcelas rinden más que ese valor"),
+        "¿Qué no cubre el rango?": (rendimiento, "para una cartera de crédito el p10 subestima ese riesgo común"),
+        "¿Cómo se lee el semáforo?": (economia, "no una probabilidad de incumplimiento"),
+        "¿Cuánto puede fallar el modelo?": (franja(html), "no para decidir sola sobre una parcela"),
+        "¿Cómo sale la predicción?": (calculo, "El satélite, el clima y la topografía no entran en la predicción final."),
+    }
+    for pregunta, (donde, frase) in ayudas.items():
+        assert html.count(f"<summary>{pregunta}</summary>") == 1, pregunta
+        ayuda = desplegable(donde, pregunta)
+        assert ayuda.startswith('<details class="help-inline">'), pregunta
+        assert '<div class="help-inline__body">' in ayuda and frase in ayuda, pregunta
+    # El rango y lo que no cubre van justo bajo la barra de intervalo; el semáforo, bajo los medidores
+    assert rendimiento.index('class="chart-figure"') < rendimiento.index("¿Qué significa el rango p10 a p90?")
+    assert rendimiento.index("¿Qué no cubre el rango?") < rendimiento.index('class="confidence"')
+    assert economia.index('class="grid-2 risks"') < economia.index("¿Cómo se lee el semáforo?")
+    # La forma en que sale la predicción abre la pestaña, antes de la cascada
+    assert calculo.index("¿Cómo sale la predicción?") < calculo.index('class="chart-figure"')
+    assert f"Con el precio de {formatting.money(econ['price'])} por tonelada eso son unos" in franja(html)
+
+
+def test_economia_en_dos_capas(client):
+    economia = panel(client.get("/parcela/AGC_003").get_data(as_text=True), "economia")
+    # Primera capa a la vista: indicadores y medidores; lo demás plegado en tres desplegables, en este orden
+    plegados = re.findall(r'<details class="disclosure"[^>]*>\s*<summary>([^<]+)</summary>', economia)
+    assert plegados == ["Ajustar precio y punto de equilibrio", "Ver detalle y supuestos", "Contexto del municipio"]
+    assert economia.index('class="grid-2 risks"') < economia.index('class="econ-more"')
+    assert '<form class="price-form"' in desplegable(economia, "Ajustar precio y punto de equilibrio")
+    assert '<table class="data">' in desplegable(economia, "Ver detalle y supuestos")
+    assert 'class="stat-grid ctx"' in desplegable(economia, "Contexto del municipio")
+    # Sin parámetros, nada viene abierto
+    assert " open" not in "".join(re.findall(r'<details class="disclosure"[^>]*>', economia))
+
+
+@pytest.mark.parametrize("query, codigo", [({}, 200), ({"price": "9000"}, 200), ({"breakeven": "4"}, 200),
+                                           ({"price": ""}, 200), ({"price": "abc"}, 400)])
+def test_ajuste_se_abre_si_la_url_lo_usa_o_hay_error(client, query, codigo):
+    res = client.get("/parcela/AGC_003", query_string=query)
+    assert res.status_code == codigo
+    html = res.get_data(as_text=True)
+    apertura = desplegable(html, "Ajustar precio y punto de equilibrio").split(">", 1)[0] + ">"
+    assert apertura == ('<details class="disclosure" id="ajustar" open>' if query else
+                        '<details class="disclosure" id="ajustar">')
+    # Los otros dos desplegables siguen plegados
+    assert desplegable(html, "Ver detalle y supuestos").startswith('<details class="disclosure">')
+    assert desplegable(html, "Contexto del municipio").startswith('<details class="disclosure">')
+
+
+def test_aviso_de_error_lleva_al_formulario(client):
+    html = client.get("/parcela/AGC_003", query_string={"price": "abc"}).get_data(as_text=True)
+    aviso = re.search(r'<div class="alert" role="alert">(.*?)</div>', html, re.S).group(1)
+    assert '<a href="#ajustar">Corregir el valor</a>' in aviso
+    # El aviso va arriba de la franja, a la vista; el formulario está en la pestaña Economía
+    assert html.index('role="alert"') < html.index('class="card verdict"')
+    assert 'id="ajustar"' in panel(html, "economia")
+
+
+def test_semaforo_explica_por_que_casi_todas_salen_en_medio_o_alto(client):
+    # La ayuda del semáforo explica el costo total y el crédito, y dice cuál causa aplica a la parcela
+    def explicacion(parcel_id):
+        html = client.get(f"/parcela/{parcel_id}").get_data(as_text=True)
+        bloque = html[html.index("¿Por qué tantas parcelas salen en medio o alto?"):]
+        return " ".join(texto_visible(bloque[:bloque.index("</details>")]).split())
+
+    # Singuilucan: el equilibrio del crédito queda a menos del error típico de la predicción
+    singuilucan = explicacion("AGC_003")
+    assert "6.61 t/ha frente a una predicción de 3.66 t/ha" in singuilucan
+    assert "la diferencia es menor que el error típico del modelo" in singuilucan
+    # Chignahuapan: la pérdida histórica del municipio pasa del corte de 10 %
+    chignahuapan = explicacion("AGC_002")
+    assert "así que no puede salir en bajo" in chignahuapan
+    # Calpulalpan sale en bajo en el crédito: ninguna de las dos frases particulares aplica
+    calpulalpan = explicacion("AGC_001")
+    assert "no puede salir en bajo." not in calpulalpan
+    assert "la diferencia es menor" not in calpulalpan
+    assert "Ajustar precio y punto de equilibrio" in calpulalpan
