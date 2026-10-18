@@ -1,6 +1,6 @@
 # Modelo municipal con datos públicos
 
-Este modelo responde una pregunta que el modelo de parcelas no puede responder. Si se siembra cebada de temporal en un lugar donde no hay parcelas medidas, ¿qué rendimiento se puede esperar y con qué riesgo? El modelo de parcelas depende del régimen de registro y de vecinos ya cosechados. Este se entrena con el SIAP, la única fuente con el mismo criterio para todos los municipios, y usa el clima promedio, así que sirve antes de sembrar. No distingue una parcela de otra dentro de un municipio. El reporte completo está en `reportes/MUNICIPAL.pdf` y el resumen en la sección VI de `reportes/ANEXO.pdf`.
+Este modelo responde una pregunta que el modelo de parcelas no puede responder. Si se siembra cebada de temporal en un lugar donde no hay parcelas medidas, ¿qué rendimiento se puede esperar y con qué riesgo? El modelo de parcelas depende del régimen de registro y de vecinos ya cosechados. Este se entrena con el SIAP, la única fuente con el mismo criterio para todos los municipios, y usa el clima promedio, así que sirve antes de sembrar. No distingue una parcela de otra dentro de un municipio. El reporte completo está en `reportes/MUNICIPAL.pdf` y el resumen en la sección VI de `reportes/REPORTE.pdf`.
 
 ## Alcance
 
@@ -48,7 +48,7 @@ La app solo lee resultados ya generados. No corre el modelo.
 |---|---|
 | `outputs/generalizable_municipios.parquet` | 486 municipios. 268 tienen estimación (`esperado`, `p10`, `p90`, `prob_bajo_2`) con `confianza`, `dentro_rango_ambiental`, `dentro_dominio`, `con_siap`, `dist_siap_km` y la historia del SIAP (`siap_media`, `siap_anios`, `siap_frac_bajo_2`, `tendencia`). Las columnas `*_sembrada` ponderan por superficie sembrada |
 | `outputs/generalizable_municipios.gpkg` | Lo mismo con los polígonos, capa `municipios` |
-| `outputs/municipal_mapa_clases.json` | Resumen del mapa del anexo en Hidalgo, Puebla y Tlaxcala (municipios con valor, confianza y rango) |
+| `outputs/municipal_mapa_clases.json` | Resumen del mapa del reporte en Hidalgo, Puebla y Tlaxcala (municipios con valor, confianza y rango) |
 | `outputs/municipal_cifras.json` | Cifras del reporte municipal, para repetirlas igual en la página de metodología |
 | `outputs/disimilitud.json` | Revisión de que los municipios sin SIAP se parecen en conjunto a los que sí tienen |
 

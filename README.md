@@ -11,12 +11,11 @@ Aplicación pública: https://agrocebada.alan-pv.com
 | Archivo | Contenido |
 |---|---|
 | [outputs/los_bien_dotados_prediccion.csv](outputs/los_bien_dotados_prediccion.csv) | Predicciones oficiales de las 59 parcelas (`ID_POLIGONO`, `RENDIMIENTO_T_HA`) |
-| [reportes/REPORTE.pdf](reportes/REPORTE.pdf) | Reporte técnico con las siete secciones de las bases |
-| [reportes/ANEXO.pdf](reportes/ANEXO.pdf) | Anexo técnico de 4 cuartillas con la tabla de las 59 predicciones |
-| [reportes/BIBLIOGRAFIA.pdf](reportes/BIBLIOGRAFIA.pdf) | Referencias del reporte y del anexo |
+| [reportes/REPORTE.pdf](reportes/REPORTE.pdf) | Reporte técnico de 4 cuartillas con la tabla de las 59 predicciones |
+| [reportes/BIBLIOGRAFIA.pdf](reportes/BIBLIOGRAFIA.pdf) | Referencias del reporte |
 | [reportes/PLATAFORMA.txt](reportes/PLATAFORMA.txt) | Texto del reporte por campo, tal como se captura en la plataforma |
 
-Reportes de apoyo, con más detalle que el anexo
+Reportes de apoyo, con más detalle que el reporte
 
 | Archivo | Contenido |
 |---|---|

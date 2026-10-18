@@ -1,6 +1,6 @@
 # Modelo de parcelas
 
-Este documento describe el modelo que genera las 59 predicciones de la entrega, cómo se eligió, qué tan bien funciona y para qué sirve. La forma de validar y la regla de decisión están en `VALIDACION.md`. El detalle completo está en `reportes/MODELO.pdf` y el resumen para FIRA en `reportes/ANEXO.pdf`.
+Este documento describe el modelo que genera las 59 predicciones de la entrega, cómo se eligió, qué tan bien funciona y para qué sirve. La forma de validar y la regla de decisión están en `VALIDACION.md`. El detalle completo está en `reportes/MODELO.pdf` y el resumen para FIRA en `reportes/REPORTE.pdf`.
 
 ## Resumen
 
