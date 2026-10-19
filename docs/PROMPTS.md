@@ -29,7 +29,7 @@ método se omiten y se marcan con [...].
 Generó el `ROADMAP.md`, el script de diagnóstico inicial y los issues de cada integrante.
 
 > Crea un ROADMAP indicando todos los pasos que debemos de realizar para tener un entregable. Estamos trabajando en
-> equipo en github, por ende requiero que abras issues para cada integrante, somos tres. No te agregues como co author.
+> equipo en github, por ende requiero que abras issues para cada integrante, somos tres.
 >
 > Revisa el dataset y la documentación de los datos. Si es necesario (hay gaps de información) investiga el estado del
 > arte en internet.
