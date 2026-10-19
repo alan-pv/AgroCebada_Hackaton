@@ -27,7 +27,7 @@ from sklearn.model_selection import GroupKFold
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-from ..config import SEED
+from parcelas.config import SEED
 from . import SALIDA, siap
 
 FIJAS = ["elev_m", "pendiente", "frac_durica", "frac_litica", "textura_fina", "textura_gruesa",

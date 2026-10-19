@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from agrocebada import config, io, parcelas
+from parcelas import config, io, parcelas
 
 
 def test_etiquetas():

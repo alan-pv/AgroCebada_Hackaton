@@ -17,7 +17,7 @@ Cada observación original cae en una de estas categorías.
 El suavizado queda en NaN antes de la primera y después de la última observación válida.
 
 Uso:
-    uv run python -m agrocebada.series
+    uv run python -m parcelas.series
 """
 import numpy as np
 import pandas as pd

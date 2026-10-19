@@ -9,7 +9,7 @@ import pytest
 
 pytest.importorskip("flask")
 
-from agrocebada.config import OUTPUTS, PROCESSED
+from parcelas.config import OUTPUTS, PROCESSED
 from app import create_app
 from app.modules import economics, formatting
 

@@ -1,6 +1,6 @@
 # Modelo municipal con datos públicos
 
-Este modelo responde una pregunta que el modelo de parcelas no puede responder. Si se siembra cebada de temporal en un lugar donde no hay parcelas medidas, ¿qué rendimiento se puede esperar y con qué riesgo? El modelo de parcelas depende del régimen de registro y de vecinos ya cosechados. Este se entrena con el SIAP, la única fuente con el mismo criterio para todos los municipios, y usa el clima promedio, así que sirve antes de sembrar. No distingue una parcela de otra dentro de un municipio. El reporte completo está en `reportes/MUNICIPAL.pdf` y el resumen en la sección VI de `reportes/REPORTE.pdf`.
+Este modelo responde una pregunta que el modelo de parcelas no puede responder. Si se siembra cebada de temporal en un lugar donde no hay parcelas medidas, ¿qué rendimiento se puede esperar y con qué riesgo? El modelo de parcelas depende del régimen de registro y de vecinos ya cosechados. Este se entrena con el SIAP, la única fuente con el mismo criterio para todos los municipios, y usa el clima promedio, así que sirve antes de sembrar. No distingue una parcela de otra dentro de un municipio. El reporte completo está en `docs/reportes/MUNICIPAL.pdf` y el resumen en la sección VI de `docs/reportes/REPORTE.pdf`.
 
 ## Alcance
 
@@ -57,8 +57,8 @@ Los 486 municipios reciben valores. En los 218 fuera del rango ambiental de los 
 ## Cómo se regenera
 
 1. `uv run python scripts/descargar_siap.py`, `descargar_ddr.py`, `descargar_clima.py`, `descargar_topografia.py` y `descargar_inegi.py` bajan los datos públicos.
-2. `uv run python -m agrocebada.generalizable.variables` arma las tablas de `data/processed/generalizable/`.
+2. `uv run python -m generalizable.variables` arma las tablas de `data/processed/generalizable/`.
 3. `uv run python scripts/municipal_experimentos.py` corre la validación y elige el modelo (unos 85 minutos). Escribe `experimentos/generalizable/`, con un resumen en `resumen.txt`.
 4. `uv run python scripts/municipal_capa.py` genera la capa de la app en `outputs/`.
 
-El código está en `src/agrocebada/generalizable/`.
+El código está en `src/generalizable/`.

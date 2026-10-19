@@ -2,10 +2,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from agrocebada import controles
-from agrocebada.config import NOMBRE_EQUIPO, OUTPUTS, PROCESSED
-from agrocebada.predict import RADIO_MEDIA, RADIO_VECINOS, SALIDA, cargar_modelo, predict
-from agrocebada.train_final import cargar_datos
+from parcelas import controles
+from parcelas.config import NOMBRE_EQUIPO, OUTPUTS, PROCESSED
+from parcelas.predict import RADIO_MEDIA, RADIO_VECINOS, SALIDA, cargar_modelo, predict
+from parcelas.train_final import cargar_datos
 
 
 @pytest.fixture(scope="module")

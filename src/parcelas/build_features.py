@@ -5,7 +5,7 @@ La salida es `data/processed/features.parquet`, una fila por parcela (197), con
 ID_POLIGONO, las columnas de `parcelas.parquet` sin el rendimiento y todas las variables.
 
 Uso:
-    uv run python -m agrocebada.build_features
+    uv run python -m parcelas.build_features
 """
 import time
 

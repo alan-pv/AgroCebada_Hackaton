@@ -152,7 +152,7 @@ def estadisticos(nombre, a, b):
 
 def comparar(mosaico, mos_tf, pend90, tf90, res):
     sys.path.insert(0, str(RAIZ / "src"))
-    from agrocebada.io import extraer_rasteres
+    from parcelas.io import extraer_rasteres
     rasteres = extraer_rasteres()
     z_reto, tf_reto, crs_reto, b = leer(rasteres["elevacion"])
     s_reto, _, _, _ = leer(rasteres["pendiente"])

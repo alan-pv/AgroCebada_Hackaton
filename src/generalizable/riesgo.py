@@ -4,7 +4,7 @@ El residuo fuera de fold del esquema espacial, r = y - pred, para un municipio q
 vio y un año cualquiera, junta dos errores: el del nivel del lugar y la variación del año. Su
 distribución es justo la incertidumbre de "sembrar en un lugar nuevo un año cualquiera". Los
 intervalos p10 a p90 y la probabilidad bajo el umbral salen de esos residuos
-(`agrocebada.intervalos`).
+(`parcelas.intervalos`).
 
 Cobertura. En cada repetición, los residuos de un fold se calibran con los de los otros folds
 (los municipios del fold nunca aportan a su propio intervalo). La cobertura nominal es 0.8.
@@ -16,7 +16,7 @@ municipios vecinos de entrenamiento y se multiplica por la del municipio a prede
 import numpy as np
 import pandas as pd
 
-from ..intervalos import NIVEL, cuantiles_conformal, prob_bajo_umbral
+from parcelas.intervalos import NIVEL, cuantiles_conformal, prob_bajo_umbral
 from .modelos import _idw
 
 UMBRAL = 2.0

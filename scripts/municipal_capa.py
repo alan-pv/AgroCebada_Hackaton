@@ -55,14 +55,14 @@ import geopandas as gpd  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
-from agrocebada.config import CRS_METRICO, EXPERIMENTOS, OUTPUTS, PROCESSED  # noqa: E402
-from agrocebada.generalizable import SALIDA as TABLAS  # noqa: E402
-from agrocebada.generalizable import modelos as M  # noqa: E402
-from agrocebada.generalizable import riesgo as R  # noqa: E402
-from agrocebada.generalizable import siap  # noqa: E402
-from agrocebada.generalizable import validacion as V  # noqa: E402
-from agrocebada.generalizable.variables import MUNICIPIOS  # noqa: E402
-from agrocebada.intervalos import cuantiles_conformal, prob_bajo_umbral  # noqa: E402
+from parcelas.config import CRS_METRICO, EXPERIMENTOS, OUTPUTS, PROCESSED  # noqa: E402
+from generalizable import SALIDA as TABLAS  # noqa: E402
+from generalizable import modelos as M  # noqa: E402
+from generalizable import riesgo as R  # noqa: E402
+from generalizable import siap  # noqa: E402
+from generalizable import validacion as V  # noqa: E402
+from generalizable.variables import MUNICIPIOS  # noqa: E402
+from parcelas.intervalos import cuantiles_conformal, prob_bajo_umbral  # noqa: E402
 
 EXP = EXPERIMENTOS / "generalizable"
 warnings.filterwarnings("ignore")

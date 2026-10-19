@@ -175,7 +175,7 @@ def test_warm_up_fills_caches():
 # Corre la app en otro proceso con estos módulos bloqueados, como en el servidor, donde
 # no están instalados o no se deben usar desde una petición (reentrenar, leer rásteres)
 BLOCKED = ["tabpfn", "torch", "exactextract", "rasterio",
-           "agrocebada.io", "agrocebada.features_env", "agrocebada.train_final"]
+           "parcelas.io", "parcelas.features_env", "parcelas.train_final"]
 ISOLATED = f"""
 import importlib.abc
 import sys

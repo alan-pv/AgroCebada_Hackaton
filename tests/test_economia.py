@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from agrocebada.economia import capa_economica, cargar_tabla
-from agrocebada.predict import cargar_modelo
-from agrocebada.config import OUTPUTS
+from parcelas.economia import capa_economica, cargar_tabla
+from parcelas.predict import cargar_modelo
+from parcelas.config import OUTPUTS
 
 
 @pytest.fixture(scope="module")

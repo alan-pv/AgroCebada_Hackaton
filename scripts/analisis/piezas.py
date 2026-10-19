@@ -1,6 +1,6 @@
 """Piezas de la auditoría independiente que importa auditoria_regimen.py.
 
-No importa nada de `agrocebada`. Reimplementa el rezago espacial, el modelo y la
+No importa nada de `src/`. Reimplementa el rezago espacial, el modelo y la
 validación cruzada desde cero para comprobar los números reportados.
 """
 import json

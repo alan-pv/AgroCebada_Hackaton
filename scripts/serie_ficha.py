@@ -1,6 +1,6 @@
 """Serie suavizada de NDVI y NDDI de Sentinel-2 para la ficha de parcela (issue #12).
 
-Toma la serie que construye `agrocebada.series.procesar_sensor("s2")` en memoria, sin escribir
+Toma la serie que construye `parcelas.series.procesar_sensor("s2")` en memoria, sin escribir
 los `series_*.parquet` ni `calidad_series.parquet`, y guarda solo los índices NDVI y NDDI de
 2022 a 2025 en `data/processed/serie_ficha.parquet`, en formato largo:
 
@@ -17,8 +17,8 @@ Uso (desde la raíz del repo; tarda alrededor de un minuto):
 """
 import pandas as pd
 
-from agrocebada.config import PROCESSED
-from agrocebada.series import procesar_sensor
+from parcelas.config import PROCESSED
+from parcelas.series import procesar_sensor
 
 INDICES = ("ndvi", "nddi")
 ANIOS = (2022, 2025)

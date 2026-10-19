@@ -1,7 +1,7 @@
 """Construye la tabla de parcelas (contrato `data/processed/parcelas.parquet`).
 
 Uso:
-    uv run python -m agrocebada.parcelas
+    uv run python -m parcelas.parcelas
 """
 import geopandas as gpd
 import numpy as np

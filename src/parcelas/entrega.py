@@ -1,6 +1,6 @@
 """Genera los archivos de la entrega a partir de `models/modelo_final.joblib`.
 
-    uv run python -m agrocebada.predict      # equivale a `python -m agrocebada.entrega`
+    uv run python -m parcelas.predict      # equivale a `python -m parcelas.entrega`
 
 Escribe
   outputs/predicciones_finales.csv        las 59 con p10, p90 y probabilidad bajo el umbral

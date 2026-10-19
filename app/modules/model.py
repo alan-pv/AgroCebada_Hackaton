@@ -6,8 +6,8 @@ from functools import cache, lru_cache
 import pandas as pd
 from flask import Blueprint, jsonify, request
 
-from agrocebada.config import PROCESSED
-from agrocebada.predict import cargar_modelo, predict
+from parcelas.config import PROCESSED
+from parcelas.predict import cargar_modelo, predict
 
 bp = Blueprint("model", __name__)
 

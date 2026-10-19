@@ -6,7 +6,7 @@ modelo de la entrega. Ver docs/MUNICIPAL.md.
 """
 from pathlib import Path
 
-from ..config import RAIZ
+from parcelas.config import RAIZ
 
 EXTERNOS = RAIZ / "data" / "externos"
 SALIDA = RAIZ / "data" / "processed" / "generalizable"

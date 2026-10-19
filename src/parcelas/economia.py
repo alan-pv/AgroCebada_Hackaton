@@ -1,6 +1,6 @@
 """Capa económica: de toneladas por hectárea a pesos y riesgo de crédito.
 
-    from agrocebada.economia import capa_economica
+    from parcelas.economia import capa_economica
     tabla = capa_economica(pred_df)   # pred_df: salida de predict() más CVEGEO, regimen y area_ha
 
 No es una variable del modelo. Toma la predicción (pred, p10), el municipio y el área de cada

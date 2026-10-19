@@ -24,7 +24,7 @@ Variables por año (una fila por municipio y año). Ventanas del ciclo primavera
   - anom_*: diferencia contra el promedio 2003 a 2025 del mismo municipio.
 
 Uso:
-    uv run python -m agrocebada.generalizable.variables
+    uv run python -m generalizable.variables
 """
 import calendar
 
@@ -34,7 +34,7 @@ import pandas as pd
 import shapely
 from exactextract import exact_extract
 
-from ..config import CRS_GEO, CRS_METRICO
+from parcelas.config import CRS_GEO, CRS_METRICO
 from . import EXTERNOS, SALIDA
 from .siap import normalizar
 

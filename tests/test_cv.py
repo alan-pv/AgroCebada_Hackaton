@@ -4,9 +4,9 @@ import pytest
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.pipeline import make_pipeline
 
-from agrocebada import cv
-from agrocebada.config import PROCESSED
-from agrocebada.transformers import (MediaPorGrupo, RezagoEspacial, SeleccionColumnas,
+from parcelas import cv
+from parcelas.config import PROCESSED
+from parcelas.transformers import (MediaPorGrupo, RezagoEspacial, SeleccionColumnas,
                                      TargetEncoderGrupo)
 
 

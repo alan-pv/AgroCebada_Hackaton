@@ -43,7 +43,7 @@ import pandas as pd
 from joblib import Parallel, delayed
 from sklearn.cluster import KMeans
 
-from ..config import SEED
+from parcelas.config import SEED
 
 N_GRUPOS = 20
 N_FOLDS = 5

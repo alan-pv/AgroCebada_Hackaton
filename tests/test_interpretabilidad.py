@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from agrocebada import interpretabilidad as I
-from agrocebada.config import PROCESSED
+from parcelas import interpretabilidad as I
+from parcelas.config import PROCESSED
 
 
 def _datos(n=120, semilla=0):

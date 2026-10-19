@@ -1,6 +1,6 @@
 """Predicción con el modelo final: contrato con la app y con la entrega.
 
-    from agrocebada.predict import cargar_modelo, predict
+    from parcelas.predict import cargar_modelo, predict
     tabla = predict(features_df)    # ID_POLIGONO, pred, p10, p90, prob_bajo_umbral
 
 `features_df` tiene el formato de `features.parquet`. El modelo solo necesita las
@@ -26,7 +26,7 @@ absoluto con 0 vecinos es 0.372 t/ha contra 0.252 con 1 o 2. Marca precisión, n
 intervalo. Las coordenadas salen del rezago espacial guardado en el modelo, y una parcela de
 entrenamiento no se cuenta a sí misma.
 
-`python -m agrocebada.predict` genera todos los archivos de entrega (ver `entrega.py`).
+`python -m parcelas.predict` genera todos los archivos de entrega (ver `entrega.py`).
 """
 import sys
 from dataclasses import dataclass, field
@@ -66,7 +66,7 @@ def cargar_modelo(ruta=None):
     """Carga `models/modelo_final.joblib` (o la ruta dada)."""
     ruta = Path(ruta) if ruta is not None else RUTA_MODELO
     if not ruta.exists():
-        raise FileNotFoundError(f"No existe {ruta}. Genérelo con `python -m agrocebada.train_final`.")
+        raise FileNotFoundError(f"No existe {ruta}. Genérelo con `python -m parcelas.train_final`.")
     return joblib.load(ruta)
 
 

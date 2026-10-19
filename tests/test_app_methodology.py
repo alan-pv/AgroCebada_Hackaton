@@ -7,7 +7,7 @@ import pytest
 
 pytest.importorskip("flask")
 
-from agrocebada.config import OUTPUTS
+from parcelas.config import OUTPUTS
 from app import create_app
 from app.modules import methodology, model
 

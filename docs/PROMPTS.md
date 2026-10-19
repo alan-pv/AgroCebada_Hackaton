@@ -40,7 +40,7 @@ Resultado: el documento de contexto, con los dos regímenes de registro y el rui
 ### 3. Plan de validación y regla de decisión (5 de octubre de 2026)
 
 Resultado: validación cruzada repetida, esquema por zonas y la regla de 7 de 10 repeticiones con prueba de
-permutación (`src/agrocebada/cv.py`).
+permutación (`src/parcelas/cv.py`).
 
 > _Pegar aquí el prompt._
 

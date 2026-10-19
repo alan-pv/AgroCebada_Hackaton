@@ -16,9 +16,9 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 
-from agrocebada import cv, intervalos, train_final
-from agrocebada.config import OUTPUTS, SEED
-from agrocebada.predict import RADIO_VECINOS
+from parcelas import cv, intervalos, train_final
+from parcelas.config import OUTPUTS, SEED
+from parcelas.predict import RADIO_VECINOS
 
 TAU = 0.1
 N_REP = 5

@@ -10,7 +10,7 @@ Columnas.
   - topo_*: elevación, pendiente, aspecto (seno y coseno) e índice de posición topográfica.
 
 Uso:
-    uv run python -m agrocebada.features_env
+    uv run python -m parcelas.features_env
 """
 import calendar
 

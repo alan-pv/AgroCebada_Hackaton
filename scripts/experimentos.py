@@ -22,10 +22,10 @@ import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
 
-from agrocebada import cv, modelos
-from agrocebada.config import EXPERIMENTOS, OUTPUTS, PROCESSED, FIGURAS, SEED
-from agrocebada.registro import ARCHIVO_REGISTRO, ENCABEZADO, registrar
-from agrocebada.transformers import MediaPorGrupo
+from parcelas import cv, modelos
+from parcelas.config import EXPERIMENTOS, OUTPUTS, PROCESSED, FIGURAS, SEED
+from parcelas.registro import ARCHIVO_REGISTRO, ENCABEZADO, registrar
+from parcelas.transformers import MediaPorGrupo
 
 warnings.filterwarnings("ignore")
 os.environ["PYTHONWARNINGS"] = "ignore"  # también en los procesos de joblib

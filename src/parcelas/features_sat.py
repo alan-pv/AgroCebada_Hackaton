@@ -10,7 +10,7 @@ Los valores que no se pueden calcular quedan en NaN. Nombres de columnas.
   - tsup_landsat_vi6t_{metrica}: temperatura de superficie (VI6T de Landsat).
 
 Uso:
-    uv run python -m agrocebada.features_sat
+    uv run python -m parcelas.features_sat
 """
 import numpy as np
 import pandas as pd

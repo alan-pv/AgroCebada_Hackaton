@@ -33,9 +33,9 @@ FIRA aclaró lo siguiente en las dos sesiones de preguntas y por correo.
 
 ## Los dos regímenes de registro
 
-Cada municipio registra el rendimiento de una sola forma. En el régimen A (Chignahuapan, Almoloya, Cuautepec de Hinojosa y Tepeapulco) los valores tienen dos decimales y promedian 4.49 t/ha. En el régimen B (Singuilucan, Emiliano Zapata, Apan, Calpulalpan y Nanacamilpa) están redondeados a 0.5 o a 0.1 y promedian 3.05 t/ha. En el entrenamiento hay 87 parcelas del A y 51 del B, y en las 59 hay 37 y 22. Singuilucan, del régimen B, queda a 9 km de parcelas del A, y ninguna variable de clima, altitud, suelo o calendario explica la diferencia. El SIAP no muestra la brecha entre esos municipios. La fuente mixta es una posible explicación que FIRA no confirma. El análisis completo está en `reportes/REGIMENES.pdf`.
+Cada municipio registra el rendimiento de una sola forma. En el régimen A (Chignahuapan, Almoloya, Cuautepec de Hinojosa y Tepeapulco) los valores tienen dos decimales y promedian 4.49 t/ha. En el régimen B (Singuilucan, Emiliano Zapata, Apan, Calpulalpan y Nanacamilpa) están redondeados a 0.5 o a 0.1 y promedian 3.05 t/ha. En el entrenamiento hay 87 parcelas del A y 51 del B, y en las 59 hay 37 y 22. Singuilucan, del régimen B, queda a 9 km de parcelas del A, y ninguna variable de clima, altitud, suelo o calendario explica la diferencia. El SIAP no muestra la brecha entre esos municipios. La fuente mixta es una posible explicación que FIRA no confirma. El análisis completo está en `docs/reportes/REGIMENES.pdf`.
 
-El régimen se asigna por municipio con una regla fija (`REGIMEN_POR_MUNICIPIO` en `src/agrocebada/config.py`), así que se conoce para cualquier parcela de esos nueve municipios sin usar su rendimiento.
+El régimen se asigna por municipio con una regla fija (`REGIMEN_POR_MUNICIPIO` en `src/parcelas/config.py`), así que se conoce para cualquier parcela de esos nueve municipios sin usar su rendimiento.
 
 ## Tablas procesadas
 
@@ -47,7 +47,7 @@ El régimen se asigna por municipio con una regla fija (`REGIMEN_POR_MUNICIPIO` 
 | `serie_ficha.parquet` | Serie suavizada de NDVI y NDDI de Sentinel-2 que muestra la ficha de la app |
 | `generalizable/` | Tablas del modelo municipal (municipios, clima anual y zonas agrícolas) |
 
-Las series suavizadas completas (`series_*.parquet`) y los rásteres descomprimidos de `data/interim/` no se versionan. Se regeneran con `uv run python -m agrocebada.build_features`.
+Las series suavizadas completas (`series_*.parquet`) y los rásteres descomprimidos de `data/interim/` no se versionan. Se regeneran con `uv run python -m parcelas.build_features`.
 
 ## Datos públicos externos
 

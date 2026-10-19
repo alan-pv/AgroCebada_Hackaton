@@ -15,12 +15,12 @@ import geopandas as gpd
 from flask import Blueprint, Response, jsonify, request
 from shapely.geometry import MultiPolygon, Polygon
 
-from agrocebada.config import OUTPUTS, RAIZ
+from parcelas.config import OUTPUTS, RAIZ
 
 bp = Blueprint("municipal", __name__)
 
 MUNICIPAL_GPKG = OUTPUTS / "generalizable_municipios.gpkg"
-# Límites municipales del INEGI a resolución completa (la misma ruta que agrocebada.generalizable.variables, que no se
+# Límites municipales del INEGI a resolución completa (la misma ruta que generalizable.variables, que no se
 # importa aquí porque pide exactextract, que no se instala en ARM)
 MUNICIPIOS = RAIZ / "data" / "externos" / "inegi_marcogeo" / "municipios_13_15_21_29.gpkg"
 # Estados del reto: los únicos que muestra la app

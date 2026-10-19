@@ -1,6 +1,6 @@
 """Auditoría independiente del modelo final.
 
-No importa nada de `agrocebada`. Reimplementa el rezago espacial, el modelo y la
+No importa nada de `src/`. Reimplementa el rezago espacial, el modelo y la
 validación cruzada desde cero para comprobar los números reportados.
 
 Uso, desde la raíz del repositorio:

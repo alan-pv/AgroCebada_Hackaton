@@ -1,7 +1,7 @@
 """Validación de integridad del dataset crudo.
 
 Uso:
-    uv run python -m agrocebada.validar
+    uv run python -m parcelas.validar
 
 Las comprobaciones críticas se afirman con `assert`; los hallazgos que no deberían
 ocultarse pero tampoco impiden trabajar se imprimen como ADVERTENCIA.

@@ -1,7 +1,7 @@
 """Rutas, constantes y mapeos compartidos por todo el proyecto."""
 from pathlib import Path
 
-# Raíz del repo: src/agrocebada/config.py -> subir tres niveles
+# Raíz del repo: src/parcelas/config.py -> subir tres niveles
 RAIZ = Path(__file__).resolve().parents[2]
 RAW = RAIZ / "data" / "reto"
 INTERIM = RAIZ / "data" / "interim"

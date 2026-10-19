@@ -5,8 +5,8 @@ import pytest
 
 pytest.importorskip("flask")
 
-from agrocebada import economia
-from agrocebada.config import OUTPUTS
+from parcelas import economia
+from parcelas.config import OUTPUTS
 from app import create_app
 
 # Claves de cada fila de GET /api/economics

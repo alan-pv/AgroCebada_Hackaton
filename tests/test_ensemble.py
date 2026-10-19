@@ -3,8 +3,8 @@ import pandas as pd
 import pytest
 from sklearn.linear_model import Ridge
 
-from agrocebada import ensemble, intervalos
-from agrocebada.config import PROCESSED
+from parcelas import ensemble, intervalos
+from parcelas.config import PROCESSED
 
 
 @pytest.fixture(scope="module")
@@ -17,7 +17,7 @@ def datos():
 
 
 def test_promedio_de_un_modelo_es_el_modelo(datos):
-    from agrocebada import modelos
+    from parcelas import modelos
     X, y = datos
     m = modelos.construir_modelo("ridge", [], contexto=("regimen",))
     solo = ensemble.PromedioModelos([m]).fit(X, y)

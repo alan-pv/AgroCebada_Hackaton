@@ -4,7 +4,7 @@ from functools import cache
 import pandas as pd
 from flask import Blueprint, Response, jsonify, request
 
-from agrocebada.config import OUTPUTS
+from parcelas.config import OUTPUTS
 
 bp = Blueprint("predictions", __name__)
 

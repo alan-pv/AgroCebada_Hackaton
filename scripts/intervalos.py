@@ -24,9 +24,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from agrocebada import cv, ensemble, intervalos, modelos
-from agrocebada.config import EXPERIMENTOS, FIGURAS, OUTPUTS, PROCESSED
-from agrocebada.registro import ARCHIVO_REGISTRO, ENCABEZADO, registrar
+from parcelas import cv, ensemble, intervalos, modelos
+from parcelas.config import EXPERIMENTOS, FIGURAS, OUTPUTS, PROCESSED
+from parcelas.registro import ARCHIVO_REGISTRO, ENCABEZADO, registrar
 
 warnings.filterwarnings("ignore")
 os.environ["PYTHONWARNINGS"] = "ignore"

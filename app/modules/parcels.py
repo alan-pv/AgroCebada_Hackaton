@@ -4,7 +4,7 @@ from functools import cache
 import geopandas as gpd
 from flask import Blueprint, Response
 
-from agrocebada.config import PROCESSED
+from parcelas.config import PROCESSED
 
 bp = Blueprint("parcels", __name__)
 

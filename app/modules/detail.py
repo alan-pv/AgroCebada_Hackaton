@@ -10,7 +10,7 @@ from functools import cache
 import pandas as pd
 from flask import Blueprint, jsonify, render_template, request
 
-from agrocebada.config import OUTPUTS, PROCESSED
+from parcelas.config import OUTPUTS, PROCESSED
 
 from . import charts, economics, formatting
 from .model import load_model

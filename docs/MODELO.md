@@ -1,6 +1,6 @@
 # Modelo de parcelas
 
-Este documento describe el modelo que genera las 59 predicciones de la entrega, cómo se eligió, qué tan bien funciona y para qué sirve. La forma de validar y la regla de decisión están en `VALIDACION.md`. El detalle completo está en `reportes/MODELO.pdf` y el resumen para FIRA en `reportes/REPORTE.pdf`.
+Este documento describe el modelo que genera las 59 predicciones de la entrega, cómo se eligió, qué tan bien funciona y para qué sirve. La forma de validar y la regla de decisión están en `VALIDACION.md`. El detalle completo está en `docs/reportes/MODELO.pdf` y el resumen para FIRA en `docs/reportes/REPORTE.pdf`.
 
 ## Resumen
 
@@ -30,7 +30,7 @@ El modelo es una estimación de cierre de temporada. Usa el rendimiento de las p
 | `outputs/controles_entrega.csv` | Resultado de los controles de la entrega |
 | `experimentos/registro.csv` | Una fila por experimento con sus métricas y su decisión |
 
-Para regenerar todo se corre `uv run python -m agrocebada.train_final` y después `uv run python -m agrocebada.predict`. La función `agrocebada.predict.predict(df)` predice cualquier tabla con el formato de `features.parquet`.
+Para regenerar todo se corre `uv run python -m parcelas.train_final` y después `uv run python -m parcelas.predict`. La función `parcelas.predict.predict(df)` predice cualquier tabla con el formato de `features.parquet`.
 
 ## Cómo funciona
 
@@ -56,7 +56,7 @@ Cada idea se probó contra la mejor versión aceptada hasta ese momento, en este
 | Algoritmos (elastic net, PLS, bosque aleatorio, LightGBM, proceso gaussiano) | El proceso gaussiano con régimen y rezago da 0.458 | Aceptado |
 | Promedios de modelos | El mejor queda 0.002 t/ha arriba y gana en 2 de 10 | Descartados |
 
-Con los rendimientos revueltos el modelo no mejora a la media global, así que no hay fuga de información. La mejora sobre la media por régimen es de 0.031 t/ha y viene solo de los vecinos. Con la prueba t corregida por el traslape de las particiones (Nadeau y Bengio, 2003) no es significativa (p = 0.26, `scripts/analisis/prueba_t.py`). La cifra de 0.458 es optimista porque se eligió entre 73 evaluaciones con las mismas particiones, y la validación anidada estima 0.490. Una auditoría independiente reimplementó el modelo sin usar el paquete `agrocebada`, con particiones propias, y llegó a la misma conclusión. Obtuvo 0.467 contra 0.493 de la media por régimen, una diferencia que tampoco es significativa (`scripts/analisis/auditoria.py`, resultados en `outputs/auditoria/`).
+Con los rendimientos revueltos el modelo no mejora a la media global, así que no hay fuga de información. La mejora sobre la media por régimen es de 0.031 t/ha y viene solo de los vecinos. Con la prueba t corregida por el traslape de las particiones (Nadeau y Bengio, 2003) no es significativa (p = 0.26, `scripts/analisis/prueba_t.py`). La cifra de 0.458 es optimista porque se eligió entre 73 evaluaciones con las mismas particiones, y la validación anidada estima 0.490. Una auditoría independiente reimplementó el modelo sin usar el código de `src/`, con particiones propias, y llegó a la misma conclusión. Obtuvo 0.467 contra 0.493 de la media por régimen, una diferencia que tampoco es significativa (`scripts/analisis/auditoria.py`, resultados en `outputs/auditoria/`).
 
 ## Preguntas guía del reto
 

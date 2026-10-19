@@ -18,9 +18,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from agrocebada import cv, modelos
-from agrocebada import interpretabilidad as I
-from agrocebada.config import FIGURAS, OUTPUTS, PROCESSED
+from parcelas import cv, modelos
+from parcelas import interpretabilidad as I
+from parcelas.config import FIGURAS, OUTPUTS, PROCESSED
 
 warnings.filterwarnings("ignore")
 N_JOBS = 8

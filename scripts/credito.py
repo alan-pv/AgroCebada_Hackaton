@@ -40,7 +40,7 @@ import pandas as pd
 RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ / "src"))
 
-from agrocebada.generalizable import siap as sp  # noqa: E402
+from generalizable import siap as sp  # noqa: E402
 
 EXT = RAIZ / "data" / "externos"
 AGRO = EXT / "fira_agrocostos"
@@ -168,7 +168,7 @@ def construir():
 
 def parcelas(tabla_municipal=None):
     """Capa económica de las 197 parcelas con outputs/predicciones.parquet."""
-    from agrocebada.economia import capa_economica
+    from parcelas.economia import capa_economica
     p = pd.read_parquet(RAIZ / "outputs" / "predicciones.parquet")
     e = capa_economica(p, tabla=tabla_municipal)
     cols = ["ID_POLIGONO", "conjunto", "estado", "municipio", "regimen", "area_ha", "pred", "p10"]
@@ -183,7 +183,7 @@ def main():
     pd.set_option("display.width", 250, "display.max_columns", 40)
     print(f.T)
     print(m.round(3).to_string())
-    from agrocebada.economia import cargar_tabla
+    from parcelas.economia import cargar_tabla
     c = parcelas(cargar_tabla(SALIDA))
     c.round(6).to_csv(RAIZ / "outputs" / "capa_economica.csv", index=False)
     p59 = c[c.conjunto == "PREDICCION"]

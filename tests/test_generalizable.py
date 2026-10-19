@@ -3,10 +3,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from agrocebada.generalizable import modelos as M
-from agrocebada.generalizable import riesgo as R
-from agrocebada.generalizable import siap
-from agrocebada.generalizable import validacion as V
+from generalizable import modelos as M
+from generalizable import riesgo as R
+from generalizable import siap
+from generalizable import validacion as V
 
 
 def tabla_sintetica(n_mun=30, anios=range(2005, 2025), pendiente=0.03, semilla=0):
@@ -195,7 +195,7 @@ def test_orden_de_bandas_de_clima(tmp_path, monkeypatch):
     from rasterio.transform import from_origin
     from shapely.geometry import box
 
-    from agrocebada.generalizable import variables
+    from generalizable import variables
 
     (tmp_path / "prec").mkdir()
     ruta = tmp_path / "prec" / "PREC_2020.tif"

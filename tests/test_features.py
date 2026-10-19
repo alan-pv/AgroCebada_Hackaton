@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from agrocebada import config
-from agrocebada.series import despike, whittaker
+from parcelas import config
+from parcelas.series import despike, whittaker
 
 
 def _senal():

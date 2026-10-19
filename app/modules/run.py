@@ -11,8 +11,8 @@ import pandas as pd
 from flask import Blueprint, jsonify, render_template, request
 from pyproj import Transformer
 
-from agrocebada.config import CRS_GEO, CRS_METRICO
-from agrocebada.predict import predict
+from parcelas.config import CRS_GEO, CRS_METRICO
+from parcelas.predict import predict
 
 from . import model
 

@@ -1,6 +1,6 @@
 """Entrena el modelo final y lo guarda en `models/modelo_final.joblib`.
 
-    uv run python -m agrocebada.train_final      # ~1 min
+    uv run python -m parcelas.train_final      # ~1 min
 
 Reconstruye el candidato de la versión 2 desde `experimentos/candidato_v2.json`, lo
 entrena con las 138 parcelas de ENTRENAMIENTO, arma el calibrador de intervalos con los

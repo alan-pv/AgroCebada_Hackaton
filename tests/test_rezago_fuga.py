@@ -1,8 +1,8 @@
 """El rezago espacial y el modelo final no ven las etiquetas del fold de prueba."""
 import numpy as np
-from agrocebada import cv, modelos
-from agrocebada.train_final import cargar_datos
-from agrocebada.transformers import RezagoEspacial
+from parcelas import cv, modelos
+from parcelas.train_final import cargar_datos
+from parcelas.transformers import RezagoEspacial
 
 X, y, X59 = cargar_datos()
 

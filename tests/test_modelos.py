@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from agrocebada import modelos
-from agrocebada.config import PROCESSED
-from agrocebada.transformers import MediaPorGrupo
+from parcelas import modelos
+from parcelas.config import PROCESSED
+from parcelas.transformers import MediaPorGrupo
 
 
 @pytest.fixture(scope="module")

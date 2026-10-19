@@ -10,10 +10,10 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-from agrocebada import cv
-from agrocebada.config import EXPERIMENTOS, PROCESSED
-from agrocebada.registro import ARCHIVO_REGISTRO, registrar
-from agrocebada.transformers import MediaPorGrupo, SeleccionColumnas
+from parcelas import cv
+from parcelas.config import EXPERIMENTOS, PROCESSED
+from parcelas.registro import ARCHIVO_REGISTRO, registrar
+from parcelas.transformers import MediaPorGrupo, SeleccionColumnas
 
 
 def modelos():

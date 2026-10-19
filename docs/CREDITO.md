@@ -5,7 +5,7 @@ Esta capa convierte la predicción de rendimiento en pesos y en riesgo para el a
 ## Cómo se llama
 
 ```python
-from agrocebada.economia import capa_economica
+from parcelas.economia import capa_economica
 
 # pred_df trae pred, p10, regimen, area_ha y CVEGEO (o estado y municipio)
 tabla = capa_economica(pred_df)

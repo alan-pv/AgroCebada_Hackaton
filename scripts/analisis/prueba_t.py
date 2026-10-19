@@ -1,6 +1,6 @@
 """Prueba t corregida de Nadeau y Bengio (2003) sobre los 50 pares (10 rep x 5 folds).
 
-Usa el pipeline oficial (agrocebada.cv, esquema A, mismas particiones y semilla). Cada
+Usa el pipeline oficial (parcelas.cv, esquema A, mismas particiones y semilla). Cada
 sub-modelo se ajusta solo con el entrenamiento de cada fold, incluido el rezago espacial
 (RezagoEspacial excluye a cada parcela de su propio rezago en el ajuste; en prueba solo
 cuentan parcelas de entrenamiento).
@@ -20,9 +20,9 @@ RAIZ = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(RAIZ / "scripts"))
 warnings.filterwarnings("ignore")
 
-from agrocebada import cv, modelos  # noqa: E402
-from agrocebada.config import OUTPUTS  # noqa: E402
-from agrocebada.transformers import MediaPorGrupo  # noqa: E402
+from parcelas import cv, modelos  # noqa: E402
+from parcelas.config import OUTPUTS  # noqa: E402
+from parcelas.transformers import MediaPorGrupo  # noqa: E402
 from experimentos import cargar, spec, variante  # noqa: E402
 
 

@@ -1,9 +1,9 @@
 """Experimentos del modelo generalizable: curva de exclusión, regla de decisión, importancia y modelo final.
 
-Requiere las tablas de `python -m agrocebada.generalizable.variables` y la asignación de DDR de
+Requiere las tablas de `python -m generalizable.variables` y la asignación de DDR de
 `scripts/descargar_ddr.py`. La métrica principal y los esquemas están en
-`agrocebada.generalizable.validacion`. Los modelos simples, fijados antes de evaluar, están en
-`agrocebada.generalizable.modelos.SIMPLES`.
+`generalizable.validacion`. Los modelos simples, fijados antes de evaluar, están en
+`generalizable.modelos.SIMPLES`.
 
 Plan fijado antes de correr (no se cambia después de ver resultados).
   1. Curva con zona de exclusión B = 0, 20, 40, 50, 60 y 80 km, 10 repeticiones, para bases,
@@ -50,9 +50,9 @@ os.environ.setdefault("PYTHONWARNINGS", "ignore")
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
-from agrocebada.config import EXPERIMENTOS  # noqa: E402
-from agrocebada.generalizable import modelos as M  # noqa: E402
-from agrocebada.generalizable import validacion as V  # noqa: E402
+from parcelas.config import EXPERIMENTOS  # noqa: E402
+from generalizable import modelos as M  # noqa: E402
+from generalizable import validacion as V  # noqa: E402
 
 warnings.filterwarnings("ignore")
 SALIDA = EXPERIMENTOS / "generalizable"

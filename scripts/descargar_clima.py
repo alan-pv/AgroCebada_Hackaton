@@ -42,7 +42,7 @@ import rasterio
 from rasterio.transform import Affine
 from rasterio.windows import Window
 
-from agrocebada.io import extraer_rasteres
+from parcelas.io import extraer_rasteres
 
 RAIZ = Path(__file__).resolve().parents[1]
 NODATA = -9999.0

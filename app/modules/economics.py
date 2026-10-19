@@ -1,5 +1,5 @@
 # Economía por parcela: tabla de las 197 parcelas y detalle económico de una, con contexto municipal.
-# Los cálculos son de agrocebada.economia (capa_economica); aquí se lee, se valida y se redondea.
+# Los cálculos son de parcelas.economia (capa_economica); aquí se lee, se valida y se redondea.
 # Contrato:
 #   GET /api/economics              lista JSON de las 197 parcelas, ordenada por id, con id, state, municipality, set,
 #                                   regime, area_ha, price, breakeven, income_ha, income_conservative_ha, income_parcel,
@@ -16,8 +16,8 @@ from functools import cache
 import pandas as pd
 from flask import Blueprint, Response, jsonify, request
 
-from agrocebada import economia
-from agrocebada.config import OUTPUTS
+from parcelas import economia
+from parcelas.config import OUTPUTS
 
 from . import model
 
