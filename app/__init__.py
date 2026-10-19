@@ -4,7 +4,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from flask import Flask, render_template, send_from_directory
 
-from .modules import detail, economics, formatting, methodology, model, parcels, predictions, run
+from .modules import detail, economics, formatting, methodology, model, municipal, parcels, predictions, run
 
 ROOT = Path(__file__).resolve().parent
 
@@ -43,6 +43,7 @@ class AgroCebadaApp:
         self.server.register_blueprint(detail.bp)
         self.server.register_blueprint(methodology.bp)
         self.server.register_blueprint(run.bp)
+        self.server.register_blueprint(municipal.bp)
 
     def index(self):
         return render_template("index.html")
@@ -66,6 +67,7 @@ class AgroCebadaApp:
         detail.warm_up()
         methodology.warm_up()
         run.warm_up()
+        municipal.warm_up()
 
     def serve(self, host=HOST, port=PORT):
         # Servidor de producción

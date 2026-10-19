@@ -45,17 +45,18 @@ def test_map_div_has_data_urls(client):
     assert client.get("/styles/map.css").status_code == 200
 
 
-def test_layer_select_has_five_options(client):
+def test_layer_select_has_eight_options(client):
     html = client.get("/").get_data(as_text=True)
     select = re.search(r'<select id="layer">(.*?)</select>', html, re.S)
     assert select
     values = re.findall(r'<option value="([^"]*)"', select.group(1))
-    assert values == ["set", "yield", "pred", "risk_costs", "risk_credit"]
-    # Agrupadas en «Datos» y «Riesgo»; los valores (y el hash #layer=...) no cambian
+    assert values == ["set", "yield", "pred", "risk_costs", "risk_credit", "mun-esperado", "mun-riesgo", "mun-confianza"]
+    # Agrupadas en «Datos», «Riesgo» y «Modelo municipal»; los valores (y el hash #layer=...) no cambian
     groups = re.findall(r'<optgroup label="([^"]+)">(.*?)</optgroup>', select.group(1), re.S)
     assert [(label, re.findall(r'value="([^"]*)"', body)) for label, body in groups] == [
         ("Datos", ["set", "yield", "pred"]),
         ("Riesgo", ["risk_costs", "risk_credit"]),
+        ("Modelo municipal", ["mun-esperado", "mun-riesgo", "mun-confianza"]),
     ]
 
 
