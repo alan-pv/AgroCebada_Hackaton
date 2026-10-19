@@ -17,7 +17,7 @@ import pandas as pd
 from flask import Blueprint, Response, jsonify, request
 
 from parcelas import economia
-from parcelas.config import OUTPUTS
+from parcelas.config import OUTPUTS_PARCELAS
 
 from . import model
 
@@ -56,7 +56,7 @@ DECIMALS = {"area_ha": 2, "price": 2, "breakeven": 3, "income_ha": 2, "income_co
 def input_table():
     """Predicciones de las 197 parcelas, solo las columnas que usa la capa económica."""
     cols = ["ID_POLIGONO", "conjunto", "estado", "municipio", "regimen", "area_ha", "pred", "p10"]
-    return pd.read_parquet(OUTPUTS / "predicciones.parquet")[cols]
+    return pd.read_parquet(OUTPUTS_PARCELAS / "predicciones.parquet")[cols]
 
 
 @cache
@@ -69,7 +69,7 @@ def municipal_table():
 def default_table():
     """Capa económica de las 197 parcelas con los valores por defecto, indexada por ID.
 
-    Tiene las mismas columnas y valores que outputs/capa_economica.csv.
+    Tiene las mismas columnas y valores que outputs/parcelas/capa_economica.csv.
     """
     p = input_table()
     e = economia.capa_economica(p, modelo=model.load_model(), tabla=municipal_table())

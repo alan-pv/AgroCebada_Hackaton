@@ -2,9 +2,9 @@
 
     uv run python -m parcelas.train_final      # ~1 min
 
-Reconstruye el candidato de la versión 2 desde `experimentos/candidato_v2.json`, lo
+Reconstruye el modelo final desde `analisis/parcelas/modelo_final.json`, lo
 entrena con las 138 parcelas de ENTRENAMIENTO, arma el calibrador de intervalos con los
-residuos guardados en `experimentos/calibracion_v2.parquet` y vuelve a correr la
+residuos guardados en `analisis/parcelas/residuos_calibracion.parquet` y vuelve a correr la
 validación cruzada (esquemas A y B) para guardar las métricas y la predicción fuera de
 fold de cada parcela de entrenamiento. Es determinista (config.SEED).
 """
@@ -15,11 +15,11 @@ import numpy as np
 import pandas as pd
 
 from . import cv, ensemble, intervalos
-from .config import EXPERIMENTOS, PROCESSED
+from .config import ANALISIS_PARCELAS, PROCESSED
 from .predict import COLUMNAS_ENTRADA, RUTA_MODELO, ModeloFinal
 
 VERSION = "1.0"
-ARCHIVO_CALIBRACION = EXPERIMENTOS / "calibracion_v2.parquet"
+ARCHIVO_CALIBRACION = ANALISIS_PARCELAS / "residuos_calibracion.parquet"
 
 
 def cargar_datos():
@@ -51,18 +51,18 @@ def calibrador(cfg_intervalo):
 
 def entrenar(ruta=RUTA_MODELO):
     X, y, _ = cargar_datos()
-    cfg = ensemble.configuracion_candidato_v2()
-    modelo = ensemble.candidato_v2().fit(X, y)
+    cfg = ensemble.configuracion_final()
+    modelo = ensemble.modelo_final().fit(X, y)
     cal, tabla_cal = calibrador(cfg["intervalo"])
     umbral = float(cfg["intervalo"]["umbral"])
 
-    res = cv.evaluate(ensemble.candidato_v2(), X, y, "AB")
+    res = cv.evaluate(ensemble.modelo_final(), X, y, "AB")
     oof = res["A"].oof.mean(axis=1).rename("oof")
     # La calibración guardada debe ser la de este mismo modelo y estas mismas particiones
     resid = np.concatenate([(y - res["A"].oof[c]).to_numpy() for c in res["A"].oof.columns])
     if not np.allclose(resid, tabla_cal["residuo"].to_numpy(), atol=1e-6):
-        raise RuntimeError("Los residuos de calibracion_v2.parquet no coinciden con la "
-                           "validación actual. Reejecute scripts/intervalos.py")
+        raise RuntimeError("Los residuos de residuos_calibracion.parquet no coinciden con la "
+                           "validación actual. Reejecute scripts/parcelas/intervalos.py")
     metricas = _metricas(res) | {
         "nombre_candidato": cfg["nombre"], "n_entrenamiento": int(len(X)),
         "intervalo": cfg["intervalo"]}

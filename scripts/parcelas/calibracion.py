@@ -1,6 +1,6 @@
 """Calibración del p10 y validación de la marca de confianza (issue #46).
 
-Usa outputs/intervalos_cv.csv (validación anidada de 5 repeticiones, método `regimen`) y no
+Usa analisis/parcelas/intervalos_cv.csv (validación anidada de 5 repeticiones, método `regimen`) y no
 reentrena el modelo. Calcula por régimen la cobertura, las colas, el ancho y la pinball loss
 en el cuantil 0.1 del modelo y de una línea base, con IC95 por bootstrap de parcelas (las
 repeticiones de una misma parcela no son independientes). Después valida la marca de
@@ -8,16 +8,16 @@ confianza con el número de vecinos de entrenamiento del mismo régimen a 400 m,
 vecinos en el entrenamiento de cada fold externo.
 
 Uso:
-    uv run python scripts/calibracion.py
+    uv run python scripts/parcelas/calibracion.py
 
-Escribe outputs/calibracion_p10.csv y outputs/confianza_cv.csv.
+Escribe analisis/parcelas/calibracion_p10.csv y confianza_cv.csv.
 """
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 
 from parcelas import cv, intervalos, train_final
-from parcelas.config import OUTPUTS, SEED
+from parcelas.config import ANALISIS_PARCELAS, SEED
 from parcelas.predict import RADIO_VECINOS
 
 TAU = 0.1
@@ -125,11 +125,11 @@ def main():
     X, y, _ = train_final.cargar_datos()
     X = X.sort_index()
     y = y.loc[X.index]
-    a = pd.read_csv(OUTPUTS / "intervalos_cv.csv")
+    a = pd.read_csv(ANALISIS_PARCELAS / "intervalos_cv.csv")
     a = a[a["metodo"] == "regimen"].merge(lineas_base(X, y), on=["repeticion", "ID_POLIGONO"])
     cal, conf = tabla_calibracion(a), tabla_confianza(a, X)
-    cal.round(4).to_csv(OUTPUTS / "calibracion_p10.csv", index=False)
-    conf.round(4).to_csv(OUTPUTS / "confianza_cv.csv", index=False)
+    cal.round(4).to_csv(ANALISIS_PARCELAS / "calibracion_p10.csv", index=False)
+    conf.round(4).to_csv(ANALISIS_PARCELAS / "confianza_cv.csv", index=False)
     print(cal.round(3).T.to_string())
     print(conf.round(3).to_string(index=False))
 

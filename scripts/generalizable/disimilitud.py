@@ -9,8 +9,8 @@ media entre municipios con SIAP, y el límite es el bigote superior (Q3 + 1.5 IQ
 municipios con SIAP, cada uno contra los demás. También se reporta la distancia de Mahalanobis al centro de los 100, y
 cuántos municipios con SIAP tienen otro con SIAP a 25 km o menos, que justifica el corte de la confianza media.
 
-Uso: uv run python scripts/analisis/disimilitud.py
-Salida: outputs/disimilitud.json
+Uso: uv run python scripts/generalizable/disimilitud.py
+Salida: analisis/generalizable/disimilitud.json
 """
 import json
 from pathlib import Path
@@ -23,9 +23,10 @@ RAIZ = Path(__file__).resolve().parents[2]
 VARIABLES = ["clim_tmax_jul_ago", "clim_prec_may_oct", "elev_m"]
 ESTADOS_RETO = ["Hidalgo", "Puebla", "Tlaxcala"]
 
-mapa = pd.read_parquet(RAIZ / "outputs/generalizable_municipios.parquet")
+mapa = pd.read_parquet(RAIZ / "outputs/generalizable/capa_municipal.parquet")
 amb = pd.read_parquet(RAIZ / "data/processed/generalizable/municipios.parquet")
-d = mapa.merge(amb[["CVEGEO"] + VARIABLES], on="CVEGEO")
+# La capa ya trae elev_m; el resto de las variables sale de la tabla ambiental
+d = mapa.merge(amb[["CVEGEO"] + [v for v in VARIABLES if v not in mapa]], on="CVEGEO")
 
 con = d[d["con_siap"]]
 sin = d[d["dentro_rango_ambiental"] & ~d["con_siap"]]
@@ -88,6 +89,6 @@ salida["tres_estados"] = {
     "elevacion_media_con_valor_m": round(float(mapa_reto["elev_m"].mean())),
     "elevacion_media_mas_calidos_m": round(float(reto.loc[reto["clim_tmax_jul_ago"] > tmax_hi, "elev_m"].mean())),
 }
-ruta = RAIZ / "outputs/disimilitud.json"
+ruta = RAIZ / "analisis/generalizable/disimilitud.json"
 ruta.write_text(json.dumps(salida, indent=1, ensure_ascii=False), encoding="utf-8")
 print(json.dumps(salida, indent=1, ensure_ascii=False))

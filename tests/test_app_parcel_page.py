@@ -9,12 +9,12 @@ import pytest
 
 pytest.importorskip("flask")
 
-from parcelas.config import OUTPUTS, PROCESSED
+from parcelas.config import OUTPUTS_PARCELAS, PROCESSED
 from app import create_app
 from app.modules import economics, formatting
 
 ROOT = Path(__file__).resolve().parents[1]
-PREDICCIONES = OUTPUTS / "predicciones.parquet"
+PREDICCIONES = OUTPUTS_PARCELAS / "predicciones.parquet"
 SERIE = PROCESSED / "serie_ficha.parquet"
 NOTA_ENTRENAMIENTO = ("Esta parcela se usó para entrenar el modelo; la predicción que se muestra es la "
                       "validada fuera de entrenamiento y no se desglosa con el mismo método.")

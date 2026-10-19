@@ -1,6 +1,6 @@
 """Capa municipal para la app, cobertura de intervalos y comparación con el reto.
 
-Requiere `scripts/municipal_experimentos.py`. Usa el modelo final que eligió la regla
+Requiere `scripts/generalizable/validacion.py`. Usa el modelo final que eligió la regla
 (`decisiones.json`, clave "rend: modelo_final") y sus predicciones fuera de fold del esquema
 espacial con zona de exclusión.
 
@@ -31,18 +31,18 @@ Escala. Se usa la escala global salvo que algún estado quede con cobertura meno
 COBERTURA_MINIMA con B = 0 y la escala local la mejore (regla fijada antes de correr).
 
 Escribe
-  - outputs/generalizable_municipios.parquet y .gpkg: por municipio, esperado 2025, p10, p90
+  - outputs/generalizable/capa_municipal.parquet y .gpkg: por municipio, esperado 2025, p10, p90
     y probabilidad bajo 2 t/ha, para el rendimiento oficial y sobre sembrada, con la historia
     propia del SIAP, la distancia al municipio con SIAP más cercano y dentro_dominio. Fuera
     del rango ambiental de los municipios con SIAP hay valores, marcados como extrapolación.
-  - experimentos/generalizable/cobertura.csv: cobertura nominal 0.8 por estado, buffer y
+  - analisis/generalizable/cobertura.csv: cobertura nominal 0.8 por estado, buffer y
     escala, ponderada por superficie sembrada y sin ponderar.
-  - experimentos/generalizable/reto.csv y reto_resumen.json: nivel fuera de muestra de los
+  - analisis/generalizable/comparacion_reto.csv y comparacion_reto.json: nivel fuera de muestra de los
     municipios del reto contra la media del reto por régimen y el SIAP 2025. Es una
     comparación descriptiva, no causal.
 
 Uso:
-    uv run python scripts/municipal_capa.py [--modelo kriging_vecinos]
+    uv run python scripts/generalizable/capa_municipal.py [--modelo kriging_vecinos]
 """
 import argparse
 import json
@@ -55,7 +55,7 @@ import geopandas as gpd  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
-from parcelas.config import CRS_METRICO, EXPERIMENTOS, OUTPUTS, PROCESSED  # noqa: E402
+from parcelas.config import ANALISIS_GENERALIZABLE, CRS_METRICO, OUTPUTS_GENERALIZABLE, PROCESSED  # noqa: E402
 from generalizable import SALIDA as TABLAS  # noqa: E402
 from generalizable import modelos as M  # noqa: E402
 from generalizable import riesgo as R  # noqa: E402
@@ -64,7 +64,7 @@ from generalizable import validacion as V  # noqa: E402
 from generalizable.variables import MUNICIPIOS  # noqa: E402
 from parcelas.intervalos import cuantiles_conformal, prob_bajo_umbral  # noqa: E402
 
-EXP = EXPERIMENTOS / "generalizable"
+EXP = ANALISIS_GENERALIZABLE
 warnings.filterwarnings("ignore")
 DIST_CERCA_KM = 30.0
 DIST_DOMINIO_KM = 50.0
@@ -160,7 +160,7 @@ def descomposicion_tmax(d, y):
 def error_por_distancia(nombre):
     """Curva validada del error típico (RMSE de nivel, ponderado) según la zona de exclusión, en km.
 
-    Sale de experimentos/generalizable/resultados.csv, esquema espacial con zona de exclusión. Más allá del
+    Sale de analisis/generalizable/resultados.csv, esquema espacial con zona de exclusión. Más allá del
     último punto el error se mantiene (la curva ya se aplana desde los 40 km)."""
     r = pd.read_csv(EXP / "resultados.csv")
     r = r[(r.modelo == nombre) & (r.esquema == "espacial_buffer") & (r.unidad == "nivel") & r.ponderado
@@ -313,19 +313,19 @@ def main():
     print(cob[cob.estado == "Todos"].round(3).to_string())
     print(f"escala elegida: {escala} (cobertura mínima por estado con B = 0: global {g:.3f}, local {loc:.3f})")
     c = capa(nombre, escala)
-    OUTPUTS.mkdir(exist_ok=True)
-    c.to_parquet(OUTPUTS / "generalizable_municipios.parquet", index=False)
+    OUTPUTS_GENERALIZABLE.mkdir(parents=True, exist_ok=True)
+    c.to_parquet(OUTPUTS_GENERALIZABLE / "capa_municipal.parquet", index=False)
     geo = gpd.read_file(MUNICIPIOS)[["CVEGEO", "geometry"]].to_crs(CRS_METRICO)
     geo["geometry"] = geo.geometry.simplify(100)
     gpd.GeoDataFrame(c.merge(geo, on="CVEGEO"), geometry="geometry", crs=CRS_METRICO).to_crs("EPSG:4326") \
-        .to_file(OUTPUTS / "generalizable_municipios.gpkg", layer="municipios", driver="GPKG")
+        .to_file(OUTPUTS_GENERALIZABLE / "capa_municipal.gpkg", layer="municipios", driver="GPKG")
     print(c.describe().T.round(2).to_string())
     r = reto(nombre, c)
-    r.to_csv(EXP / "reto.csv", index=False)
+    r.to_csv(EXP / "comparacion_reto.csv", index=False)
     print(r.round(2).to_string())
     t = resumen_reto(r).round(3)
     print(t.to_string())
-    (EXP / "reto_resumen.json").write_text(json.dumps({"modelo": nombre, "escala": escala,
+    (EXP / "comparacion_reto.json").write_text(json.dumps({"modelo": nombre, "escala": escala,
                                                        "por_regimen": t.to_dict(orient="index")}, indent=2,
                                                       ensure_ascii=False))
 

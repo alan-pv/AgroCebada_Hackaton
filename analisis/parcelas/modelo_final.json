@@ -28,7 +28,7 @@
     "tamano": "ninguno",
     "min_grupo": 20,
     "umbral": 2.5,
-    "calibracion": "experimentos/calibracion_v2.parquet",
+    "calibracion": "analisis/parcelas/residuos_calibracion.parquet",
     "cobertura_global_anidada": 0.8261
   }
 }

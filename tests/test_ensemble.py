@@ -75,7 +75,7 @@ def test_prob_bajo_umbral_monotona():
     assert all(b <= a for a, b in zip(q, q[1:]))
 
 
-def test_candidato_v2_se_reconstruye():
-    if not ensemble.ARCHIVO_CANDIDATO_V2.exists():
-        pytest.skip("candidato_v2.json no generado")
-    assert hasattr(ensemble.candidato_v2(), "fit")
+def test_modelo_final_se_reconstruye():
+    if not ensemble.ARCHIVO_MODELO_FINAL.exists():
+        pytest.skip("modelo_final.json no generado")
+    assert hasattr(ensemble.modelo_final(), "fit")

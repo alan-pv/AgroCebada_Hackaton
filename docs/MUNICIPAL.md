@@ -34,31 +34,31 @@ La métrica principal se fijó antes de correr los modelos. Es el RMSE del nivel
 
 Por la regla fijada de antemano, el modelo final es un kriging de los residuos de una regresión sobre la Tmax de julio y agosto. Lejos de los datos se comporta como el modelo de clima y cerca corrige con el SIAP observado. Tiene el menor promedio de la métrica principal en 0 y 50 km (0.366, contra 0.412 de Tmax sola y 0.438 del kriging).
 
-El intervalo p10 a p90 cubre 0.815 de los municipios con datos cerca y 0.797 a 0.815 sin datos cerca (meta 0.80). Puebla subcubría con una escala global, así que se usa una escala local. Detalle en `experimentos/generalizable/cobertura.csv`.
+El intervalo p10 a p90 cubre 0.815 de los municipios con datos cerca y 0.797 a 0.815 sin datos cerca (meta 0.80). Puebla subcubría con una escala global, así que se usa una escala local. Detalle en `analisis/generalizable/cobertura.csv`.
 
 ## Comparación con el reto
 
-En los 9 municipios del reto el modelo da para 2025 unas 2.7 a 2.8 t/ha. El régimen B del reto (3.05) se parece a ese nivel y al SIAP 2025 de esos municipios (3.0 a 3.2). El régimen A (4.49) queda 1.5 a 1.7 t/ha arriba. Es consistente con que el régimen A mide otra cosa, aunque no prueba la causa (`experimentos/generalizable/reto.csv`).
+En los 9 municipios del reto el modelo da para 2025 unas 2.7 a 2.8 t/ha. El régimen B del reto (3.05) se parece a ese nivel y al SIAP 2025 de esos municipios (3.0 a 3.2). El régimen A (4.49) queda 1.5 a 1.7 t/ha arriba. Es consistente con que el régimen A mide otra cosa, aunque no prueba la causa (`analisis/generalizable/comparacion_reto.csv`).
 
-## Archivos para la app
+## Archivos
 
-La app solo lee resultados ya generados. No corre el modelo.
+La app solo lee la capa municipal ya generada. No corre el modelo.
 
 | Archivo | Contenido |
 |---|---|
-| `outputs/generalizable_municipios.parquet` | 486 municipios, todos con estimación (`esperado`, `p10`, `p90`, `prob_bajo_2`) y `confianza`, `dentro_rango_ambiental`, `dentro_dominio`, `con_siap`, `dist_siap_km` y la historia del SIAP (`siap_media`, `siap_anios`, `siap_frac_bajo_2`, `tendencia`). Las columnas `*_sembrada` ponderan por superficie sembrada. Las partes de la predicción también vienen ahí. `parte_media` es la media regional llevada a 2025, `parte_tmax` es `pendiente_tmax` por la diferencia entre `tmax_jul_ago` y `tmax_media`, y `parte_vecinos` es la corrección del kriging de residuos (cero en las extrapolaciones). Las tres suman `esperado_sin_corte`, y `esperado` es esa suma cortada en 0. `ancho_intervalo` es el ancho del p10 a p90 antes del corte. `error_tipico` es el error de nivel validado con zona de exclusión, interpolado según `dist_datos_km` (0 si el municipio tiene SIAP propio), y queda vacío en las extrapolaciones. `elev_m` es la elevación media de la zona agrícola. La app solo muestra Hidalgo, Puebla y Tlaxcala (361 municipios) |
-| `outputs/generalizable_municipios.gpkg` | Lo mismo con los polígonos, capa `municipios` |
-| `outputs/municipal_mapa_clases.json` | Resumen del mapa del reporte en Hidalgo, Puebla y Tlaxcala (municipios con valor, confianza y rango) |
-| `outputs/municipal_cifras.json` | Cifras del reporte municipal, para repetirlas igual en la página de metodología |
-| `outputs/disimilitud.json` | Revisión de que los municipios sin SIAP se parecen en conjunto a los que sí tienen |
+| `outputs/generalizable/capa_municipal.parquet` | 486 municipios, todos con estimación (`esperado`, `p10`, `p90`, `prob_bajo_2`) y `confianza`, `dentro_rango_ambiental`, `dentro_dominio`, `con_siap`, `dist_siap_km` y la historia del SIAP (`siap_media`, `siap_anios`, `siap_frac_bajo_2`, `tendencia`). Las columnas `*_sembrada` ponderan por superficie sembrada. Las partes de la predicción también vienen ahí. `parte_media` es la media regional llevada a 2025, `parte_tmax` es `pendiente_tmax` por la diferencia entre `tmax_jul_ago` y `tmax_media`, y `parte_vecinos` es la corrección del kriging de residuos (cero en las extrapolaciones). Las tres suman `esperado_sin_corte`, y `esperado` es esa suma cortada en 0. `ancho_intervalo` es el ancho del p10 a p90 antes del corte. `error_tipico` es el error de nivel validado con zona de exclusión, interpolado según `dist_datos_km` (0 si el municipio tiene SIAP propio), y queda vacío en las extrapolaciones. `elev_m` es la elevación media de la zona agrícola. La app solo muestra Hidalgo, Puebla y Tlaxcala (361 municipios) |
+| `outputs/generalizable/capa_municipal.gpkg` | Lo mismo con los polígonos, capa `municipios` |
+| `analisis/generalizable/resumen_mapa_reporte.json` | Resumen del mapa del reporte en Hidalgo, Puebla y Tlaxcala (municipios con valor, confianza y rango) |
+| `analisis/generalizable/cifras_reporte.json` | Cifras que cita el reporte municipal |
+| `analisis/generalizable/disimilitud.json` | Revisión de que los municipios sin SIAP se parecen en conjunto a los que sí tienen |
 
 Los 486 municipios reciben valores. En los 218 fuera del rango ambiental de los municipios con SIAP, que son tierras bajas y calientes donde un modelo lineal extrapola, la estimación se hace como la de un municipio sin datos cerca. Se usa solo la regresión sobre la Tmax, sin la corrección del kriging de residuos, y el intervalo sale de los residuos con zona de exclusión de 50 km, aunque haya un municipio con SIAP a menos de 30 km. Su confianza es siempre `baja` y `dentro_rango_ambiental` queda en falso para que la app los marque como extrapolación. Muchos salen en 0 t/ha porque la recta da valores negativos y se corta en 0. `dentro_dominio` (229 municipios) pide además SIAP a no más de 50 km y al menos 100 ha de temporal.
 
 ## Cómo se regenera
 
-1. `uv run python scripts/descargar_siap.py`, `descargar_ddr.py`, `descargar_clima.py`, `descargar_topografia.py` y `descargar_inegi.py` bajan los datos públicos.
+1. `siap.py`, `ddr.py`, `clima.py`, `topografia.py` e `inegi.py` de `scripts/descargas/` bajan los datos públicos, cada uno con `uv run python scripts/descargas/<script>`.
 2. `uv run python -m generalizable.variables` arma las tablas de `data/processed/generalizable/`.
-3. `uv run python scripts/municipal_experimentos.py` corre la validación y elige el modelo (unos 85 minutos). Escribe `experimentos/generalizable/`, con un resumen en `resumen.txt`.
-4. `uv run python scripts/municipal_capa.py` genera la capa de la app en `outputs/`.
+3. `uv run python scripts/generalizable/validacion.py` corre la validación y elige el modelo (unos 85 minutos). Escribe `analisis/generalizable/`, con un resumen en `resumen.txt`.
+4. `uv run python scripts/generalizable/capa_municipal.py` genera la capa de la app en `outputs/generalizable/`.
 
 El código está en `src/generalizable/`.

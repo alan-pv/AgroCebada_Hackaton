@@ -5,7 +5,7 @@ import pytest
 
 pytest.importorskip("flask")
 
-from parcelas.config import OUTPUTS
+from parcelas.config import OUTPUTS_PARCELAS
 from app import create_app
 from app.modules import model
 
@@ -32,7 +32,7 @@ def client():
 
 @pytest.fixture(scope="module")
 def pred():
-    return pd.read_parquet(OUTPUTS / "predicciones.parquet").set_index("ID_POLIGONO")
+    return pd.read_parquet(OUTPUTS_PARCELAS / "predicciones.parquet").set_index("ID_POLIGONO")
 
 
 def test_respuesta_por_defecto_tiene_5_claves(client):

@@ -1,7 +1,7 @@
 """Experimentos del modelo generalizable: curva de exclusión, regla de decisión, importancia y modelo final.
 
 Requiere las tablas de `python -m generalizable.variables` y la asignación de DDR de
-`scripts/descargar_ddr.py`. La métrica principal y los esquemas están en
+`scripts/descargas/ddr.py`. La métrica principal y los esquemas están en
 `generalizable.validacion`. Los modelos simples, fijados antes de evaluar, están en
 `generalizable.modelos.SIMPLES`.
 
@@ -27,7 +27,7 @@ Plan fijado antes de correr (no se cambia después de ver resultados).
      año. En el esquema por año, media propia con y sin anomalías. Solo el segundo es una
      prueba de pronóstico.
 
-Escribe en experimentos/generalizable/
+Escribe en analisis/generalizable/
   - resultados.csv: una fila por objetivo, esquema, datos, buffer_km, modelo, unidad (nivel o
     fila), ponderado y subconjunto (todos o grandes), con RMSE, MAE, R², sesgo y desviación
     entre repeticiones.
@@ -36,8 +36,8 @@ Escribe en experimentos/generalizable/
   - decisiones.json, importancia.csv, correlaciones_bloques.csv y resumen.txt.
 
 Uso:
-    uv run python scripts/municipal_experimentos.py            # completo
-    uv run python scripts/municipal_experimentos.py --rapido --salida /tmp/prueba   # 2 repeticiones, 9 permutaciones
+    uv run python scripts/generalizable/validacion.py            # completo
+    uv run python scripts/generalizable/validacion.py --rapido --salida /tmp/prueba   # 2 repeticiones, 9 permutaciones
 """
 import argparse
 import json
@@ -50,12 +50,12 @@ os.environ.setdefault("PYTHONWARNINGS", "ignore")
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
-from parcelas.config import EXPERIMENTOS  # noqa: E402
+from parcelas.config import ANALISIS_GENERALIZABLE  # noqa: E402
 from generalizable import modelos as M  # noqa: E402
 from generalizable import validacion as V  # noqa: E402
 
 warnings.filterwarnings("ignore")
-SALIDA = EXPERIMENTOS / "generalizable"
+SALIDA = ANALISIS_GENERALIZABLE
 BUFFERS = (0, 20, 40, 50, 60, 80)
 BASE = "kriging_vecinos"
 CORTOS = ["media_global", "media_estatal", "idw_vecinos", "kriging_vecinos", *M.SIMPLES,
@@ -192,7 +192,7 @@ def resumen(res, dec, imp, minutos):
     """resumen.txt con las tablas clave. El texto interpretativo va en docs/MUNICIPAL.md."""
     r = res[(res.objetivo == "rend") & (res.unidad == "nivel")]
     out = ["# Resumen de experimentos del modelo generalizable", "",
-           f"Generado por `scripts/municipal_experimentos.py` en {minutos:.0f} minutos. Objetivo rend (SIAP, "
+           f"Generado por `scripts/generalizable/validacion.py` en {minutos:.0f} minutos. Objetivo rend (SIAP, "
            "sobre cosechada). RMSE de nivel en t/ha, media de 10 repeticiones. La métrica principal es la "
            "ponderada por superficie sembrada en todos los municipios.", ""]
     cur = r[(r.esquema == "espacial_buffer") & (r.datos == "completos") & (r.subconjunto == "todos")]
@@ -246,7 +246,7 @@ def resumen(res, dec, imp, minutos):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--rapido", action="store_true")
-    ap.add_argument("--salida", default=None, help="directorio de salida (por omisión experimentos/generalizable)")
+    ap.add_argument("--salida", default=None, help="directorio de salida (por omisión analisis/generalizable)")
     a = ap.parse_args()
     global SALIDA
     if a.salida:

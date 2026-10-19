@@ -4,7 +4,7 @@ import pytest
 
 from parcelas.economia import capa_economica, cargar_tabla
 from parcelas.predict import cargar_modelo
-from parcelas.config import OUTPUTS
+from parcelas.config import OUTPUTS_PARCELAS
 
 
 @pytest.fixture(scope="module")
@@ -19,7 +19,7 @@ def tabla():
 
 @pytest.fixture(scope="module")
 def pred():
-    return pd.read_parquet(OUTPUTS / "predicciones.parquet")
+    return pd.read_parquet(OUTPUTS_PARCELAS / "predicciones.parquet")
 
 
 @pytest.fixture(scope="module")

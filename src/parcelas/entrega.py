@@ -3,12 +3,12 @@
     uv run python -m parcelas.predict      # equivale a `python -m parcelas.entrega`
 
 Escribe
-  outputs/predicciones_finales.csv        las 59 con p10, p90 y probabilidad bajo el umbral
-  outputs/{NOMBRE_EQUIPO}_prediccion.csv  el CSV para FIRA (ID_POLIGONO, RENDIMIENTO_T_HA)
-  outputs/predicciones.parquet            las 197 parcelas, para la app
-  outputs/controles_entrega.csv           resultado de los controles
-  outputs/margen_azar.csv                 variación esperada del RMSE sobre 59 parcelas
-  outputs/figuras/mapa_predicciones.png   coherencia espacial
+  outputs/parcelas/predicciones_finales.csv        las 59 con p10, p90 y probabilidad bajo el umbral
+  outputs/parcelas/{NOMBRE_EQUIPO}_prediccion.csv  el CSV para FIRA (ID_POLIGONO, RENDIMIENTO_T_HA)
+  outputs/parcelas/predicciones.parquet            las 197 parcelas, para la app
+  outputs/parcelas/controles_entrega.csv           resultado de los controles
+  analisis/parcelas/margen_azar.csv                variación esperada del RMSE sobre 59 parcelas
+  outputs/figuras/mapa_predicciones.png            coherencia espacial
 Si algún control de tipo "falla" no se cumple, termina con error después de guardar
 `controles_entrega.csv`.
 """
@@ -21,7 +21,7 @@ import pandas as pd
 
 from . import controles
 from .cv import N_REP
-from .config import FIGURAS, NOMBRE_EQUIPO, OUTPUTS, PROCESSED, SEED
+from .config import ANALISIS_PARCELAS, FIGURAS, NOMBRE_EQUIPO, OUTPUTS_PARCELAS, PROCESSED, SEED
 from .predict import cargar_modelo, predict
 from .train_final import cargar_datos
 
@@ -135,7 +135,7 @@ def main():
     X, y, X59 = cargar_datos()
     t = tabla_completa(m)
     e = archivos_de_entrega(t)
-    OUTPUTS.mkdir(exist_ok=True)
+    OUTPUTS_PARCELAS.mkdir(parents=True, exist_ok=True)
 
     # Controles: se guardan siempre, y fallan antes de escribir los archivos de entrega
     xy = pd.concat([X, X59])[["x_m", "y_m"]]
@@ -149,18 +149,18 @@ def main():
         "valor": round(rm(dentro), 4),
         "detalle": f"RMSE de las 138 con el modelo final {rm(dentro):.3f} contra "
                    f"{rm(m.oof.loc[X.index].to_numpy()):.3f} fuera de fold"}])], ignore_index=True)
-    c.to_csv(OUTPUTS / "controles_entrega.csv", index=False, encoding="utf-8")
+    c.to_csv(OUTPUTS_PARCELAS / "controles_entrega.csv", index=False, encoding="utf-8")
     print(c.to_string(index=False))
     controles.verificar(c)
 
     cols = ["ID_POLIGONO", "RENDIMIENTO_T_HA", "p10", "p90", "prob_bajo_umbral"]
-    e[cols].to_csv(OUTPUTS / "predicciones_finales.csv", index=False, encoding="utf-8",
+    e[cols].to_csv(OUTPUTS_PARCELAS / "predicciones_finales.csv", index=False, encoding="utf-8",
                    lineterminator="\n")
-    e[cols[:2]].to_csv(OUTPUTS / f"{NOMBRE_EQUIPO}_prediccion.csv", index=False,
+    e[cols[:2]].to_csv(OUTPUTS_PARCELAS / f"{NOMBRE_EQUIPO}_prediccion.csv", index=False,
                        encoding="utf-8", lineterminator="\n")
-    t.to_parquet(OUTPUTS / "predicciones.parquet", index=False)
+    t.to_parquet(OUTPUTS_PARCELAS / "predicciones.parquet", index=False)
     cuenta = e["regimen"].value_counts().sort_index().to_dict()
-    margen_azar(cuenta).round(4).to_csv(OUTPUTS / "margen_azar.csv", index=False)
+    margen_azar(cuenta).round(4).to_csv(ANALISIS_PARCELAS / "margen_azar.csv", index=False)
     mapa(t, FIGURAS / "mapa_predicciones.png")
-    print(f"Entrega generada: {len(e)} predicciones en {OUTPUTS}")
+    print(f"Entrega generada: {len(e)} predicciones en {OUTPUTS_PARCELAS}")
     return 0

@@ -7,7 +7,7 @@ import pytest
 
 pytest.importorskip("flask")
 
-from parcelas.config import OUTPUTS
+from parcelas.config import ANALISIS_PARCELAS, OUTPUTS_PARCELAS
 from app import create_app
 from app.modules import methodology, model
 
@@ -170,7 +170,7 @@ def test_validation_matches_model_object(payload):
 
 
 def test_coverage_matches_calibration_csv(payload):
-    cal = pd.read_csv(OUTPUTS / "calibracion_p10.csv").set_index("grupo")
+    cal = pd.read_csv(ANALISIS_PARCELAS / "calibracion_p10.csv").set_index("grupo")
     por_grupo = {f["group"]: f for f in payload["interval_coverage"]}
     assert set(por_grupo) == {"A", "B", "global"}
     for grupo in por_grupo:
@@ -188,8 +188,8 @@ def test_final_model_contributions(payload):
     assert [a["key"] for a in aportes] == ["regime", "spatial_lag"]
     assert all(a["mean_abs_t_ha"] > 0 for a in aportes)
     # Las 59 parcelas de PREDICCION, con la fila del modelo entregado (candidato)
-    sv = pd.read_parquet(OUTPUTS / "shap_values.parquet")
-    pr = pd.read_parquet(OUTPUTS / "predicciones.parquet")
+    sv = pd.read_parquet(OUTPUTS_PARCELAS / "shap_values.parquet")
+    pr = pd.read_parquet(OUTPUTS_PARCELAS / "predicciones.parquet")
     ids = pr.loc[pr["conjunto"] == "PREDICCION", "ID_POLIGONO"]
     cand = sv[(sv["modelo"] == "candidato") & sv["ID_POLIGONO"].isin(ids)]
     assert len(cand) == 59
@@ -204,7 +204,7 @@ def test_other_groups_top_eight_sorted(payload):
     deltas = [g["delta_rmse"] for g in grupos]
     assert deltas == sorted(deltas, reverse=True)
     # Son los ocho de mayor importancia en la ablación con el régimen presente
-    imp = pd.read_parquet(OUTPUTS / "importancias.parquet")
+    imp = pd.read_parquet(ANALISIS_PARCELAS / "importancias.parquet")
     ablacion = imp[(imp["escenario"] == "regimen_presente_completo") & (imp["metodo"] == "ablacion_logo")]
     assert [g["group"] for g in grupos] == ablacion.nlargest(8, "importancia_media")["grupo"].tolist()
 
@@ -218,23 +218,24 @@ def test_page_links_follow_mount_point(client):
 
 @pytest.fixture
 def sin_outputs(tmp_path, monkeypatch):
-    # outputs/ vacía: cada tabla debe omitirse con un aviso, sin fallar
-    monkeypatch.setattr(methodology, "OUTPUTS", tmp_path)
-    methodology._read_output.cache_clear()
+    # Carpetas de resultados vacías: cada tabla debe omitirse con un aviso, sin fallar
+    monkeypatch.setattr(methodology, "OUTPUTS_PARCELAS", tmp_path)
+    monkeypatch.setattr(methodology, "ANALISIS_PARCELAS", tmp_path)
+    methodology._read_table.cache_clear()
     yield
-    methodology._read_output.cache_clear()
+    methodology._read_table.cache_clear()
 
 
 def test_missing_outputs_omit_sections(client, sin_outputs):
     payload = sin_nan(client.get("/api/methodology"))
     assert payload["interval_coverage"] is None
     assert payload["final_model_contributions"] is None
-    assert payload["model"] is not None  # el modelo no depende de outputs/
+    assert payload["model"] is not None  # el modelo no depende de esas tablas
     res = client.get("/metodologia")
     assert res.status_code == 200
     html = res.get_data(as_text=True)
     assert "no está disponible" in html
-    # Las gráficas que dependen de outputs/ desaparecen con su tabla; la del modelo se queda
+    # Las gráficas que dependen de una tabla desaparecen con su tabla; la del modelo se queda
     assert html.count('<figure class="method-figure">') == 1
     assert "RMSE del modelo y de la media por régimen" in html
     # El resumen se queda con lo que hay: el error del modelo, sin la cobertura que falta

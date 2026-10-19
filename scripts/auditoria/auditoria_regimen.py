@@ -3,8 +3,8 @@ y ¿los intervalos entregados cubren lo que dicen?
 
 Requiere correr antes auditoria.py, que deja oof_independiente.csv en la carpeta de salida.
 Uso, desde la raíz del repositorio:
-    uv run python scripts/analisis/auditoria_regimen.py . outputs/auditoria
-Salida: outputs/auditoria/auditoria_regimen.json.
+    uv run python scripts/auditoria/auditoria_regimen.py . analisis/parcelas/auditoria
+Salida: analisis/parcelas/auditoria/auditoria_regimen.json.
 """
 import json
 import sys
@@ -20,7 +20,7 @@ warnings.filterwarnings("ignore")
 sys.path.insert(0, str(Path(__file__).parent))
 REPO, OUT = Path(sys.argv[1]), Path(sys.argv[2])
 sys.argv = sys.argv[:3]
-import piezas as P  # noqa: E402
+import auditoria_base as P  # noqa: E402
 
 res = {}
 Y, XY, REG, MUN, EST, N = P.Y, P.XY, P.REG, P.MUN, P.EST, P.N
@@ -67,7 +67,7 @@ res["sin_regimen"] = {
 print(res, flush=True)
 
 # Cobertura de los intervalos entregados aplicada a la predicción fuera de fold independiente
-pf = pd.read_csv(REPO / "outputs/predicciones_finales.csv")
+pf = pd.read_csv(REPO / "outputs/parcelas/predicciones_finales.csv")
 pf = pf[pf.ID_POLIGONO.isin(P.te59.index)].merge(P.te59[["regimen"]], left_on="ID_POLIGONO", right_index=True)
 pf["lo"], pf["hi"] = pf.p10 - pf.RENDIMIENTO_T_HA, pf.p90 - pf.RENDIMIENTO_T_HA
 desp = pf.groupby("regimen")[["lo", "hi"]].agg(["min", "max"]).round(3)
@@ -84,7 +84,7 @@ print(res["intervalos"], flush=True)
 print("OK")
 
 # Mi implementación sobre las particiones oficiales del proyecto (esquema A)
-parts = pd.read_parquet(REPO / "experimentos/particiones.parquet")
+parts = pd.read_parquet(REPO / "analisis/parcelas/particiones.parquet")
 parts = parts[parts.esquema == "A"]
 pos = pd.Series(np.arange(N), index=P.tr.index)
 out = {}

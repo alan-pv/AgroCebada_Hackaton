@@ -24,11 +24,12 @@ El modelo es una estimación de cierre de temporada. Usa el rendimiento de las p
 | Archivo | Contenido |
 |---|---|
 | `models/modelo_final.joblib` | Modelo entrenado con las 138 parcelas |
-| `outputs/los_bien_dotados_prediccion.csv` | CSV oficial para FIRA, 59 filas con `ID_POLIGONO` y `RENDIMIENTO_T_HA` |
-| `outputs/predicciones_finales.csv` | Las 59 con p10, p90 y probabilidad bajo el umbral |
-| `outputs/predicciones.parquet` | Las 197 parcelas con todas las columnas, la tabla que lee la app |
-| `outputs/controles_entrega.csv` | Resultado de los controles de la entrega |
-| `experimentos/registro.csv` | Una fila por experimento con sus métricas y su decisión |
+| `outputs/parcelas/los_bien_dotados_prediccion.csv` | CSV oficial para FIRA, 59 filas con `ID_POLIGONO` y `RENDIMIENTO_T_HA` |
+| `outputs/parcelas/predicciones_finales.csv` | Las 59 con p10, p90 y probabilidad bajo el umbral |
+| `outputs/parcelas/predicciones.parquet` | Las 197 parcelas con todas las columnas, la tabla que lee la app |
+| `outputs/parcelas/controles_entrega.csv` | Resultado de los controles de la entrega |
+| `analisis/parcelas/registro.csv` | Una fila por experimento con sus métricas y su decisión |
+| `analisis/parcelas/modelo_final.json` | Configuración del modelo final y de su intervalo |
 
 Para regenerar todo se corre `uv run python -m parcelas.train_final` y después `uv run python -m parcelas.predict`. La función `parcelas.predict.predict(df)` predice cualquier tabla con el formato de `features.parquet`.
 
@@ -43,7 +44,7 @@ Es un proceso gaussiano con una entrada de régimen en forma binaria y una entra
 
 ## Cómo se eligió
 
-Cada idea se probó contra la mejor versión aceptada hasta ese momento, en este orden. El registro completo está en `experimentos/registro.csv` y los scripts en `scripts/baselines.py`, `scripts/experimentos.py` y `scripts/intervalos.py`.
+Cada idea se probó contra la mejor versión aceptada hasta ese momento, en este orden. El registro completo está en `analisis/parcelas/registro.csv` y los scripts en `scripts/parcelas/lineas_base.py`, `scripts/parcelas/seleccion_modelo.py` y `scripts/parcelas/intervalos.py`.
 
 | Paso | Resultado | Decisión |
 |---|---|---|
@@ -56,11 +57,11 @@ Cada idea se probó contra la mejor versión aceptada hasta ese momento, en este
 | Algoritmos (elastic net, PLS, bosque aleatorio, LightGBM, proceso gaussiano) | El proceso gaussiano con régimen y rezago da 0.458 | Aceptado |
 | Promedios de modelos | El mejor queda 0.002 t/ha arriba y gana en 2 de 10 | Descartados |
 
-Con los rendimientos revueltos el modelo no mejora a la media global, así que no hay fuga de información. La mejora sobre la media por régimen es de 0.031 t/ha y viene solo de los vecinos. Con la prueba t corregida por el traslape de las particiones (Nadeau y Bengio, 2003) no es significativa (p = 0.26, `scripts/analisis/prueba_t.py`). La cifra de 0.458 es optimista porque se eligió entre 73 evaluaciones con las mismas particiones, y la validación anidada estima 0.490. Una auditoría independiente reimplementó el modelo sin usar el código de `src/`, con particiones propias, y llegó a la misma conclusión. Obtuvo 0.467 contra 0.493 de la media por régimen, una diferencia que tampoco es significativa (`scripts/analisis/auditoria.py`, resultados en `outputs/auditoria/`).
+Con los rendimientos revueltos el modelo no mejora a la media global, así que no hay fuga de información. La mejora sobre la media por régimen es de 0.031 t/ha y viene solo de los vecinos. Con la prueba t corregida por el traslape de las particiones (Nadeau y Bengio, 2003) no es significativa (p = 0.26, `scripts/parcelas/prueba_t.py`). La cifra de 0.458 es optimista porque se eligió entre 73 evaluaciones con las mismas particiones, y la validación anidada estima 0.490. Una auditoría independiente reimplementó el modelo sin usar el código de `src/`, con particiones propias, y llegó a la misma conclusión. Obtuvo 0.467 contra 0.493 de la media por régimen, una diferencia que tampoco es significativa (`scripts/auditoria/auditoria.py`, resultados en `analisis/parcelas/auditoria/`).
 
 ## Preguntas guía del reto
 
-Medimos la importancia con permutación agrupada, ablación y SHAP (`scripts/interpretabilidad.py`), en dos escenarios, con el régimen presente y sin él.
+Medimos la importancia con permutación agrupada, ablación y SHAP (`scripts/parcelas/interpretabilidad.py`), en dos escenarios, con el régimen presente y sin él.
 
 1. Índice satelital más importante. Sin el régimen, el NDVI, que sube el RMSE 0.106 t/ha al revolverlo. Esa importancia viene en buena parte de que el NDVI histórico distingue la zona y el régimen. El modelo solo con variables satelitales llega a 0.696 t/ha, muy lejos de las 0.489 de la media por régimen.
 2. Variable climática con mayor peso. Sin el régimen, la lluvia, que sube el RMSE 0.364 t/ha al revolverla. Es una importancia de zona, no agronómica, porque las celdas de clima identifican el régimen.
@@ -103,7 +104,7 @@ Para el crédito importa el lado bajo del intervalo. Con la misma validación an
 | Régimen A | 0.099 [0.041, 0.163] | 0.1079 | 0.1215 |
 | Régimen B | 0.043 [0.000, 0.098] | 0.0686 | 0.0667 |
 
-La línea base es la media del régimen más el cuantil inferior de sus residuos. La diferencia global de pinball es -0.008 con intervalo [-0.025, 0.004]. No es significativa, igual que la diferencia de RMSE. Ningún régimen se distingue de 0.10 en la cola baja, así que no ajustamos la escala del intervalo. El p10 ya es el cuantil inferior unilateral de nivel 0.10 de los residuos del régimen, de modo que un conformal unilateral daría el mismo valor. Las cifras salen de `scripts/calibracion.py` y quedan en `outputs/calibracion_p10.csv`.
+La línea base es la media del régimen más el cuantil inferior de sus residuos. La diferencia global de pinball es -0.008 con intervalo [-0.025, 0.004]. No es significativa, igual que la diferencia de RMSE. Ningún régimen se distingue de 0.10 en la cola baja, así que no ajustamos la escala del intervalo. El p10 ya es el cuantil inferior unilateral de nivel 0.10 de los residuos del régimen, de modo que un conformal unilateral daría el mismo valor. Las cifras salen de `scripts/parcelas/calibracion.py` y quedan en `analisis/parcelas/calibracion_p10.csv`.
 
 Una auditoría anterior reportó una cobertura de 0.76 en el régimen B. Esa cifra salía de una sola repetición de 51 parcelas, con los desplazamientos ya entregados aplicados a las predicciones fuera de fold. Con los mismos desplazamientos la cobertura de B varía de 0.67 a 0.94 entre las 10 repeticiones, con media de 0.81. La validación anidada de 5 repeticiones da 0.886 [0.816, 0.949]. Con 51 parcelas el error estándar de una cobertura es de 0.05 a 0.06, y por eso reportamos el intervalo y no solo el punto.
 
@@ -129,7 +130,7 @@ Validamos la marca en la validación anidada, contando los vecinos en el entrena
 | 1 a 2 | 306 | 0.252 | 0.075 |
 | 3 o más | 31 | 0.215 | 0.129 |
 
-Sin vecinos el error absoluto sube 0.123 t/ha con intervalo [0.022, 0.228]. La marca señala menor precisión y no una cola baja peor, porque la tasa bajo el p10 no empeora sin vecinos. El rango de área casi no aporta en la validación (MAE 0.319 contra 0.311), y lo conservamos como control de extrapolación. La marca no cambia el intervalo. Los resultados quedan en `outputs/confianza_cv.csv`.
+Sin vecinos el error absoluto sube 0.123 t/ha con intervalo [0.022, 0.228]. La marca señala menor precisión y no una cola baja peor, porque la tasa bajo el p10 no empeora sin vecinos. El rango de área casi no aporta en la validación (MAE 0.319 contra 0.311), y lo conservamos como control de extrapolación. La marca no cambia el intervalo. Los resultados quedan en `analisis/parcelas/confianza_cv.csv`.
 
 ### Margen de azar de una calificación sobre 59 parcelas
 

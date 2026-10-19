@@ -1,10 +1,10 @@
-"""Registro de experimentos en experimentos/registro.csv (una fila por experimento)."""
+"""Registro de experimentos en analisis/parcelas/registro.csv (una fila por experimento)."""
 import csv
 from datetime import datetime
 
-from .config import EXPERIMENTOS
+from .config import ANALISIS_PARCELAS
 
-ARCHIVO_REGISTRO = EXPERIMENTOS / "registro.csv"
+ARCHIVO_REGISTRO = ANALISIS_PARCELAS / "registro.csv"
 ENCABEZADO = [
     "fecha", "autor", "experimento", "bloque", "n_features", "features", "modelo",
     "rmse_A", "mae_A", "r2_A", "rmse_A_std", "rmse_B", "mae_B", "r2_B",

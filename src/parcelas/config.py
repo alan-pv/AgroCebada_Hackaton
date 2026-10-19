@@ -8,7 +8,13 @@ INTERIM = RAIZ / "data" / "interim"
 PROCESSED = RAIZ / "data" / "processed"
 OUTPUTS = RAIZ / "outputs"
 MODELS = RAIZ / "models"
-EXPERIMENTOS = RAIZ / "experimentos"
+ANALISIS = RAIZ / "analisis"
+# Resultados finales de cada modelo: predicciones y capas que leen la app y FIRA
+OUTPUTS_PARCELAS = OUTPUTS / "parcelas"
+OUTPUTS_GENERALIZABLE = OUTPUTS / "generalizable"
+# Validación, selección, calibración e interpretabilidad de cada modelo
+ANALISIS_PARCELAS = ANALISIS / "parcelas"
+ANALISIS_GENERALIZABLE = ANALISIS / "generalizable"
 # Figuras de diagnóstico que escriben los scripts. No se versionan
 FIGURAS = OUTPUTS / "figuras"
 

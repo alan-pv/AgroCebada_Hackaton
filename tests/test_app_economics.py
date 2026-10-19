@@ -6,14 +6,14 @@ import pytest
 pytest.importorskip("flask")
 
 from parcelas import economia
-from parcelas.config import OUTPUTS
+from parcelas.config import OUTPUTS_PARCELAS
 from app import create_app
 
 # Claves de cada fila de GET /api/economics
 LIST_KEYS = {"id", "state", "municipality", "set", "regime", "area_ha", "price", "breakeven", "income_ha",
              "income_conservative_ha", "income_parcel", "margin_ha", "prob_not_cover_costs", "light_costs",
              "prob_not_pay_credit", "light_credit"}
-# Campo de la API y columna de outputs/capa_economica.csv con la que se compara
+# Campo de la API y columna de outputs/parcelas/capa_economica.csv con la que se compara
 MONEY = {"price": "precio", "income_ha": "ingreso_esperado_ha", "income_conservative_ha": "ingreso_conservador_ha",
          "income_parcel": "ingreso_esperado_parcela", "margin_ha": "margen_esperado_ha"}
 OTHER = {"breakeven": "pe_total", "prob_not_cover_costs": "prob_no_cubrir_costos",
@@ -52,7 +52,7 @@ def lista(client):
 @pytest.fixture(scope="module")
 def csv_ref():
     # CVEGEO se lee como texto para que coincida con la clave de la tabla municipal
-    return pd.read_csv(OUTPUTS / "capa_economica.csv", dtype={"CVEGEO": str}).set_index("ID_POLIGONO")
+    return pd.read_csv(OUTPUTS_PARCELAS / "capa_economica.csv", dtype={"CVEGEO": str}).set_index("ID_POLIGONO")
 
 
 def test_lista_coincide_con_capa_economica_csv(lista, csv_ref):

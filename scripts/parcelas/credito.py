@@ -9,7 +9,7 @@ Salidas
   data/externos/fira_agrocostos/zonas_usadas.csv   paquetes PV 2022 usados, con costo del crédito
   data/externos/inegi_inpc/factor_inpc.csv         factor de actualización 2022 a 2025
   data/externos/economia_municipal.csv             una fila por municipio del reto
-  outputs/capa_economica.csv                       capa económica de las 197 parcelas
+  outputs/parcelas/capa_economica.csv              capa económica de las 197 parcelas
 
 Costos. Se toma el paquete PV 2022 de temporal (tecnología TEMPORAL-MEJORADA-FERTILIZADA,
 modalidad tradicional) de la zona que corresponde a cada municipio. Los campos de crédito del
@@ -37,7 +37,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-RAIZ = Path(__file__).resolve().parents[1]
+RAIZ = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(RAIZ / "src"))
 
 from generalizable import siap as sp  # noqa: E402
@@ -167,9 +167,9 @@ def construir():
 
 
 def parcelas(tabla_municipal=None):
-    """Capa económica de las 197 parcelas con outputs/predicciones.parquet."""
+    """Capa económica de las 197 parcelas con outputs/parcelas/predicciones.parquet."""
     from parcelas.economia import capa_economica
-    p = pd.read_parquet(RAIZ / "outputs" / "predicciones.parquet")
+    p = pd.read_parquet(RAIZ / "outputs" / "parcelas" / "predicciones.parquet")
     e = capa_economica(p, tabla=tabla_municipal)
     cols = ["ID_POLIGONO", "conjunto", "estado", "municipio", "regimen", "area_ha", "pred", "p10"]
     return pd.concat([p[cols].reset_index(drop=True), e.drop(columns="ID_POLIGONO")], axis=1)
@@ -185,7 +185,7 @@ def main():
     print(m.round(3).to_string())
     from parcelas.economia import cargar_tabla
     c = parcelas(cargar_tabla(SALIDA))
-    c.round(6).to_csv(RAIZ / "outputs" / "capa_economica.csv", index=False)
+    c.round(6).to_csv(RAIZ / "outputs" / "parcelas" / "capa_economica.csv", index=False)
     p59 = c[c.conjunto == "PREDICCION"]
     for col in ("semaforo_credito", "semaforo_costos"):
         print(col, p59[col].value_counts().to_dict())

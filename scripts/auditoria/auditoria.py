@@ -4,8 +4,8 @@ No importa nada de `src/`. Reimplementa el rezago espacial, el modelo y la
 validación cruzada desde cero para comprobar los números reportados.
 
 Uso, desde la raíz del repositorio:
-    uv run python scripts/analisis/auditoria.py . outputs/auditoria
-Salida: outputs/auditoria/auditoria.json, permutacion.csv y oof_independiente.csv.
+    uv run python scripts/auditoria/auditoria.py . analisis/parcelas/auditoria
+Salida: analisis/parcelas/auditoria/auditoria.json, permutacion.csv y oof_independiente.csv.
 """
 import json
 import sys
@@ -246,7 +246,7 @@ print(res["representatividad"], flush=True)
 
 # -------------------------- 7. predicción independiente de las 59 y comparación con la entrega
 pred59 = ajustar_predecir(np.arange(N), None, Y, "gp", xy_q=XY59, reg_q=REG59)
-ent = pd.read_csv(sorted((REPO / "outputs").glob("*_prediccion.csv"))[0]).set_index("ID_POLIGONO")
+ent = pd.read_csv(sorted((REPO / "outputs/parcelas").glob("*_prediccion.csv"))[0]).set_index("ID_POLIGONO")
 dif = np.abs(pred59 - ent.loc[te59.index, "RENDIMIENTO_T_HA"].to_numpy())
 res["entrega"] = {"n": int(len(ent)), "ids_iguales": bool(set(ent.index) == set(te59.index)),
                   "dif_max": float(dif.max()), "dif_media": float(dif.mean())}

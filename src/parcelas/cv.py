@@ -19,13 +19,13 @@ from scipy.cluster.hierarchy import fcluster, linkage
 from sklearn.base import clone
 from sklearn.model_selection import StratifiedKFold
 
-from .config import EXPERIMENTOS, PROCESSED, SEED
+from .config import ANALISIS_PARCELAS, PROCESSED, SEED
 
 N_FOLDS = 5
 N_REP = 10
 MIN_ESTRATO = 5
 UMBRAL_CLUSTER_M = 2000.0
-ARCHIVO_PARTICIONES = EXPERIMENTOS / "particiones.parquet"
+ARCHIVO_PARTICIONES = ANALISIS_PARCELAS / "particiones.parquet"
 
 
 # ---------------------------------------------------------------- particiones

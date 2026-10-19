@@ -1,6 +1,6 @@
 """Tabla municipio-año del SIAP: lectura, limpieza y marcas de calidad.
 
-Parte del consolidado que escribe `scripts/descargar_siap.py`. Cada fila es un municipio en un
+Parte del consolidado que escribe `scripts/descargas/siap.py`. Cada fila es un municipio en un
 año, con la cebada grano de temporal del ciclo primavera-verano.
 
 Columnas que agrega.
@@ -17,7 +17,7 @@ Columnas que agrega.
     más parecidos a los vecinos de lo que son.
   - clave: nombre del municipio normalizado (sin acentos, minúsculas) para cruzar con INEGI.
   - ddr: Distrito de Desarrollo Rural del SIAP (solo en `tabla`), de
-    `scripts/descargar_ddr.py`.
+    `scripts/descargas/ddr.py`.
 
 Filtro de superficie. Para el rendimiento oficial se excluyen las filas con superficie
 cosechada menor a MIN_COSECHADA_HA, porque su rendimiento depende de unas pocas parcelas. Para

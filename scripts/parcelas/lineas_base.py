@@ -1,7 +1,7 @@
 """Baselines de validación y regla de decisión de H1 (régimen como variable base).
 
 Uso:
-    uv run python scripts/baselines.py
+    uv run python scripts/parcelas/lineas_base.py
 """
 import pandas as pd
 from sklearn.compose import ColumnTransformer
@@ -11,7 +11,7 @@ from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from parcelas import cv
-from parcelas.config import EXPERIMENTOS, PROCESSED
+from parcelas.config import ANALISIS_PARCELAS, PROCESSED
 from parcelas.registro import ARCHIVO_REGISTRO, registrar
 from parcelas.transformers import MediaPorGrupo, SeleccionColumnas
 
@@ -76,7 +76,7 @@ def main():
                       "B_reg_B": b.por_regimen["B"]["rmse"]})
     tabla = pd.DataFrame(filas).round(3)
     print(tabla.to_string(index=False))
-    tabla.to_csv(EXPERIMENTOS / "baselines_tabla.csv", index=False)
+    tabla.to_csv(ANALISIS_PARCELAS / "lineas_base.csv", index=False)
 
 
 if __name__ == "__main__":

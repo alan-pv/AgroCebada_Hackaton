@@ -3,14 +3,14 @@
 #   GET /metodologia      página HTML, con la plantilla methodology.html y las gráficas de method_charts.py
 #   GET /api/methodology  cifras de la metodología en JSON (ver methodology_data)
 #   methodology_data()    función pura con esas cifras. Cada sección vale None si falta su archivo
-#                         de outputs/ o el modelo; la página muestra un aviso en su lugar
+#                         de outputs/parcelas/ o analisis/parcelas/, o el modelo; la página muestra un aviso en su lugar
 from datetime import date
 from functools import cache
 
 import pandas as pd
 from flask import Blueprint, jsonify, render_template
 
-from parcelas.config import OUTPUTS
+from parcelas.config import ANALISIS_PARCELAS, OUTPUTS_PARCELAS
 
 from . import method_charts, model
 
@@ -31,20 +31,22 @@ GROUP_KINDS = {"indice": "Índice satelital", "clima": "Clima", "bloque": "Bloqu
 CONTRIBUTIONS = (("regime", "Régimen de etiquetas (A o B)"),
                  ("spatial_lag", "Parcelas medidas cercanas (rezago espacial)"))
 # RMSE de una predicción que solo da la media de su régimen, en t/ha, por esquema de validación.
-# Cifras del reporte: el A sale de outputs/prueba_t_corregida.json (media_regimen, 0.4889) y el B de
-# outputs/ablaciones_v1.csv (paso v1_base, 0.4878). La página las usa como referencia del modelo
+# Cifras del reporte: el A sale de analisis/parcelas/prueba_t_corregida.json (media_regimen, 0.4889) y el B de
+# analisis/parcelas/pasos_seleccion.csv (paso v1_base, 0.4878). La página las usa como referencia del modelo
 REGIME_MEAN_RMSE = {"A": 0.489, "B": 0.488}
 MONTHS = ("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto",
           "septiembre", "octubre", "noviembre", "diciembre")
 
 
 @cache
-def _read_output(name):
-    """Tabla de outputs/ (CSV o parquet), o None si el archivo no existe. Se lee una sola vez."""
-    path = OUTPUTS / name
-    if not path.exists():
-        return None
-    return pd.read_parquet(path) if path.suffix == ".parquet" else pd.read_csv(path)
+def _read_table(name):
+    """Tabla de outputs/parcelas/ o analisis/parcelas/ (CSV o parquet), o None si no está en
+    ninguna de las dos. Se lee una sola vez."""
+    for folder in (OUTPUTS_PARCELAS, ANALISIS_PARCELAS):
+        path = folder / name
+        if path.exists():
+            return pd.read_parquet(path) if path.suffix == ".parquet" else pd.read_csv(path)
+    return None
 
 
 def _round(value, digits=4):
@@ -89,7 +91,7 @@ def _section_validation(m):
 
 
 def _section_interval_coverage():
-    t = _read_output("calibracion_p10.csv")
+    t = _read_table("calibracion_p10.csv")
     if t is None:
         return None
     return [{"group": row.grupo, "parcels": int(row.parcelas), "coverage": _round(row.cobertura),
@@ -102,7 +104,7 @@ def _section_interval_coverage():
 
 def _section_confidence():
     # Filas = parcela en una repetición; parcelas = IDs distintos (una parcela puede caer en grupos distintos)
-    t = _read_output("confianza_cv.csv")
+    t = _read_table("confianza_cv.csv")
     if t is None:
         return None
     return [{"group": row.grupo, "rows": int(row.filas), "parcels": int(row.parcelas),
@@ -113,7 +115,7 @@ def _section_confidence():
 
 def _section_no_neighbors_gap():
     # Diferencia de MAE entre 0 vecinos y al menos 1, con su intervalo de confianza
-    t = _read_output("confianza_cv.csv")
+    t = _read_table("confianza_cv.csv")
     if t is None:
         return None
     row = t[t["grupo"] == "0"].iloc[0]
@@ -122,7 +124,7 @@ def _section_no_neighbors_gap():
 
 
 def _section_chance_margin():
-    t = _read_output("margen_azar.csv")
+    t = _read_table("margen_azar.csv")
     if t is None:
         return None
     row = t.iloc[0]
@@ -132,7 +134,7 @@ def _section_chance_margin():
 
 
 def _section_final_model_contributions():
-    sv, pred = _read_output("shap_values.parquet"), _read_output("predicciones.parquet")
+    sv, pred = _read_table("shap_values.parquet"), _read_table("predicciones.parquet")
     if sv is None or pred is None:
         return None
     # Las 59 parcelas de la entrega, con la fila del modelo entregado (candidato)
@@ -146,7 +148,7 @@ def _section_final_model_contributions():
 
 
 def _section_other_groups():
-    t = _read_output("importancias.parquet")
+    t = _read_table("importancias.parquet")
     if t is None:
         return None
     # Quitar cada grupo con el régimen presente, en el modelo de análisis (no en el entregado).
@@ -175,7 +177,7 @@ def methodology_data():
 
 
 def warm_up():
-    """Carga el modelo y los archivos de outputs/ antes de aceptar peticiones."""
+    """Carga el modelo y sus tablas antes de aceptar peticiones."""
     methodology_data()
 
 

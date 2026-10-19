@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 
 from parcelas import controles
-from parcelas.config import NOMBRE_EQUIPO, OUTPUTS, PROCESSED
+from parcelas.config import ANALISIS_PARCELAS, NOMBRE_EQUIPO, OUTPUTS_PARCELAS, PROCESSED
 from parcelas.predict import RADIO_MEDIA, RADIO_VECINOS, SALIDA, cargar_modelo, predict
 from parcelas.train_final import cargar_datos
 
@@ -111,7 +111,7 @@ def test_controles_fallan_con_casos_malos(pred59, datos, dano):
 
 
 def test_modelo_guardado_reproduce_las_predicciones_finales(pred59):
-    f = pd.read_csv(OUTPUTS / "predicciones_finales.csv").set_index("ID_POLIGONO")
+    f = pd.read_csv(OUTPUTS_PARCELAS / "predicciones_finales.csv").set_index("ID_POLIGONO")
     p = pred59.set_index("ID_POLIGONO").loc[f.index]
     np.testing.assert_allclose(p["pred"].round(2), f["RENDIMIENTO_T_HA"], atol=1e-9)
     np.testing.assert_allclose(p["p10"].round(2), f["p10"], atol=1e-9)
@@ -119,7 +119,7 @@ def test_modelo_guardado_reproduce_las_predicciones_finales(pred59):
 
 
 def test_csv_de_entrega_para_fira(datos):
-    ruta = OUTPUTS / f"{NOMBRE_EQUIPO}_prediccion.csv"
+    ruta = OUTPUTS_PARCELAS / f"{NOMBRE_EQUIPO}_prediccion.csv"
     crudo = ruta.read_bytes()
     assert not crudo.startswith(b"\xef\xbb\xbf")  # sin BOM
     d = pd.read_csv(ruta)
@@ -129,7 +129,7 @@ def test_csv_de_entrega_para_fira(datos):
 
 
 def test_predicciones_parquet_para_la_app():
-    p = pd.read_parquet(OUTPUTS / "predicciones.parquet")
+    p = pd.read_parquet(OUTPUTS_PARCELAS / "predicciones.parquet")
     assert len(p) == 197 and p["ID_POLIGONO"].is_unique
     assert not p[["pred", "p10", "p90", "prob_bajo_umbral"]].isna().any().any()
     ent = p[p["conjunto"] == "ENTRENAMIENTO"]
@@ -151,10 +151,10 @@ def test_marca_de_confianza_tiene_valores_validos(pred59):
 
 
 def test_la_marca_no_cambia_la_prediccion_ni_el_intervalo(pred59):
-    v2 = pd.read_csv(OUTPUTS / "prediccion_v2_intervalos.csv").set_index("ID_POLIGONO")
-    p = pred59.set_index("ID_POLIGONO").loc[v2.index]
+    etapa = pd.read_csv(ANALISIS_PARCELAS / "predicciones_etapa_intervalos.csv").set_index("ID_POLIGONO")
+    p = pred59.set_index("ID_POLIGONO").loc[etapa.index]
     for c in ["pred", "p10", "p90", "prob_bajo_umbral"]:
-        np.testing.assert_allclose(p[c], v2[c], rtol=0, atol=1e-12)
+        np.testing.assert_allclose(p[c], etapa[c], rtol=0, atol=1e-12)
 
 
 def test_umbral_por_parcela(modelo, datos):

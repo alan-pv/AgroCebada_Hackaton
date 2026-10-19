@@ -1,4 +1,4 @@
-"""Promedio de modelos y construcción del candidato de la versión 2.
+"""Promedio de modelos y construcción del modelo final.
 
 El promedio no entrena ningún meta-modelo. Cada miembro se ajusta por separado con los
 mismos datos y la predicción es la media simple o ponderada con pesos fijos. Los pesos no
@@ -10,10 +10,10 @@ import json
 import numpy as np
 from sklearn.base import BaseEstimator, RegressorMixin, clone
 
-from .config import EXPERIMENTOS
+from .config import ANALISIS_PARCELAS
 from .modelos import _json_np, _kw_pesos, desde_config
 
-ARCHIVO_CANDIDATO_V2 = EXPERIMENTOS / "candidato_v2.json"
+ARCHIVO_MODELO_FINAL = ANALISIS_PARCELAS / "modelo_final.json"
 
 
 class PromedioModelos(BaseEstimator, RegressorMixin):
@@ -68,16 +68,16 @@ def construir_desde_config(cfg):
     return desde_config(cfg)
 
 
-def guardar_candidato_v2(cfg, ruta=ARCHIVO_CANDIDATO_V2):
+def guardar_configuracion_final(cfg, ruta=ARCHIVO_MODELO_FINAL):
     ruta.parent.mkdir(parents=True, exist_ok=True)
     ruta.write_text(json.dumps(cfg, indent=2, ensure_ascii=False, default=_json_np),
                     encoding="utf-8")
 
 
-def configuracion_candidato_v2(ruta=ARCHIVO_CANDIDATO_V2):
+def configuracion_final(ruta=ARCHIVO_MODELO_FINAL):
     return json.loads(ruta.read_text(encoding="utf-8"))
 
 
-def candidato_v2(ruta=ARCHIVO_CANDIDATO_V2):
-    """Reconstruye (sin entrenar) el modelo candidato de la versión 2 desde el JSON."""
-    return construir_desde_config(configuracion_candidato_v2(ruta))
+def modelo_final(ruta=ARCHIVO_MODELO_FINAL):
+    """Reconstruye (sin entrenar) el modelo final desde su JSON, sin el intervalo."""
+    return construir_desde_config(configuracion_final(ruta))

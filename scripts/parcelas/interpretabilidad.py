@@ -1,11 +1,12 @@
 """Interpretabilidad del modelo: importancia por grupos, ablación, selección y SHAP.
 
 Uso:
-    uv run python scripts/interpretabilidad.py [--rapido]
+    uv run python scripts/parcelas/interpretabilidad.py [--rapido]
 
 Responde las tres preguntas guía separando lo que aporta cada variable de lo que aporta el
 régimen. Usa un modelo de análisis (bosque aleatorio poco profundo), que no es el candidato.
-Escribe tablas en outputs/ y figuras en outputs/figuras/.
+Escribe tablas en analisis/parcelas/, los valores SHAP en outputs/parcelas/ y figuras en
+outputs/figuras/.
 """
 import argparse
 import time
@@ -20,7 +21,7 @@ import pandas as pd
 
 from parcelas import cv, modelos
 from parcelas import interpretabilidad as I
-from parcelas.config import FIGURAS, OUTPUTS, PROCESSED
+from parcelas.config import ANALISIS_PARCELAS, FIGURAS, OUTPUTS_PARCELAS, PROCESSED
 
 warnings.filterwarnings("ignore")
 N_JOBS = 8
@@ -305,7 +306,8 @@ def fig_shap_local(sv_df, nombres, Xall, y):
 def main(rapido=False):
     t_ini = time.time()
     FIGURAS.mkdir(parents=True, exist_ok=True)
-    OUTPUTS.mkdir(exist_ok=True)
+    ANALISIS_PARCELAS.mkdir(parents=True, exist_ok=True)
+    OUTPUTS_PARCELAS.mkdir(parents=True, exist_ok=True)
     Xall, X, y = cargar()
     cols = list(X.columns)
     cols_sat = I.columnas_satelitales(cols)
@@ -323,16 +325,16 @@ def main(rapido=False):
 
     print("Permutación agrupada")
     imp, detalle = escenarios_permutacion(X, y, cols_sat, cols_cl, cols_tp, rep, n_perm)
-    detalle.round(5).to_csv(OUTPUTS / "importancia_permutacion.csv", index=False)
+    detalle.round(5).to_csv(ANALISIS_PARCELAS / "importancia_permutacion.csv", index=False)
 
     print("Ablación leave-one-group-out")
     abl = escenarios_ablacion(X, y, cols_sat, cols_cl, cols_tp, rep_abl)
-    abl.round(5).to_csv(OUTPUTS / "ablacion_grupos.csv", index=False)
+    abl.round(5).to_csv(ANALISIS_PARCELAS / "ablacion_grupos.csv", index=False)
     imp_abl = abl[["escenario", "grupo", "tipo", "importancia_media", "p05", "p95"]].assign(metodo="ablacion_logo")
 
     print("Lluvia: cuánto contra cuándo")
     cc = cuanto_cuando(X, y, cols_cl, rep_abl)
-    cc.round(4).to_csv(OUTPUTS / "clima_cuanto_cuando.csv", index=False)
+    cc.round(4).to_csv(ANALISIS_PARCELAS / "clima_cantidad_y_momento.csv", index=False)
     print(cc.round(4).to_string(index=False))
 
     print("Selección hacia adelante por bloques")
@@ -345,7 +347,7 @@ def main(rapido=False):
         print(f"  {alg}: {time.time() - t0:.0f}s")
         print(s[s.elegido][["paso", "candidato", "rmse_A", "victorias", "p", "aceptado"]].round(4).to_string(index=False))
     sel = pd.concat(sel, ignore_index=True)
-    sel.round(5).to_csv(OUTPUTS / "seleccion_bloques.csv", index=False)
+    sel.round(5).to_csv(ANALISIS_PARCELAS / "seleccion_bloques.csv", index=False)
 
     print("SHAP")
     shaps, nombres, Z = calcular_shap(Xall, X, y, cols_sat + cols_cl + cols_tp)
@@ -353,13 +355,13 @@ def main(rapido=False):
     columnas_shap = list(dict.fromkeys(c for t in shaps for c in t.columns if c not in ("modelo", "base_value")))
     sv = sv.reset_index().rename(columns={"index": "ID_POLIGONO"})
     sv = sv[["ID_POLIGONO"] + columnas_shap + ["modelo", "base_value"]]
-    sv.to_parquet(OUTPUTS / "shap_values.parquet", index=False)
+    sv.to_parquet(OUTPUTS_PARCELAS / "shap_values.parquet", index=False)
     imp_shap = shap_a_importancias(shaps[0], cols_sat, cols_cl, cols_tp, X.index)
     print(imp_shap.sort_values("importancia_media", ascending=False).head(10).round(4).to_string(index=False))
 
     todo = pd.concat([imp, imp_abl, imp_shap], ignore_index=True)
     todo = todo[["escenario", "grupo", "tipo", "importancia_media", "p05", "p95", "metodo"]]
-    todo.to_parquet(OUTPUTS / "importancias.parquet", index=False)
+    todo.to_parquet(ANALISIS_PARCELAS / "importancias.parquet", index=False)
 
     fig_indices(todo)
     fig_clima(todo)

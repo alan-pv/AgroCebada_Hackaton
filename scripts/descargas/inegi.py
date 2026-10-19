@@ -11,8 +11,8 @@ Todo se guarda en EPSG:6372 (México ITRF2008 LCC). Los archivos crudos se queda
 de descargas, que no forma parte del repo. Si un archivo ya está descargado no se vuelve a bajar.
 
 Uso (desde la raíz del repo):
-    uv run python scripts/descargar_inegi.py --descargas /ruta/fuera/del/repo
-    uv run python scripts/descargar_inegi.py --descargas /ruta --solo municipios suelos
+    uv run python scripts/descargas/inegi.py --descargas /ruta/fuera/del/repo
+    uv run python scripts/descargas/inegi.py --descargas /ruta --solo municipios suelos
 
 Las hojas 1:250 000 que se usan se eligen solas: son las del catálogo que cruzan la unión
 de los cuatro estados. El catálogo cubre un anillo de hojas alrededor, así que el script
@@ -28,7 +28,7 @@ import geopandas as gpd
 import pandas as pd
 from shapely.geometry import box
 
-RAIZ = Path(__file__).resolve().parents[1]
+RAIZ = Path(__file__).resolve().parents[2]
 EXTERNOS = RAIZ / "data" / "externos"
 CRS_SALIDA = "EPSG:6372"
 LIMITE_MB_MUNICIPIOS = 15

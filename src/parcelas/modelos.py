@@ -21,10 +21,10 @@ from sklearn.linear_model import ElasticNetCV, HuberRegressor, Ridge, RidgeCV
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer, OneHotEncoder, StandardScaler
 
-from .config import EXPERIMENTOS, SEED
+from .config import ANALISIS_PARCELAS, SEED
 from .transformers import RezagoEspacial, TargetEncoderGrupo
 
-ARCHIVO_CANDIDATO = EXPERIMENTOS / "candidato_v1.json"
+ARCHIVO_CANDIDATO = ANALISIS_PARCELAS / "modelo_elegido.json"
 ALFAS = np.logspace(-1, 3.5, 12)
 
 

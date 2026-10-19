@@ -5,8 +5,8 @@ sub-modelo se ajusta solo con el entrenamiento de cada fold, incluido el rezago 
 (RezagoEspacial excluye a cada parcela de su propio rezago en el ajuste; en prueba solo
 cuentan parcelas de entrenamiento).
 
-Uso: uv run python scripts/analisis/prueba_t.py
-Salida: outputs/prueba_t_corregida.json
+Uso: uv run python scripts/parcelas/prueba_t.py
+Salida: analisis/parcelas/prueba_t_corregida.json
 """
 import json
 import sys
@@ -16,14 +16,12 @@ from pathlib import Path
 import numpy as np
 from scipy import stats
 
-RAIZ = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(RAIZ / "scripts"))
 warnings.filterwarnings("ignore")
 
 from parcelas import cv, modelos  # noqa: E402
-from parcelas.config import OUTPUTS  # noqa: E402
+from parcelas.config import ANALISIS_PARCELAS  # noqa: E402
 from parcelas.transformers import MediaPorGrupo  # noqa: E402
-from experimentos import cargar, spec, variante  # noqa: E402
+from seleccion_modelo import cargar, spec, variante  # noqa: E402
 
 
 def t_corregida(a, b, n_tr, n_te, usar_mse=False):
@@ -74,8 +72,8 @@ def main():
             "ic95": [float(d.mean() - stats.t.ppf(.975, len(d) - 1) * se),
                      float(d.mean() + stats.t.ppf(.975, len(d) - 1) * se)]}
     out["ridge_vs_media_regimen"] = t_corregida(f["ridge"], f["media_regimen"], n_tr, n_te)
-    OUTPUTS.mkdir(exist_ok=True)
-    (OUTPUTS / "prueba_t_corregida.json").write_text(json.dumps(out, indent=2, ensure_ascii=False))
+    ANALISIS_PARCELAS.mkdir(parents=True, exist_ok=True)
+    (ANALISIS_PARCELAS / "prueba_t_corregida.json").write_text(json.dumps(out, indent=2, ensure_ascii=False))
     print(json.dumps(out, indent=2, ensure_ascii=False))
 
 

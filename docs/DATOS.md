@@ -55,17 +55,17 @@ Están en `data/externos/`. Los usa el modelo municipal, el análisis de regíme
 
 | Carpeta | Fuente | Script |
 |---|---|---|
-| `siap/` | SIAP, cierre de la producción agrícola por municipio, cebada grano de temporal, primavera-verano, 2003 a 2025, y asignación de municipios a Distritos de Desarrollo Rural. https://nube.agricultura.gob.mx/cierre_agricola/ | `descargar_siap.py` y `descargar_ddr.py` |
-| `clima/` | Climate Hazards Center, lluvia CHIRPS v2.0 y temperatura CHIRTS-ERA5 mensuales. https://data.chc.ucsb.edu/ | `descargar_clima.py` |
-| `topografia/` | Copernicus DEM GLO-90, elevación y pendiente. https://copernicus-dem-90m.s3.amazonaws.com/ | `descargar_topografia.py` |
-| `inegi_marcogeo/` | INEGI, Marco Geoestadístico 2025, municipios de Hidalgo, México, Puebla y Tlaxcala | `descargar_inegi.py` |
-| `inegi_edafologia/` | INEGI, edafología 1:250 000, Series I y II por hoja | `descargar_inegi.py` |
-| `inegi_usv/` | INEGI, uso de suelo y vegetación Serie VII, polígonos agrícolas | `descargar_inegi.py` |
+| `siap/` | SIAP, cierre de la producción agrícola por municipio, cebada grano de temporal, primavera-verano, 2003 a 2025, y asignación de municipios a Distritos de Desarrollo Rural. https://nube.agricultura.gob.mx/cierre_agricola/ | `siap.py` y `ddr.py` |
+| `clima/` | Climate Hazards Center, lluvia CHIRPS v2.0 y temperatura CHIRTS-ERA5 mensuales. https://data.chc.ucsb.edu/ | `clima.py` |
+| `topografia/` | Copernicus DEM GLO-90, elevación y pendiente. https://copernicus-dem-90m.s3.amazonaws.com/ | `topografia.py` |
+| `inegi_marcogeo/` | INEGI, Marco Geoestadístico 2025, municipios de Hidalgo, México, Puebla y Tlaxcala | `inegi.py` |
+| `inegi_edafologia/` | INEGI, edafología 1:250 000, Series I y II por hoja | `inegi.py` |
+| `inegi_usv/` | INEGI, uso de suelo y vegetación Serie VII, polígonos agrícolas | `inegi.py` |
 | `fira_agrocostos/` | FIRA AgroCostos, paquete de cebada de temporal, ciclo primavera-verano 2022, el más reciente público. https://www.fira.gob.mx/Nd/Agrocostos.jsp | `credito.py` |
 | `inegi_inpc/` | INEGI, INPC general para llevar los costos a pesos de 2025 (factor 1.147) | `credito.py` |
 | `economia_municipal.csv` | Tabla económica por municipio del reto (precio, costos, puntos de equilibrio, siniestralidad) | `credito.py` |
 
-Los scripts están en `scripts/`. Las descargas crudas del INEGI se guardan fuera del repositorio con `uv run python scripts/descargar_inegi.py --descargas <directorio>`.
+Los scripts de descarga están en `scripts/descargas/` y los de la capa de crédito en `scripts/parcelas/`. Las descargas crudas del INEGI se guardan fuera del repositorio con `uv run python scripts/descargas/inegi.py --descargas <directorio>`.
 
 Datos que no existen para estas parcelas y que limitan cualquier modelo son la variedad, la fecha real de siembra, la rotación, la dosis de siembra y los siniestros de 2025. La siembra típica en la zona va del 1 al 15 de mayo al 15 de junio.
 

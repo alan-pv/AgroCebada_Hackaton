@@ -10,7 +10,7 @@ Aplicación pública: https://agrocebada.alan-pv.com
 
 | Archivo | Contenido |
 |---|---|
-| [outputs/los_bien_dotados_prediccion.csv](outputs/los_bien_dotados_prediccion.csv) | Predicciones oficiales de las 59 parcelas (`ID_POLIGONO`, `RENDIMIENTO_T_HA`) |
+| [outputs/parcelas/los_bien_dotados_prediccion.csv](outputs/parcelas/los_bien_dotados_prediccion.csv) | Predicciones oficiales de las 59 parcelas (`ID_POLIGONO`, `RENDIMIENTO_T_HA`) |
 | [docs/reportes/REPORTE.pdf](docs/reportes/REPORTE.pdf) | Reporte técnico de 4 cuartillas con la tabla de las 59 predicciones |
 | [docs/reportes/BIBLIOGRAFIA.pdf](docs/reportes/BIBLIOGRAFIA.pdf) | Referencias del reporte |
 | [docs/reportes/PLATAFORMA.txt](docs/reportes/PLATAFORMA.txt) | Texto del reporte por campo, tal como se captura en la plataforma |
@@ -28,7 +28,7 @@ Reportes de apoyo, con más detalle que el reporte
 
 | Documento | Para qué sirve |
 |---|---|
-| [docs/ESTRUCTURA.md](docs/ESTRUCTURA.md) | Qué hay en cada carpeta del repositorio |
+| [docs/ESTRUCTURA.md](docs/ESTRUCTURA.md) | Qué hay en cada carpeta y en cada archivo de resultados |
 | [docs/INSTALACION.md](docs/INSTALACION.md) | Cómo instalar el entorno |
 | [docs/REPRODUCIR.md](docs/REPRODUCIR.md) | Pasos para regenerar la entrega, comprobaciones independientes y uso desde Python |
 | [docs/APLICACION.md](docs/APLICACION.md) | Rutas de la aplicación web y su API |

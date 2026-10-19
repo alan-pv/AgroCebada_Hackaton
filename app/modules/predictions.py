@@ -4,7 +4,7 @@ from functools import cache
 import pandas as pd
 from flask import Blueprint, Response, jsonify, request
 
-from parcelas.config import OUTPUTS
+from parcelas.config import OUTPUTS_PARCELAS
 
 bp = Blueprint("predictions", __name__)
 
@@ -29,7 +29,7 @@ FORMATS = ("json", "csv")
 @cache
 def predictions_table():
     # Se lee una sola vez; en las parcelas de entrenamiento la predicción es la fuera de fold
-    df = pd.read_parquet(OUTPUTS / "predicciones.parquet")[list(FIELDS)].rename(columns=FIELDS)
+    df = pd.read_parquet(OUTPUTS_PARCELAS / "predicciones.parquet")[list(FIELDS)].rename(columns=FIELDS)
     return df.round({"pred": 3, "p10": 3, "p90": 3, "prob_below": 3})
 
 

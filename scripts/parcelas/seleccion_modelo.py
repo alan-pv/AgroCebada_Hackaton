@@ -1,11 +1,11 @@
 """Experimentos de la versión 1 del modelo, en el orden de la Tabla XI del documento de contexto.
 
 Uso:
-    uv run python scripts/experimentos.py
+    uv run python scripts/parcelas/seleccion_modelo.py
 
 Cada paso se compara con la mejor versión aceptada hasta ese momento, con la regla de
 decisión (7 de 10 victorias en el esquema A y prueba de permutación con p <= 0.05), y se
-registra en experimentos/registro.csv. Las ideas descartadas también quedan registradas.
+registra en analisis/parcelas/registro.csv. Las ideas descartadas también quedan registradas.
 Las filas de este script usan bloques que empiezan con "v1_", y se reemplazan al repetir.
 """
 import copy
@@ -23,7 +23,7 @@ import pandas as pd
 from joblib import Parallel, delayed
 
 from parcelas import cv, modelos
-from parcelas.config import EXPERIMENTOS, OUTPUTS, PROCESSED, FIGURAS, SEED
+from parcelas.config import ANALISIS_PARCELAS, PROCESSED, FIGURAS, SEED
 from parcelas.registro import ARCHIVO_REGISTRO, ENCABEZADO, registrar
 from parcelas.transformers import MediaPorGrupo
 
@@ -191,7 +191,7 @@ def relacion_residuo(X, y, bl):
         fila["r_max_abs"] = np.nanmax(np.abs([fila["r_A"], fila["r_B"]]))
         filas.append(fila)
     t = pd.DataFrame(filas).sort_values("r_max_abs", ascending=False)
-    t.round(4).to_csv(OUTPUTS / "relacion_residuo_regimen.csv", index=False)
+    t.round(4).to_csv(ANALISIS_PARCELAS / "relacion_residuo_regimen.csv", index=False)
     return t
 
 
@@ -216,7 +216,7 @@ def tabla_residuos(X, y, oof, ref):
                           "rmse": float(np.sqrt((sub.e ** 2).mean())), "mae": float(sub.e.abs().mean()),
                           "sesgo": float(sub.e.mean())})
     t = pd.DataFrame(filas)
-    t.round(4).to_csv(OUTPUTS / "residuos_v1.csv", index=False)
+    t.round(4).to_csv(ANALISIS_PARCELAS / "residuos_por_grupo.csv", index=False)
     return t, d
 
 
@@ -287,7 +287,7 @@ def atipicas(X, y, oof, f_all):
     sal["dist_vecino_entrenamiento_m"] = dist.loc[top, ent].min(axis=1).to_numpy()
     sal["dist_vecino_mismo_regimen_m"] = [
         dist.loc[i, ent[(f_all.loc[ent, "regimen"] == X.loc[i, "regimen"]).to_numpy()]].min() for i in top]
-    sal.round(4).to_csv(OUTPUTS / "atipicas.csv", index=False)
+    sal.round(4).to_csv(ANALISIS_PARCELAS / "parcelas_atipicas.csv", index=False)
     return sal
 
 
@@ -305,7 +305,7 @@ def main():
             w = csv.DictWriter(fh, fieldnames=ENCABEZADO)
             w.writeheader()
             w.writerows(filas)
-    OUTPUTS.mkdir(exist_ok=True)
+    ANALISIS_PARCELAS.mkdir(parents=True, exist_ok=True)
 
     rel = relacion_residuo(X, y, bl)
     print("Mayores |r| con el residuo dentro de régimen:")
@@ -510,9 +510,9 @@ def main():
             "rmse_media_global_y_permutado_media": float(rg.mean()), "rmse_media_global_y_permutado_min": float(rg.min()),
             "dif_media": float(np.mean(rm - rg)), "dif_min": float(np.min(rm - rg)),
             "rmse_media_global_y_real": ref_global, "n": len(rm)}
-    pd.Series(fuga).to_csv(OUTPUTS / "prueba_fuga_v1.csv")
+    pd.Series(fuga).to_csv(ANALISIS_PARCELAS / "prueba_fuga.csv")
 
-    pd.DataFrame(TABLA).round(4).to_csv(OUTPUTS / "ablaciones_v1.csv", index=False)
+    pd.DataFrame(TABLA).round(4).to_csv(ANALISIS_PARCELAS / "pasos_seleccion.csv", index=False)
     print(f"\nTiempo total: {(time.time() - t_ini) / 60:.1f} min")
 
 

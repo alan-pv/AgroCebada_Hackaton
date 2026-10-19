@@ -1,7 +1,7 @@
 """Ensemble de modelos e intervalos de predicción (versión 2).
 
 Uso:
-    uv run python scripts/intervalos.py
+    uv run python scripts/parcelas/intervalos.py
 
 1. Evalúa los miembros y los promedios simples con el esquema A y B, y los compara con el
    candidato v1 con la regla de decisión.
@@ -25,7 +25,7 @@ import numpy as np
 import pandas as pd
 
 from parcelas import cv, ensemble, intervalos, modelos
-from parcelas.config import EXPERIMENTOS, FIGURAS, OUTPUTS, PROCESSED
+from parcelas.config import ANALISIS_PARCELAS, FIGURAS, PROCESSED
 from parcelas.registro import ARCHIVO_REGISTRO, ENCABEZADO, registrar
 
 warnings.filterwarnings("ignore")
@@ -198,10 +198,10 @@ def main():
     hh = [c for c in X.columns if c.startswith(("hist_", "het_"))]
     mi = miembros(hh)
     reemplazar_registro()
-    OUTPUTS.mkdir(exist_ok=True)
+    ANALISIS_PARCELAS.mkdir(parents=True, exist_ok=True)
 
     tabla, resultados, cfgs = evaluar_ensambles(X, y, mi, hh)
-    tabla.to_csv(OUTPUTS / "ensembles_v2.csv", index=False)
+    tabla.to_csv(ANALISIS_PARCELAS / "ensambles.csv", index=False)
     print(tabla.round(4).to_string(index=False))
     nombre = elegir(tabla)
     cfg = cfgs[nombre]
@@ -212,12 +212,12 @@ def main():
     # cobertura con validación anidada
     df = intervalos.evaluar_cobertura(modelo, X, y, REP_COBERTURA, n_jobs=N_JOBS)
     resumen = intervalos.resumen_cobertura(df)
-    resumen.to_csv(OUTPUTS / "cobertura.csv", index=False)
+    resumen.to_csv(ANALISIS_PARCELAS / "cobertura_intervalos.csv", index=False)
     print(resumen.round(3).to_string(index=False))
     metodo = elegir_metodo(resumen)
     print("Método de intervalo:", metodo, flush=True)
     df.assign(cuartil_area=intervalos.cuartil_area(df)).to_csv(
-        OUTPUTS / "intervalos_cv.csv", index=False)
+        ANALISIS_PARCELAS / "intervalos_cv.csv", index=False)
     figura(df[df["metodo"] == metodo], FIGURAS / "intervalos.png")
 
     # calibración final con los residuos fuera de fold del esquema A (10 repeticiones)
@@ -226,15 +226,15 @@ def main():
     resid = np.concatenate([(y - oof[c]).to_numpy() for c in oof.columns])
     cal = intervalos.CalibradorIntervalo(**intervalos.METODOS[metodo]).fit(
         resid, np.tile(X["regimen"].to_numpy(), k), np.tile(X["area_ha"].to_numpy(), k))
-    cal.a_tabla().to_parquet(EXPERIMENTOS / "calibracion_v2.parquet", index=False)
+    cal.a_tabla().to_parquet(ANALISIS_PARCELAS / "residuos_calibracion.parquet", index=False)
 
     # controles de sanidad de las 59
     final = ensemble.construir_desde_config(cfg).fit(X, y)
     sal = intervalos.PrediccionIntervalo(final, cal, UMBRAL).predecir(X59)
     sal["regimen"], sal["area_ha"] = X59["regimen"], X59["area_ha"]
     san = sanidad(sal, X, y, oof.mean(axis=1))
-    san.to_csv(OUTPUTS / "sanidad_prediccion_v2.csv", index=False)
-    sal.to_csv(OUTPUTS / "prediccion_v2_intervalos.csv")
+    san.to_csv(ANALISIS_PARCELAS / "sanidad_predicciones.csv", index=False)
+    sal.to_csv(ANALISIS_PARCELAS / "predicciones_etapa_intervalos.csv")
     print(san.round(3).T.to_string())
 
     # registro y candidato
@@ -251,9 +251,9 @@ def main():
         "rmse_A": round(res["A"].rmse, 4), "rmse_B": round(res["B"].rmse, 4),
         "referencia_candidato_v1_A": round(resultados["candidato_v1"]["A"].rmse, 4),
         "intervalo": {"metodo": metodo, **cal.configuracion(), "umbral": UMBRAL,
-                      "calibracion": "experimentos/calibracion_v2.parquet",
+                      "calibracion": "analisis/parcelas/residuos_calibracion.parquet",
                       "cobertura_global_anidada": round(glob, 4)}}
-    ensemble.guardar_candidato_v2(out)
+    ensemble.guardar_configuracion_final(out)
     print("Listo")
 
 

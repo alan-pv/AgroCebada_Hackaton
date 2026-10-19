@@ -10,9 +10,9 @@ temporal (2); cultivo cebada grano (77); unidad tonelada (200201); variedad, tip
 tipo de producción y tipo de mercado en "todo".
 
 Uso:
-    uv run --with requests python scripts/descargar_siap.py                       # 2003 a 2025, los cuatro estados
-    uv run --with requests python scripts/descargar_siap.py --anios 2020 2025     # solo un rango
-    uv run --with requests python scripts/descargar_siap.py --solo-consolidar     # sin descargar
+    uv run --with requests python scripts/descargas/siap.py                       # 2003 a 2025, los cuatro estados
+    uv run --with requests python scripts/descargas/siap.py --anios 2020 2025     # solo un rango
+    uv run --with requests python scripts/descargas/siap.py --solo-consolidar     # sin descargar
 """
 import argparse
 import html
@@ -24,7 +24,7 @@ import pandas as pd
 import requests
 
 URL = "https://nube.agricultura.gob.mx/cierre_agricola/"
-SALIDA = Path(__file__).resolve().parents[1] / "data/externos/siap"
+SALIDA = Path(__file__).resolve().parents[2] / "data/externos/siap"
 ESTADOS = {13: "hidalgo", 15: "mexico", 21: "puebla", 29: "tlaxcala"}
 CICLO_PV, TEMPORAL, CEBADA_GRANO, TONELADA, POR_MUNICIPIO = 2, 2, 77, 200201, 1
 COLUMNAS = ["sembrada_ha", "cosechada_ha", "siniestrada_ha", "produccion_t", "rendimiento",

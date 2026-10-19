@@ -23,9 +23,9 @@ Salidas en data/externos/topografia/:
     comparacion_reto.csv                    resumen de la comparación
 
 Uso:
-    uv run python scripts/descargar_topografia.py                          # crudos en data/interim/copernicus_dem
-    uv run python scripts/descargar_topografia.py --crudos /ruta/vacia     # otro directorio de crudos
-    uv run python scripts/descargar_topografia.py --resolucion 0.005       # rejilla más gruesa
+    uv run python scripts/descargas/topografia.py                          # crudos en data/interim/copernicus_dem
+    uv run python scripts/descargas/topografia.py --crudos /ruta/vacia     # otro directorio de crudos
+    uv run python scripts/descargas/topografia.py --resolucion 0.005       # rejilla más gruesa
 """
 import argparse
 import math
@@ -41,7 +41,7 @@ from rasterio.merge import merge
 from rasterio.transform import from_origin
 from rasterio.warp import Resampling, calculate_default_transform, reproject
 
-RAIZ = Path(__file__).resolve().parents[1]
+RAIZ = Path(__file__).resolve().parents[2]
 SALIDA = RAIZ / "data/externos/topografia"
 BUCKET = "https://copernicus-dem-90m.s3.amazonaws.com"
 VENTANA = (-100.75, 17.75, -96.60, 21.45)  # oeste, sur, este, norte

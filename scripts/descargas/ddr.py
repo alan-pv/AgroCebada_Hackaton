@@ -3,14 +3,14 @@
 El SIAP estima el rendimiento por distrito o por CADER y muchas veces repite la misma cifra en
 municipios vecinos. Para validar sin que esa repetición ayude al interpolador, hace falta saber
 qué municipios comparten distrito. El portal lo da en el reporte "Por Distrito - Municipio"
-(opcionDDRMpio = 3), con los mismos filtros que `scripts/descargar_siap.py` (cebada grano,
+(opcionDDRMpio = 3), con los mismos filtros que `scripts/descargas/siap.py` (cebada grano,
 temporal, primavera-verano).
 
 Se pide un reporte por estado y año porque la asignación puede cambiar con el tiempo. Escribe
 data/externos/siap/ddr_municipio.csv con las columnas anio, estado, ddr y municipio.
 
 Uso:
-    uv run --with requests python scripts/descargar_ddr.py
+    uv run --with requests python scripts/descargas/ddr.py
 """
 import html
 import re
@@ -22,7 +22,7 @@ import pandas as pd
 import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from descargar_siap import (CEBADA_GRANO, CICLO_PV, ESTADOS, SALIDA, TEMPORAL, TONELADA, URL,  # noqa: E402
+from siap import (CEBADA_GRANO, CICLO_PV, ESTADOS, SALIDA, TEMPORAL, TONELADA, URL,  # noqa: E402
                             _xajax)
 
 POR_DDR_MUNICIPIO = 3

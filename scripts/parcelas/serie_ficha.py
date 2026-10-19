@@ -13,7 +13,7 @@ los `series_*.parquet` ni `calidad_series.parquet`, y guarda solo los índices N
 Entran los pasos "valida" e "interpolada", igual que en `series.matriz_suave`.
 
 Uso (desde la raíz del repo; tarda alrededor de un minuto):
-    .venv/bin/python scripts/serie_ficha.py
+    .venv/bin/python scripts/parcelas/serie_ficha.py
 """
 import pandas as pd
 

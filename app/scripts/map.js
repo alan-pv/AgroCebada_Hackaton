@@ -88,7 +88,7 @@ const MUN_CONFIDENCE_CLASSES = [
   { key: "media", label: "Confianza media", color: "#2f8553", badge: "badge--conf-media" },
   { key: "baja", label: "Confianza baja", color: "#b4dfbf", badge: "badge--conf-baja" },
 ];
-// Por qué cada municipio tiene su nivel de confianza (criterio de scripts/municipal_capa.py)
+// Por qué cada municipio tiene su nivel de confianza (criterio de scripts/generalizable/capa_municipal.py)
 const MUN_CONFIDENCE_REASONS = {
   alta: "Tiene historia propia de cebada de temporal en el SIAP.",
   media: "No tiene historia propia en el SIAP, pero tiene agricultura de temporal y un municipio con SIAP a 25 km o menos.",

@@ -17,7 +17,7 @@ tabla = capa_economica(pred_df, precio=6500, costo_total={"21053": 30000},
 
 La función devuelve una fila por parcela. Los argumentos `precio`, `costo_total` y `costo_credito` aceptan un número, un arreglo con un valor por parcela o un diccionario con la clave del municipio. La clave del municipio es el CVEGEO de 5 dígitos. Todo lo que no se cambia se toma de la tabla municipal. El argumento `siniestro` elige el periodo de pérdidas, `"2003_2025"` (por defecto) o `"2013_2025"`, o recibe un número.
 
-El resultado ya calculado para las 197 parcelas está en `outputs/capa_economica.csv`. La tabla por municipio está en `data/externos/economia_municipal.csv` y se regenera con `uv run python scripts/credito.py`. El p10 y la marca de confianza que usa esta capa se describen en `MODELO.md`.
+El resultado ya calculado para las 197 parcelas está en `outputs/parcelas/capa_economica.csv`. La tabla por municipio está en `data/externos/economia_municipal.csv` y se regenera con `uv run python scripts/parcelas/credito.py`. El p10 y la marca de confianza que usa esta capa se describen en `MODELO.md`.
 
 ## Qué significa cada columna del resultado
 

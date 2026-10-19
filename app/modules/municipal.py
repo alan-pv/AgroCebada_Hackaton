@@ -1,6 +1,6 @@
 # Modelo municipal: rendimiento esperado, intervalo y partes de la predicción de los municipios de Hidalgo, Puebla y
 # Tlaxcala (los estados del reto) en GeoJSON. El modelo se entrenó también con el Estado de México, pero no se muestra.
-# Solo lee outputs/generalizable_municipios.gpkg, ya generado, y los límites del INEGI; ninguna ruta reentrena el modelo
+# Solo lee outputs/generalizable/capa_municipal.gpkg, ya generado, y los límites del INEGI; ninguna ruta reentrena el modelo
 # Contrato:
 #   GET /api/municipal   GeoJSON (FeatureCollection) de los 361 municipios de los tres estados con las propiedades de
 #                        PROPERTIES; los NaN salen como null. Si falta el gpkg, responde 503.
@@ -15,11 +15,11 @@ import geopandas as gpd
 from flask import Blueprint, Response, jsonify, request
 from shapely.geometry import MultiPolygon, Polygon
 
-from parcelas.config import OUTPUTS, RAIZ
+from parcelas.config import OUTPUTS_GENERALIZABLE, RAIZ
 
 bp = Blueprint("municipal", __name__)
 
-MUNICIPAL_GPKG = OUTPUTS / "generalizable_municipios.gpkg"
+MUNICIPAL_GPKG = OUTPUTS_GENERALIZABLE / "capa_municipal.gpkg"
 # Límites municipales del INEGI a resolución completa (la misma ruta que generalizable.variables, que no se
 # importa aquí porque pide exactextract, que no se instala en ARM)
 MUNICIPIOS = RAIZ / "data" / "externos" / "inegi_marcogeo" / "municipios_13_15_21_29.gpkg"
@@ -102,7 +102,7 @@ def municipal():
         return jsonify(error="format debe ser json o csv"), 400
     # Sin el archivo no hay modelo municipal que servir: 503 en vez de un 500
     if not MUNICIPAL_GPKG.exists():
-        return jsonify(error="Falta outputs/generalizable_municipios.gpkg; el modelo municipal no está generado"), 503
+        return jsonify(error="Falta outputs/generalizable/capa_municipal.gpkg; el modelo municipal no está generado"), 503
     if fmt == "csv":
         res = Response(municipal_frame()[PROPERTIES].to_csv(index=False), mimetype="text/csv")
         res.headers["Content-Disposition"] = "attachment; filename=agrocebada_modelo_municipal.csv"
@@ -116,7 +116,7 @@ def municipal():
 @bp.get("/api/municipal/estados")
 def states():
     if not MUNICIPAL_GPKG.exists():
-        return jsonify(error="Falta outputs/generalizable_municipios.gpkg; el modelo municipal no está generado"), 503
+        return jsonify(error="Falta outputs/generalizable/capa_municipal.gpkg; el modelo municipal no está generado"), 503
     res = Response(states_json(), mimetype="application/geo+json")
     res.headers["Cache-Control"] = "public, max-age=3600"
     return res

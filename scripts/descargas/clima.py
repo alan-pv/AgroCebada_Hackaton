@@ -21,8 +21,8 @@ Salidas (carpeta --salida, por omisión data/externos/clima):
     años que se traslapan (2022 a 2025). Para la lluvia compara CHIRPS v2.0 y v3.0.
 
 Uso:
-    uv run python scripts/descargar_clima.py
-    uv run python scripts/descargar_clima.py --inicio 2003 --fin 2025 \\
+    uv run python scripts/descargas/clima.py
+    uv run python scripts/descargas/clima.py --inicio 2003 --fin 2025 \\
         --descargas /ruta/clima_descargas --hilos 6
 """
 import argparse
@@ -44,7 +44,7 @@ from rasterio.windows import Window
 
 from parcelas.io import extraer_rasteres
 
-RAIZ = Path(__file__).resolve().parents[1]
+RAIZ = Path(__file__).resolve().parents[2]
 NODATA = -9999.0
 RES = 0.05
 OESTE, NORTE = -100.75, 21.45

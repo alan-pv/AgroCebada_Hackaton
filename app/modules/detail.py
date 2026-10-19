@@ -10,7 +10,7 @@ from functools import cache
 import pandas as pd
 from flask import Blueprint, jsonify, render_template, request
 
-from parcelas.config import OUTPUTS, PROCESSED
+from parcelas.config import OUTPUTS_PARCELAS, PROCESSED
 
 from . import charts, economics, formatting
 from .model import load_model
@@ -47,13 +47,13 @@ NOTE_TRAINING = ("Esta parcela se usó para entrenar el modelo; la predicción q
 @cache
 def predictions_table():
     # Una fila por parcela. En las de entrenamiento la predicción es la fuera de fold
-    return pd.read_parquet(OUTPUTS / "predicciones.parquet", columns=PREDICTION_COLS).set_index("ID_POLIGONO")
+    return pd.read_parquet(OUTPUTS_PARCELAS / "predicciones.parquet", columns=PREDICTION_COLS).set_index("ID_POLIGONO")
 
 
 @cache
 def shap_table():
     # Solo el modelo entregado (candidato); sus demás columnas de SHAP son NaN y no se usan
-    df = pd.read_parquet(OUTPUTS / "shap_values.parquet", columns=SHAP_COLS)
+    df = pd.read_parquet(OUTPUTS_PARCELAS / "shap_values.parquet", columns=SHAP_COLS)
     return df[df["modelo"] == "candidato"].drop(columns="modelo").set_index("ID_POLIGONO")
 
 
@@ -65,7 +65,7 @@ def features_table():
 
 @cache
 def series_table():
-    # Serie de scripts/serie_ficha.py. Si el archivo no existe, la ficha sale sin serie
+    # Serie de scripts/parcelas/serie_ficha.py. Si el archivo no existe, la ficha sale sin serie
     ruta = PROCESSED / "serie_ficha.parquet"
     if not ruta.exists():
         return None

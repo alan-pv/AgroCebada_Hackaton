@@ -57,7 +57,7 @@ Una idea se acepta solo si cumple dos condiciones, ambas medidas con el esquema 
 
 Cada evaluación completa del esquema A requiere 50 ajustes. Con 50 permutaciones serían 2500 ajustes por prueba. Para reducir el costo, la prueba usa solo las 3 primeras repeticiones del esquema A, o sea 15 ajustes por permutación, y calcula el RMSE real con esas mismas 3 repeticiones. El número de repeticiones se puede cambiar. Con 50 permutaciones, el menor p-valor posible es 1 / 51, cerca de 0.02.
 
-Las ideas que no cumplan la regla se registran como probadas y descartadas. Cada experimento queda como una fila en `experimentos/registro.csv` con sus métricas, su decisión y sus notas. Las particiones están en `experimentos/particiones.parquet` y el código en `src/parcelas/cv.py`.
+Las ideas que no cumplan la regla se registran como probadas y descartadas. Cada experimento queda como una fila en `analisis/parcelas/registro.csv` con sus métricas, su decisión y sus notas. Las particiones están en `analisis/parcelas/particiones.parquet` y el código en `src/parcelas/cv.py`.
 
 ## Piso de error por redondeo
 
@@ -74,7 +74,7 @@ En el régimen B todos los valores tienen un solo decimal y 86.3 % son múltiplo
 
 ## Modelos de referencia
 
-Las cifras salen de `scripts/baselines.py` y quedan en `experimentos/baselines_tabla.csv`.
+Las cifras salen de `scripts/parcelas/lineas_base.py` y quedan en `analisis/parcelas/lineas_base.csv`.
 
 Evaluamos cada modelo con los dos esquemas. Los modelos son los siguientes.
 

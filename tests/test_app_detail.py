@@ -10,7 +10,7 @@ pytest.importorskip("flask")
 from app import create_app
 
 ROOT = Path(__file__).resolve().parents[1]
-PREDICCIONES = ROOT / "outputs" / "predicciones.parquet"
+PREDICCIONES = ROOT / "outputs" / "parcelas" / "predicciones.parquet"
 SERIE = ROOT / "data" / "processed" / "serie_ficha.parquet"
 
 NOTA_ENTRENAMIENTO = ("Esta parcela se usó para entrenar el modelo; la predicción que se muestra es la "
@@ -97,7 +97,7 @@ def test_entrenamiento_no_tiene_desglose(client, predicciones):
 
 def test_serie_2025_frente_a_2022_2024(client, predicciones):
     if not SERIE.exists():
-        pytest.skip("Falta data/processed/serie_ficha.parquet; genérelo con scripts/serie_ficha.py")
+        pytest.skip("Falta data/processed/serie_ficha.parquet; genérelo con scripts/parcelas/serie_ficha.py")
     for pid in predicciones.index:
         serie = client.get(f"/api/parcels/{pid}").get_json()["series"]
         assert serie["year"] == 2025, pid
