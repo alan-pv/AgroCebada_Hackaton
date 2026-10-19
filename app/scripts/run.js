@@ -21,13 +21,13 @@
   };
   // Columnas del CSV de resultados, en este orden
   const RESULT_COLUMNS = [
-    "id", "state", "municipality", "set", "pred", "p10", "p90", "prob_below",
-    "confidence", "neighbors_400m", "nearest_neighbor_m", "threshold", "model_version",
+    "id", "state", "municipality", "set", "pred", "p10", "p90",
+    "confidence", "neighbors_400m", "nearest_neighbor_m", "model_version",
   ];
   // Encabezados de la tabla de resultados; también son la etiqueta de cada celda en el celular.
   // Estado, municipio e intervalo p10–p90 no tienen columna: van en la celda de la parcela, en el
   // texto de la barra de rango y en el CSV de descarga
-  const RESULT_LABELS = ["Parcela", "Predicción (t/ha)", "Probabilidad bajo el umbral", "Confianza"];
+  const RESULT_LABELS = ["Parcela", "Predicción (t/ha)", "Confianza"];
   // Segunda línea de una parcela nueva: no está en el conjunto de datos y no tiene ficha
   const NEW_PARCEL_NOTE = "Parcela nueva, sin ficha";
   const SET_LABELS = { ENTRENAMIENTO: "Entrenamiento", PREDICCION: "Predicción" };
@@ -270,10 +270,10 @@
     return [row.municipality, row.state].filter(Boolean).join(", ");
   }
 
-  // Escala común de las barras de rango: cubre todos los p10, p90 y predicciones y el umbral,
+  // Escala común de las barras de rango: cubre todos los p10, p90 y predicciones,
   // con extremos redondeados a RANGE_STEP. Así todas las filas se comparan a simple vista
-  function rangeScale(rows, threshold) {
-    const values = [threshold];
+  function rangeScale(rows) {
+    const values = [];
     for (const row of rows) {
       for (const value of [row.p10, row.p90, row.pred]) {
         if (Number.isFinite(value)) values.push(value);
@@ -390,8 +390,6 @@
     const newUrl = root.dataset.newUrl;
     const detailUrl = root.dataset.detailUrl;
     const maxParcels = Number(root.dataset.maxParcels);
-    const thresholdMin = Number(root.dataset.thresholdMin);
-    const thresholdMax = Number(root.dataset.thresholdMax);
 
     const filterState = el("filter-state");
     const filterMunicipality = el("filter-municipality");
@@ -400,8 +398,6 @@
     const selectVisible = el("select-visible");
     const selectionCount = el("selection-count");
     const tableBody = el("dataset-rows");
-    const thresholdInput = el("threshold");
-    const thresholdMessage = el("threshold-message");
     const runButton = el("run-button");
     const datasetMessage = el("dataset-message");
     const newForm = el("new-form");
@@ -419,8 +415,6 @@
     // Lista de parcelas, selección, filas visibles, último resultado y si hay un cálculo en curso
     const view = { rows: [], byId: new Map(), selected: new Set(), visible: [], results: null, busy: false };
 
-    // El valor por defecto del umbral sale del data-* de la página
-    thresholdInput.value = root.dataset.thresholdDefault;
     csvTemplate.href = URL.createObjectURL(new Blob([TEMPLATE_CSV], { type: "text/csv;charset=utf-8" }));
 
     // Opciones de un <select>: se conserva «Todos» y se agregan las demás
@@ -504,27 +498,6 @@
       selectionCount.textContent = `${total} ${total === 1 ? "seleccionada" : "seleccionadas"}`;
     }
 
-    // Umbral común a las tres pestañas. Si no es válido, marca el campo, avisa junto a él, limpia
-    // `messageEl` (la barra de la pestaña activa) y devuelve null
-    function readThreshold(messageEl) {
-      const value = parseNumber(thresholdInput.value);
-      if (value === null || value < thresholdMin || value > thresholdMax) {
-        thresholdInput.setAttribute("aria-invalid", "true");
-        showMessage(thresholdMessage, `El umbral debe ser un número entre ${thresholdMin.toFixed(1)} y ${thresholdMax.toFixed(1)} t/ha.`, true);
-        showMessage(messageEl, "");
-        // El campo está arriba de las pestañas: el foco lleva a él aunque la vista esté más abajo
-        thresholdInput.focus();
-        return null;
-      }
-      clearThresholdError();
-      return value;
-    }
-
-    function clearThresholdError() {
-      thresholdInput.removeAttribute("aria-invalid");
-      showMessage(thresholdMessage, "");
-    }
-
     // Mientras hay un cálculo, los botones de calcular no responden
     function setBusy(busy) {
       view.busy = busy;
@@ -532,12 +505,12 @@
       resultsZone.setAttribute("aria-busy", String(busy));
     }
 
-    // Barra de rango de una parcela: intervalo p10–p90, predicción como punto y umbral como línea,
-    // en la escala común. El texto accesible (y el del cursor) dice los mismos valores; sin datos, null
-    function buildRange(row, scale, threshold) {
+    // Barra de rango de una parcela: intervalo p10–p90 y predicción como punto, en la escala común.
+    // El texto accesible (y el del cursor) dice los mismos valores; sin datos, null
+    function buildRange(row, scale) {
       if (![row.pred, row.p10, row.p90].every(Number.isFinite)) return null;
       const text = `Predicción ${formatNumber(row.pred, 2)} t/ha; intervalo p10–p90 de ${formatNumber(row.p10, 2)} `
-        + `a ${formatNumber(row.p90, 2)} t/ha; umbral ${formatNumber(threshold, 1)} t/ha`;
+        + `a ${formatNumber(row.p90, 2)} t/ha`;
       const range = document.createElement("div");
       range.className = "range";
       range.setAttribute("role", "img");
@@ -547,13 +520,10 @@
       band.className = "range__band";
       band.style.left = `${rangePercent(row.p10, scale)}%`;
       band.style.width = `${rangePercent(row.p90, scale) - rangePercent(row.p10, scale)}%`;
-      const line = document.createElement("span");
-      line.className = "range__threshold";
-      line.style.left = `${rangePercent(threshold, scale)}%`;
       const point = document.createElement("span");
       point.className = "range__pred";
       point.style.left = `${rangePercent(row.pred, scale)}%`;
-      range.append(band, line, point);
+      range.append(band, point);
       return range;
     }
 
@@ -572,7 +542,7 @@
     }
 
     // Leyenda de las barras, con la escala en texto: el celular no muestra el encabezado
-    function buildRangeLegend(scale, threshold) {
+    function buildRangeLegend(scale) {
       const legend = document.createElement("p");
       legend.className = "range-legend";
       const item = (keyClass, label) => {
@@ -587,7 +557,6 @@
       legend.append(
         item("range-legend__key--band", "Intervalo p10–p90"),
         item("range-legend__key--pred", "Predicción"),
-        item("range-legend__key--threshold", `Umbral ${formatNumber(threshold, 1)} t/ha`),
         makeCell("span", `Misma escala en todas las filas, de ${formatNumber(scale.min, 1)} a ${formatNumber(scale.max, 1)} t/ha`),
       );
       return legend;
@@ -611,16 +580,16 @@
     }
 
     // Celda de la predicción: la cifra en t/ha y, a su lado, la barra de rango
-    function buildPredCell(row, scale, threshold) {
+    function buildPredCell(row, scale) {
       const wrap = document.createElement("div");
       wrap.className = "pred";
       wrap.append(makeCell("span", formatNumber(row.pred, 2), { className: "pred__value" }));
-      const range = buildRange(row, scale, threshold);
+      const range = buildRange(row, scale);
       if (range) wrap.append(range);
       return makeCell("td", wrap, { label: RESULT_LABELS[1], className: "pred-col" });
     }
 
-    function buildResultRow(row, scale, threshold) {
+    function buildResultRow(row, scale) {
       let confidenceNode = "—";
       const badge = confidenceBadge(row.confidence);
       if (badge) {
@@ -635,8 +604,7 @@
       // confianza («Confianza alta») se entienden solas
       tr.append(
         buildParcelCell(row),
-        buildPredCell(row, scale, threshold),
-        makeCell("td", percentText(row.prob_below), { label: RESULT_LABELS[2], className: "num prob-col" }),
+        buildPredCell(row, scale),
         makeCell("td", confidenceNode, { className: "conf-col" }),
       );
       return tr;
@@ -659,7 +627,7 @@
       }
     }
 
-    function buildResultsTable(rows, scale, threshold) {
+    function buildResultsTable(rows, scale) {
       const wrap = document.createElement("div");
       wrap.className = "table-wrap";
       const table = document.createElement("table");
@@ -668,7 +636,7 @@
       caption.className = "visually-hidden";
       const head = document.createElement("thead");
       const headRow = document.createElement("tr");
-      const colClasses = ["parcel-col", null, "num prob-col", "conf-col"];
+      const colClasses = ["parcel-col", null, "conf-col"];
       RESULT_LABELS.forEach((title, index) => {
         if (index === 1) {
           headRow.append(buildPredHeader(scale));
@@ -680,7 +648,7 @@
       });
       head.append(headRow);
       const body = document.createElement("tbody");
-      for (const row of rows) body.append(buildResultRow(row, scale, threshold));
+      for (const row of rows) body.append(buildResultRow(row, scale));
       body.addEventListener("click", openRowLink);
       body.addEventListener("auxclick", openRowLink);
       table.append(caption, head, body);
@@ -692,12 +660,12 @@
     function renderResults(rows, meta) {
       view.results = { rows, meta };
       resultsZone.replaceChildren();
-      // Resumen en una línea: cuántas parcelas, con qué umbral y qué versión del modelo
+      // Resumen en una línea: cuántas parcelas y qué versión del modelo
       const summary = document.createElement("p");
       summary.className = "summary";
       const count = document.createElement("strong");
       count.textContent = `${rows.length} ${rows.length === 1 ? "parcela" : "parcelas"}`;
-      summary.append(count, ` · umbral ${meta.threshold} t/ha · modelo versión ${meta.model_version}`);
+      summary.append(count, ` · modelo versión ${meta.model_version}`);
       resultsZone.append(summary);
       const lowIds = rows.filter((row) => row.confidence === "baja").map((row) => row.id);
       if (lowIds.length > 0) {
@@ -711,8 +679,8 @@
         warning.append(text, ids);
         resultsZone.append(warning);
       }
-      const scale = rangeScale(rows, meta.threshold);
-      resultsZone.append(buildRangeLegend(scale, meta.threshold), buildResultsTable(rows, scale, meta.threshold));
+      const scale = rangeScale(rows);
+      resultsZone.append(buildRangeLegend(scale), buildResultsTable(rows, scale));
       downloadButton.hidden = false;
       revealResults();
     }
@@ -729,8 +697,6 @@
     // Calcula las parcelas elegidas en lotes de como máximo `maxParcels` IDs, en orden
     async function runDataset() {
       if (view.busy) return;
-      const threshold = readThreshold(datasetMessage);
-      if (threshold === null) return;
       // En el orden de la tabla
       const ids = view.rows.filter((row) => view.selected.has(row.id)).map((row) => row.id);
       if (ids.length === 0) {
@@ -745,7 +711,7 @@
         for (let i = 0; i < batches.length; i++) {
           const progress = batches.length > 1 ? ` (lote ${i + 1} de ${batches.length})` : "";
           showMessage(datasetMessage, `Calculando...${progress}`);
-          const data = await postJson(predictUrl, { ids: batches[i], threshold, include_confidence: true });
+          const data = await postJson(predictUrl, { ids: batches[i], include_confidence: true });
           if (meta === null) meta = { model_version: data.model_version, threshold: data.threshold };
           for (const prediction of data.predictions) predictions.set(prediction.id, prediction);
         }
@@ -764,12 +730,10 @@
     // Calcula una lista de parcelas nuevas y muestra los resultados; los avisos van en `messageEl`
     async function runNew(parcels, messageEl) {
       if (view.busy) return;
-      const threshold = readThreshold(messageEl);
-      if (threshold === null) return;
       setBusy(true);
       showMessage(messageEl, "Calculando...");
       try {
-        const data = await postJson(newUrl, { parcels, threshold });
+        const data = await postJson(newUrl, { parcels });
         const meta = { model_version: data.model_version, threshold: data.threshold };
         const rows = data.predictions.map((prediction) => resultRow(prediction, null, meta));
         renderResults(rows, meta);
@@ -839,8 +803,6 @@
       renderTable();
     });
     runButton.addEventListener("click", runDataset);
-    // Al corregir el umbral se quitan su marca y su aviso; se vuelve a revisar al calcular
-    thresholdInput.addEventListener("input", clearThresholdError);
 
     newForm.addEventListener("submit", (event) => {
       event.preventDefault();

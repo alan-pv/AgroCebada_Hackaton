@@ -111,15 +111,13 @@
             <li><span class="flow__n">2</span><span class="flow__name">Vecinos</span><span class="flow__out">A 400 m, hasta 10</span></li>
             <li><span class="flow__n">3</span><span class="flow__name">Proceso gaussiano</span><span class="flow__out">Predicción en t/ha</span></li>
             <li><span class="flow__n">4</span><span class="flow__name">Intervalo</span><span class="flow__out">p10 a p90</span></li>
-            <li><span class="flow__n">5</span><span class="flow__name">Probabilidad</span><span class="flow__out">Bajo 2.5 t/ha</span></li>
-            <li><span class="flow__n">6</span><span class="flow__name">Confianza</span><span class="flow__out">Alta, media o baja</span></li>
+            <li><span class="flow__n">5</span><span class="flow__name">Confianza</span><span class="flow__out">Alta, media o baja</span></li>
           </ol>
           <ol class="steps">
             <li><strong>Régimen del municipio.</strong> Cada parcela entra con el régimen de su municipio, A o B. Es una variable que construimos al notar que los municipios reportan sus rendimientos de dos formas: el A con dos decimales, y el B redondeado a 0.5 o a 0.1.</li>
             <li><strong>Parcelas medidas cercanas.</strong> Se toman las parcelas medidas del mismo régimen a 400 m o menos, hasta 10, y se promedian sus rendimientos. Las más cercanas pesan más. Si ninguna queda a esa distancia, se usa el promedio de su régimen.</li>
             <li><strong>Modelo estadístico.</strong> Un proceso gaussiano combina el régimen y ese promedio para dar la predicción en t/ha. El satélite, el clima y la topografía no entran en la predicción final: ningún bloque de esas variables pasó la regla de decisión del equipo.</li>
             <li><strong>Intervalo p10 a p90.</strong> Se suman a la predicción los cuantiles 0.1 y 0.9 de los errores de validación del mismo régimen, con una corrección por tamaño de muestra. Así sale el rango que, según la meta del método, contiene el rendimiento real en 8 de cada 10 parcelas.</li>
-            <li><strong>Probabilidad bajo 2.5 t/ha.</strong> Es la fracción de esos mismos errores del régimen que, sumados a la predicción, dan menos de 2.5 t/ha.</li>
             <li><strong>Marca de confianza.</strong> Cuenta las parcelas medidas del mismo régimen que hay cerca. Sus tres niveles se explican en la sección siguiente.</li>
           </ol>
           <p class="note">Las parcelas de entrenamiento ya tienen rendimiento medido. Para ellas la app no usa su propio dato, porque la parcela se contaría como vecina de sí misma. Muestra la predicción que sale sin esa parcela, promediada en las 10 repeticiones de validación.</p>
@@ -145,8 +143,6 @@
               <dd><span class="terms__lead">Rango en el que se espera que caiga el rendimiento real de la parcela.</span> {% if global_row %}En la validación contuvo el rendimiento real en {{ global_row.coverage | percent(1) }} de las parcelas, con meta de 80 %. {% endif %}Conviene usar el intervalo y no solo el valor puntual.</dd>
             </div>
             <div>
-              <dt>Probabilidad bajo 2.5 t/ha</dt>
-              <dd><span class="terms__lead">Probabilidad estimada de que el rendimiento de la parcela quede por debajo de 2.5 t/ha</span>, con base en los errores de su mismo régimen. Marca las parcelas donde el rendimiento podría ser bajo.</dd>
             </div>
             <div>
               <dt>Confianza</dt>

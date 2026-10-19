@@ -187,8 +187,7 @@ def test_error_del_modelo_en_pesos_sigue_al_precio(client):
         assert f"Error típico del modelo por hectárea ({formatting.number(err['t_ha'], 2)} t/ha)" in html
         assert (f"El modelo se equivoca en promedio unas {formatting.number(err['t_ha'], 2)} t/ha. "
                 f"Con el precio de {formatting.money(econ['price'])} por tonelada eso son unos {pesos} por "
-                f"hectárea. Es el {formatting.percent(err['share_cost_total'])} del costo total y el "
-                f"{formatting.percent(err['share_credit'])} del crédito por hectárea.") in html
+                f"hectárea. Es el {formatting.percent(err['share_credit'])} del crédito por hectárea.") in html
     assert "$8,000 por tonelada" in html
 
 
@@ -293,13 +292,14 @@ def test_semaforos_y_confianza_coinciden_con_la_economia(client):
     # Una parcela por combinación de semáforos, para cubrir los colores que haya en los datos
     combinaciones = {}
     for fila in lista:
-        combinaciones.setdefault((fila["light_costs"], fila["light_credit"]), fila["id"])
+        combinaciones.setdefault(fila["light_credit"], fila["id"])
     assert combinaciones
     for pid in combinaciones.values():
         econ = client.get(f"/api/economics/{pid}").get_json()
         nivel = client.get(f"/api/parcels/{pid}").get_json()["confidence"]["level"]
         html = client.get(f"/parcela/{pid}").get_data(as_text=True)
-        assert badge_tras(html, "Probabilidad de no cubrir los costos totales") == LUCES[econ["light_costs"]], pid
+        # El riesgo de no cubrir el costo total ya no se muestra: solo el del crédito
+        assert "Probabilidad de no cubrir los costos totales" not in html, pid
         assert badge_tras(html, "Probabilidad de no pagar el crédito") == LUCES[econ["light_credit"]], pid
         # El badge de confianza va en el indicador «Confianza» del bloque principal
         assert badge_tras(html, '<dt class="stat__label">Confianza</dt>') == CONFIANZA[nivel], pid
@@ -308,10 +308,9 @@ def test_semaforos_y_confianza_coinciden_con_la_economia(client):
 def test_probabilidades_extremas_se_dicen_con_palabras(client):
     # Ni 0 % ni 100 %: docs/CREDITO.md pide «menos de 1 %» y «más de 99 %»
     html = client.get("/parcela/AGC_003").get_data(as_text=True)
-    econ = economics.parcel_economics_data("AGC_003")
-    assert econ["prob_not_cover_costs"] > 0.99
-    assert "Probabilidad de no cubrir los costos totales: más de 99 %" in texto_visible(html)
     assert "100 %" not in html
+    assert " 0 %" not in texto_visible(html)
+    econ = economics.parcel_economics_data("AGC_003")
     cortes = econ["light_cuts"]
     assert (f"Bajo: menos de {formatting.percent(cortes['green_below'])}. "
             f"Medio: de {formatting.percent(cortes['green_below'])} a menos de {formatting.percent(cortes['red_from'])}. "
@@ -332,7 +331,9 @@ def test_nota_de_costos_queda_bajo_la_tabla_de_resultados(client):
     # La tabla y la nota de fuentes van juntas en el desplegable «Ver detalle y supuestos», después de los medidores
     detalle = desplegable(html, "Ver detalle y supuestos")
     assert detalle.index("</table>") < detalle.index(NOTA_COSTOS)
-    assert html.index('class="grid-2 risks"') < html.index("<summary>Ver detalle y supuestos</summary>")
+    assert html.index('class="risks"') < html.index("<summary>Ver detalle y supuestos</summary>")
+    # La tabla explica por qué el margen sobre el costo total puede ser negativo aunque el crédito se pague
+    assert "aunque el crédito se pague" in detalle
 
 
 def test_contexto_municipal_cuenta_los_anios_del_siap(client):
@@ -408,9 +409,9 @@ def test_cada_pestana_trae_su_contenido(client):
     html = client.get("/parcela/AGC_003").get_data(as_text=True)
     rendimiento, economia = panel(html, "rendimiento"), panel(html, "economia")
     calculo, satelite = panel(html, "calculo"), panel(html, "satelite")
-    assert "Probabilidad de quedar por debajo de 2.5 t/ha" in texto_visible(rendimiento)
+    assert "Probabilidad de quedar por debajo" not in texto_visible(rendimiento)
     assert '<div class="chart-ancha">' in rendimiento and 'class="conf-steps"' in rendimiento
-    assert 'class="stat-grid econ-stats"' in economia and 'class="grid-2 risks"' in economia
+    assert 'class="stat-grid econ-stats"' in economia and 'class="risks"' in economia
     assert "Cómo se llegó a este número" in calculo and "Entradas del modelo en esta parcela" in calculo
     assert "Verdor y sequía en 2025 frente a 2022 a 2024" in satelite
     assert "Contexto de 2025 (no entra al modelo final)" in satelite
@@ -426,13 +427,11 @@ def test_franja_de_veredicto_con_cifra_rango_y_tres_indicadores(client):
     assert f'<p class="cifra">{formatting.number(ficha["pred"], 2)} <span class="cifra__unit">t/ha</span></p>' in arriba
     assert (f'Rango p10 a p90: <strong>{formatting.number(ficha["p10"], 2)} a '
             f'{formatting.number(ficha["p90"], 2)} t/ha</strong>') in arriba
-    # Tres indicadores: confianza, crédito y costos, cada uno con su badge con texto
+    # Dos indicadores: confianza y crédito, cada uno con su badge con texto
     indicadores = re.search(r'<dl class="stat-grid verdict__stats">(.*?)</dl>', arriba, re.S).group(1)
-    assert len(re.findall(r'<div class="stat[ "]', indicadores)) == 3
+    assert len(re.findall(r'<div class="stat[ "]', indicadores)) == 2
     assert badge_tras(indicadores, "Confianza")[1].startswith("Confianza ")
     assert badge_tras(indicadores, "Probabilidad de no pagar el crédito") == LUCES[econ["light_credit"]]
-    assert badge_tras(indicadores, "Probabilidad de no cubrir los costos totales") == LUCES[econ["light_costs"]]
-    assert "más de 99 %" in indicadores
     # Con qué precio salen los riesgos, y un enlace a la economía
     assert f"Con el precio del municipio, {formatting.money(econ['price'])} por tonelada." in arriba
     assert 'href="#economia"' in arriba
@@ -472,27 +471,31 @@ def test_medidores_de_riesgo_siguen_a_la_economia(client):
     econ = economics.parcel_economics_data("AGC_003")
     rellenos = re.findall(r'<span class="meter__fill meter__fill--(\w+)" style="width: ([\d.]+)%"></span>', html)
     assert [(clase, float(ancho)) for clase, ancho in rellenos] == [
-        (LUCES[econ["light_costs"]][0], round(min(econ["prob_not_cover_costs"], 1) * 100, 1)),
         (LUCES[econ["light_credit"]][0], round(min(econ["prob_not_pay_credit"], 1) * 100, 1)),
     ]
     # Los cortes del semáforo se marcan en cada riel, en su posición
     cortes = econ["light_cuts"]
     for corte in (cortes["green_below"], cortes["red_from"]):
-        assert html.count(f'<span class="meter__cut" style="left: {corte * 100:.1f}%"></span>') == 2
+        assert html.count(f'<span class="meter__cut" style="left: {corte * 100:.1f}%"></span>') == 1
     # La explicación de los cortes queda en un solo lugar
     assert html.count(f"Bajo: menos de {formatting.percent(cortes['green_below'])}.") == 1
     assert "probabilidad de pérdida de la cosecha" in html
 
 
-def test_margen_negativo_con_signo_y_texto(client):
-    html = client.get("/parcela/AGC_003").get_data(as_text=True)
-    econ = economics.parcel_economics_data("AGC_003")
-    assert econ["margin_ha"] < 0
-    margen = "−" + formatting.money(econ["margin_ha"])[1:]
-    assert re.search(r'<div class="stat stat--negativo">\s*<dt class="stat__label">Margen esperado por hectárea</dt>\s*'
-                     rf'<dd class="stat__value">{re.escape(margen)}</dd>', html)
-    assert "Negativo: el ingreso esperado no cubre el costo total." in html
+def test_lo_que_queda_tras_el_credito_con_signo_y_texto(client):
+    # Con un precio bajo, el ingreso esperado no alcanza para el crédito: el negativo va con signo y con texto
+    html = client.get("/parcela/AGC_003", query_string={"price": "3000"}).get_data(as_text=True)
+    econ = economics.parcel_economics_data("AGC_003", price=3000)
+    queda = econ["income_ha"] - econ["cost_credit"]
+    assert queda < 0
+    texto = "−" + formatting.money(queda)[1:]
+    assert re.search(r'<div class="stat stat--negativo">\s*<dt class="stat__label">Queda después de pagar el crédito</dt>\s*'
+                     rf'<dd class="stat__value">{re.escape(texto)}</dd>', html)
+    assert "Negativo: el ingreso esperado no alcanza para pagar el crédito." in html
     assert "-$" not in html
+    # Con el precio del municipio sí alcanza
+    html = client.get("/parcela/AGC_003").get_data(as_text=True)
+    assert re.search(r'<div class="stat">\s*<dt class="stat__label">Queda después de pagar el crédito</dt>', html)
 
 
 def test_graficas_en_dos_anchos_con_ids_unicos(client):
@@ -527,7 +530,7 @@ def test_explicaciones_junto_a_su_dato(client):
     # El rango y lo que no cubre van justo bajo la barra de intervalo; el semáforo, bajo los medidores
     assert rendimiento.index('class="chart-figure"') < rendimiento.index("¿Qué significa el rango p10 a p90?")
     assert rendimiento.index("¿Qué no cubre el rango?") < rendimiento.index('class="confidence"')
-    assert economia.index('class="grid-2 risks"') < economia.index("¿Cómo se lee el semáforo?")
+    assert economia.index('class="risks"') < economia.index("¿Cómo se lee el semáforo?")
     # La forma en que sale la predicción abre la pestaña, antes de la cascada
     assert calculo.index("¿Cómo sale la predicción?") < calculo.index('class="chart-figure"')
     assert f"Con el precio de {formatting.money(econ['price'])} por tonelada eso son unos" in franja(html)
@@ -538,7 +541,7 @@ def test_economia_en_dos_capas(client):
     # Primera capa a la vista: indicadores y medidores; lo demás plegado en tres desplegables, en este orden
     plegados = re.findall(r'<details class="disclosure"[^>]*>\s*<summary>([^<]+)</summary>', economia)
     assert plegados == ["Ajustar precio y punto de equilibrio", "Ver detalle y supuestos", "Contexto del municipio"]
-    assert economia.index('class="grid-2 risks"') < economia.index('class="econ-more"')
+    assert economia.index('class="risks"') < economia.index('class="econ-more"')
     assert '<form class="price-form"' in desplegable(economia, "Ajustar precio y punto de equilibrio")
     assert '<table class="data">' in desplegable(economia, "Ver detalle y supuestos")
     assert 'class="stat-grid ctx"' in desplegable(economia, "Contexto del municipio")
@@ -569,17 +572,18 @@ def test_aviso_de_error_lleva_al_formulario(client):
     assert 'id="ajustar"' in panel(html, "economia")
 
 
-def test_semaforo_explica_por_que_casi_todas_salen_en_medio_o_alto(client):
-    # La ayuda del semáforo explica el costo total y el crédito, y dice cuál causa aplica a la parcela
+def test_semaforo_explica_la_causa_en_cada_parcela(client):
+    # La ayuda del semáforo explica el riesgo del crédito y dice cuál causa aplica a la parcela
     def explicacion(parcel_id):
         html = client.get(f"/parcela/{parcel_id}").get_data(as_text=True)
-        bloque = html[html.index("¿Por qué tantas parcelas salen en medio o alto?"):]
+        bloque = html[html.index("<summary>¿Cómo se lee el semáforo?</summary>"):]
         return " ".join(texto_visible(bloque[:bloque.index("</details>")]).split())
 
     # Singuilucan: el equilibrio del crédito queda a menos del error típico de la predicción
     singuilucan = explicacion("AGC_003")
-    assert "6.61 t/ha frente a una predicción de 3.66 t/ha" in singuilucan
+    assert "el crédito pide 3.50 t/ha y la predicción es de 3.66 t/ha" in singuilucan
     assert "la diferencia es menor que el error típico del modelo" in singuilucan
+    assert "costo total" not in singuilucan
     # Chignahuapan: la pérdida histórica del municipio pasa del corte de 10 %
     chignahuapan = explicacion("AGC_002")
     assert "así que no puede salir en bajo" in chignahuapan

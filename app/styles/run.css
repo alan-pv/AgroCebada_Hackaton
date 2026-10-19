@@ -403,10 +403,6 @@
   width: 28%;
 }
 
-.run .results-table .prob-col {
-  width: 8.5rem;
-}
-
 .run .results-table .conf-col {
   width: 9.5rem;
 }
@@ -645,14 +641,13 @@
     border: 0;
   }
 
-  /* Cada tarjeta: parcela y confianza arriba, la predicción con su barra y la probabilidad debajo */
+  /* Cada tarjeta: parcela y confianza arriba, la predicción con su barra debajo */
   .run .results-table tbody tr {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
       "parcela confianza"
-      "prediccion prediccion"
-      "probabilidad probabilidad";
+      "prediccion prediccion";
     gap: 0 0.75rem;
     margin-bottom: 0.75rem;
     padding: 0.6rem 0.85rem;
@@ -685,11 +680,6 @@
 
   .run .results-table .pred-col {
     grid-area: prediccion;
-  }
-
-  .run .results-table .prob-col {
-    grid-area: probabilidad;
-    width: auto;
   }
 
   /* Cada cifra muestra su etiqueta antes del valor: «Probabilidad bajo el umbral: 19 %».

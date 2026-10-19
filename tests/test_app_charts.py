@@ -252,7 +252,7 @@ def test_axis_extends_when_p10_is_below_1_5():
 def test_threshold_and_breakeven_have_labels():
     texts = _texts(charts.interval_bar(**INTERVAL_ARGS))
     assert "Umbral 2.5" in texts
-    assert "Equilibrio 3.9" in texts
+    assert "Crédito 3.9" in texts
     assert "Reportado 3.50" in texts
     assert "Predicción 3.66" in texts
     assert "Umbral" not in " ".join(_texts(charts.interval_bar(3.1, 3.7, 4.1)))

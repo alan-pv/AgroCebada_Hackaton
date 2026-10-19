@@ -107,7 +107,7 @@ La aplicación está publicada en https://agrocebada.alan-pv.com y no hace falta
 
 | Ruta | Qué muestra |
 |---|---|
-| `/` | Mapa de las parcelas por conjunto, rendimiento, predicción o riesgo, con la lista de las 59 ordenada por riesgo, y capas del modelo municipal con rendimiento esperado, probabilidad de rendimiento bajo y confianza |
+| `/` | Mapa con dos modelos. El de parcelas (datos de FIRA) colorea las 197 parcelas por conjunto, régimen, rendimiento, predicción o riesgo de no pagar el crédito, con la lista de las 59 ordenada por riesgo. El municipal (SIAP y clima) colorea los 486 municipios por rendimiento esperado, probabilidad de rendimiento bajo o confianza, con su propia lista y resumen por municipio |
 | `/parcela/<id>` | Ficha de la parcela con su intervalo, confianza, economía, desglose del modelo y serie de NDVI |
 | `/ejecutar` | Corre el modelo en vivo sobre parcelas del conjunto o parcelas nuevas por coordenadas o CSV |
 | `/metodologia` | Validación, cobertura, confianza, margen de azar e importancia de las variables |

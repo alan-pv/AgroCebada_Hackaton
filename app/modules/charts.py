@@ -344,7 +344,7 @@ def interval_bar(p10, pred, p90, observed=None, threshold=None, breakeven=None, 
     if threshold_value is not None:
         labels.append(_label(f"Umbral {_trimmed_decimals(threshold_value)}", x_of(threshold_value), "threshold"))
     if breakeven_value is not None:
-        labels.append(_label(f"Equilibrio {_trimmed_decimals(breakeven_value)}", x_of(breakeven_value), "breakeven"))
+        labels.append(_label(f"Crédito {_trimmed_decimals(breakeven_value)}", x_of(breakeven_value), "breakeven"))
 
     # Con dos líneas de referencia, la de la izquierda escribe a su izquierda y la de la derecha a su derecha,
     # así su texto no tapa la línea vecina. Si no cabe, el texto va centrado.
@@ -461,7 +461,7 @@ def interval_bar(p10, pred, p90, observed=None, threshold=None, breakeven=None, 
     if threshold_value is not None:
         parts.append(f"Umbral {_trimmed_decimals(threshold_value)} t/ha")
     if breakeven_value is not None:
-        parts.append(f"Equilibrio {_trimmed_decimals(breakeven_value)} t/ha")
+        parts.append(f"Rendimiento que paga el crédito {_trimmed_decimals(breakeven_value)} t/ha")
     description = ". ".join(parts) + "."
     return _svg(uid, y_axis + 26, "Rendimiento predicho (t/ha)", description, body, width)
 

@@ -15,10 +15,17 @@ Confianza. Columna `confianza` de cada municipio con predicción.
     temporal (agricola_ha > 0) y a no más de DIST_CONFIANZA_MEDIA_KM (25 km) de un municipio
     con SIAP.
   - "baja": el resto de los municipios con predicción.
-  Sin predicción (fuera del rango ambiental) queda vacía. Motivo: municipios boscosos y sin
-  tradición cebadera cerca de la Ciudad de México (Jilotzingo, Tlalmanalco, Huixquilucan)
-  salen arriba solo por ser frescos. El modelo de Tmax no sabe si ahí se siembra cebada, así
-  que su predicción vale menos que la de un municipio con historia o rodeado de ellos.
+  Los municipios fuera del rango ambiental son siempre "baja". Motivo: municipios boscosos y
+  sin tradición cebadera cerca de la Ciudad de México (Jilotzingo, Tlalmanalco, Huixquilucan)
+  salen arriba solo por ser frescos, o son tierras bajas y calientes donde la recta
+  extrapola. El modelo de Tmax no sabe si ahí se siembra cebada, así que su predicción vale
+  menos que la de un municipio con historia o rodeado de ellos.
+
+Fuera del rango ambiental. Todos los municipios tienen estimación. Fuera del rango se estima
+como un municipio sin datos cerca: solo la regresión sobre la Tmax, sin la corrección del
+kriging de residuos, y con los residuos de B = 50 km para el intervalo, aunque haya un
+municipio con SIAP a menos de DIST_CERCA_KM. La bandera `dentro_rango_ambiental` marca la
+extrapolación. Los valores se cortan en 0 por abajo.
 
 Escala. Se usa la escala global salvo que algún estado quede con cobertura menor a
 COBERTURA_MINIMA con B = 0 y la escala local la mejore (regla fijada antes de correr).
@@ -27,7 +34,7 @@ Escribe
   - outputs/generalizable_municipios.parquet y .gpkg: por municipio, esperado 2025, p10, p90
     y probabilidad bajo 2 t/ha, para el rendimiento oficial y sobre sembrada, con la historia
     propia del SIAP, la distancia al municipio con SIAP más cercano y dentro_dominio. Fuera
-    del rango ambiental de los municipios con SIAP los valores quedan vacíos.
+    del rango ambiental de los municipios con SIAP hay valores, marcados como extrapolación.
   - experimentos/generalizable/cobertura.csv: cobertura nominal 0.8 por estado, buffer y
     escala, ponderada por superficie sembrada y sin ponderar.
   - experimentos/generalizable/reto.csv y reto_resumen.json: nivel fuera de muestra de los
@@ -128,11 +135,10 @@ def distancia_siap(mun, d):
 
 def confianza(out):
     """Confianza "alta", "media" o "baja" de la predicción (criterio en el docstring del módulo)."""
-    con_pred = out.esperado.notna()
     media = (~out.con_siap & out.dentro_dominio & (out.agricola_ha > 0)
              & (out.dist_siap_km <= DIST_CONFIANZA_MEDIA_KM))
     c = np.select([out.con_siap, media], ["alta", "media"], "baja").astype(object)
-    c[~con_pred.to_numpy()] = None
+    c[~out.dentro_rango_ambiental.to_numpy()] = "baja"
     return pd.Series(c, index=out.index)
 
 
@@ -144,12 +150,26 @@ def capa(nombre, escala):
     d0 = M.tabla_modelado("rend")
     out["dist_siap_km"] = distancia_siap(mun, d0)
     out["con_siap"] = out.CVEGEO.isin(d0.CVEGEO)
-    lejos = out.dist_siap_km.to_numpy() > DIST_CERCA_KM
+    # Dominio: superficie agrícola suficiente, SIAP a una distancia validada y ambiente dentro
+    # del rango de los municipios de entrenamiento.
+    variables = sorted({c for cols, _ in M.SIMPLES.values() for c in cols})
+    ent = mun[mun.CVEGEO.isin(d0.CVEGEO)]
+    rango = np.all([(mun[c] >= ent[c].min()) & (mun[c] <= ent[c].max()) for c in variables], axis=0)
+    out["dentro_rango_ambiental"] = rango
+    out["dentro_dominio"] = (out.dist_siap_km <= DIST_DOMINIO_KM) & (out.agricola_ha >= 100) & rango
+    # Fuera del rango se estima como un municipio sin datos cerca. El kriging de residuos
+    # corrige con lo observado en los vecinos con SIAP, que tienen otro ambiente, así que la
+    # corrección se transfiere mal a donde la recta extrapola. Se usa solo la regresión (el
+    # modelo sin kriging) y los residuos de B = 50 km, que miden el error sin datos cerca,
+    # aunque haya un municipio con SIAP a menos de DIST_CERCA_KM.
+    base = nombre.removeprefix("kriging_residuos_")
+    f_base = M.modelo(base)
+    lejos = (out.dist_siap_km.to_numpy() > DIST_CERCA_KM) | ~rango
     out["residuos_de"] = np.where(lejos, "B=50", "B=0")
     for objetivo, suf in OBJETIVOS:
         d = M.tabla_modelado(objetivo)
         y = d.y.to_numpy()
-        pred = f(d, y, te)
+        pred = np.where(rango, f(d, y, te), f_base(d, y, te))
         out[f"esperado{suf}"] = pred
         for B, m in ((0, ~lejos), (50, lejos)):
             if not m.any():
@@ -167,20 +187,10 @@ def capa(nombre, escala):
         h, b = historia_propia(d)
         out = out.merge(h.add_suffix(suf), left_on="CVEGEO", right_index=True, how="left")
         out[f"tendencia{suf}"] = b
-    # Dominio: superficie agrícola suficiente, SIAP a una distancia validada y ambiente dentro
-    # del rango de los municipios de entrenamiento.
-    variables = sorted({c for cols, _ in M.SIMPLES.values() for c in cols})
-    ent = mun[mun.CVEGEO.isin(d0.CVEGEO)]
-    rango = np.all([(mun[c] >= ent[c].min()) & (mun[c] <= ent[c].max()) for c in variables], axis=0)
-    out["dentro_rango_ambiental"] = rango
-    out["dentro_dominio"] = (out.dist_siap_km <= DIST_DOMINIO_KM) & (out.agricola_ha >= 100) & rango
-    # Fuera del rango ambiental el modelo lineal extrapola (tierras bajas y calientes donde no
-    # se siembra cebada de temporal) y llega a dar rendimientos negativos. Ahí no se publica
-    # nada. Dentro del rango el rendimiento no puede ser negativo, así que se corta en 0.
+    # El rendimiento no puede ser negativo, así que se corta en 0.
     for _, suf in OBJETIVOS:
-        cols = [f"esperado{suf}", f"p10{suf}", f"p90{suf}", f"prob_bajo_2{suf}"]
-        out.loc[~rango, cols] = np.nan
-        out[cols[:3]] = out[cols[:3]].clip(lower=0)
+        cols = [f"esperado{suf}", f"p10{suf}", f"p90{suf}"]
+        out[cols] = out[cols].clip(lower=0)
     out["confianza"] = confianza(out)
     out["modelo"] = nombre
     out["escala"] = escala

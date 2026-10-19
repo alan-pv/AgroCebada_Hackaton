@@ -46,13 +46,13 @@ La app solo lee resultados ya generados. No corre el modelo.
 
 | Archivo | Contenido |
 |---|---|
-| `outputs/generalizable_municipios.parquet` | 486 municipios. 268 tienen estimación (`esperado`, `p10`, `p90`, `prob_bajo_2`) con `confianza`, `dentro_rango_ambiental`, `dentro_dominio`, `con_siap`, `dist_siap_km` y la historia del SIAP (`siap_media`, `siap_anios`, `siap_frac_bajo_2`, `tendencia`). Las columnas `*_sembrada` ponderan por superficie sembrada |
+| `outputs/generalizable_municipios.parquet` | 486 municipios, todos con estimación (`esperado`, `p10`, `p90`, `prob_bajo_2`) y `confianza`, `dentro_rango_ambiental`, `dentro_dominio`, `con_siap`, `dist_siap_km` y la historia del SIAP (`siap_media`, `siap_anios`, `siap_frac_bajo_2`, `tendencia`). Las columnas `*_sembrada` ponderan por superficie sembrada |
 | `outputs/generalizable_municipios.gpkg` | Lo mismo con los polígonos, capa `municipios` |
 | `outputs/municipal_mapa_clases.json` | Resumen del mapa del reporte en Hidalgo, Puebla y Tlaxcala (municipios con valor, confianza y rango) |
 | `outputs/municipal_cifras.json` | Cifras del reporte municipal, para repetirlas igual en la página de metodología |
 | `outputs/disimilitud.json` | Revisión de que los municipios sin SIAP se parecen en conjunto a los que sí tienen |
 
-Solo los 268 municipios dentro del rango ambiental de los que tienen SIAP reciben valores. Los demás son tierras bajas y calientes donde un modelo lineal extrapola. `dentro_dominio` (229 municipios) pide además SIAP a no más de 50 km y al menos 100 ha de temporal.
+Los 486 municipios reciben valores. En los 218 fuera del rango ambiental de los municipios con SIAP, que son tierras bajas y calientes donde un modelo lineal extrapola, la estimación se hace como la de un municipio sin datos cerca. Se usa solo la regresión sobre la Tmax, sin la corrección del kriging de residuos, y el intervalo sale de los residuos con zona de exclusión de 50 km, aunque haya un municipio con SIAP a menos de 30 km. Su confianza es siempre `baja` y `dentro_rango_ambiental` queda en falso para que la app los marque como extrapolación. Muchos salen en 0 t/ha porque la recta da valores negativos y se corta en 0. `dentro_dominio` (229 municipios) pide además SIAP a no más de 50 km y al menos 100 ha de temporal.
 
 ## Cómo se regenera
 

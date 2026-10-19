@@ -467,6 +467,11 @@ ol.steps li + li {
   margin-top: 1.5rem;
 }
 
+/* Un solo medidor (no pagar el crédito): no se estira a todo el ancho */
+.risks .meter {
+  max-width: 36rem;
+}
+
 .meter {
   min-width: 0;
   padding: 1rem 1.1rem;

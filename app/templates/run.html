@@ -22,21 +22,11 @@
          data-threshold-max="{{ threshold_max }}"
          data-threshold-default="{{ threshold_default }}">
 
-      {# Una sola tarjeta de entrada: el umbral arriba, común a los tres caminos, y una pestaña por camino.
+      {# Una sola tarjeta de entrada, con una pestaña por camino.
          Cada pestaña termina en su botón; los resultados van en su propia tarjeta, debajo #}
       <section class="card run-input" aria-labelledby="input-title">
         <div class="run-input__head">
           <h3 class="card__title" id="input-title">Parcelas a calcular</h3>
-          <div class="threshold-field">
-            <div class="threshold">
-              <label for="threshold">Umbral<span class="visually-hidden"> (t/ha)</span></label>
-              <input type="number" id="threshold" min="{{ threshold_min }}" max="{{ threshold_max }}" step="0.1"
-                     aria-describedby="threshold-help">
-              <span class="threshold__unit" aria-hidden="true">t/ha</span>
-            </div>
-            <p class="hint" id="threshold-help">Probabilidad de que el rendimiento quede por debajo de este valor. Vale para las tres pestañas.</p>
-            <div class="message" id="threshold-message" aria-live="polite"></div>
-          </div>
         </div>
 
         <div class="tabs" data-tabs aria-label="De dónde salen las parcelas">

@@ -47,7 +47,7 @@
         <p class="verdict__observed">Rendimiento reportado: {{ ficha.observed | number(2) }} t/ha</p>
         {% endif %}
       </div>
-      {# Confianza y los dos riesgos en pesos, cada uno con su cifra y su badge con texto #}
+      {# Confianza y el riesgo de no pagar el crédito, cada uno con su cifra y su badge con texto #}
       <dl class="stat-grid verdict__stats">
         <div class="stat stat--conf">
           <dt class="stat__label">Confianza</dt>
@@ -58,11 +58,6 @@
           <dt class="stat__label">Probabilidad de no pagar el crédito</dt>
           <dd class="stat__value">{{ view.credit_text }}</dd>
           <dd class="stat__badge"><span class="badge badge--{{ view.credit_class }}">{{ view.credit_label }}</span></dd>
-        </div>
-        <div class="stat">
-          <dt class="stat__label">Probabilidad de no cubrir los costos totales</dt>
-          <dd class="stat__value">{{ view.costs_text }}</dd>
-          <dd class="stat__badge"><span class="badge badge--{{ view.costs_class }}">{{ view.costs_label }}</span></dd>
         </div>
       </dl>
       <div class="verdict__foot">
@@ -75,7 +70,7 @@
         <details class="help-inline">
           <summary>¿Cuánto puede fallar el modelo?</summary>
           <div class="help-inline__body">
-            <p>El modelo se equivoca en promedio unas {{ view.error_t_ha }} t/ha. Con el precio de {{ econ.price | money }} por tonelada eso son unos {{ view.error_money }} por hectárea. Es el {{ view.error_cost }} del costo total y el {{ view.error_credit }} del crédito por hectárea. Por eso la predicción sirve para ordenar parcelas por riesgo, pero no para decidir sola sobre una parcela.</p>
+            <p>El modelo se equivoca en promedio unas {{ view.error_t_ha }} t/ha. Con el precio de {{ econ.price | money }} por tonelada eso son unos {{ view.error_money }} por hectárea. Es el {{ view.error_credit }} del crédito por hectárea. Por eso la predicción sirve para ordenar parcelas por riesgo, pero no para decidir sola sobre una parcela.</p>
           </div>
         </details>
       </div>
@@ -87,20 +82,17 @@
       <section class="tabs__panel" id="rendimiento" data-tab-label="Rendimiento">
         <div class="card">
           <h2 class="card__title">Rango de la predicción y confianza</h2>
-          <p class="below">Probabilidad de quedar por debajo de {{ ficha.threshold | number(1) }} t/ha: <strong>{{ view.prob_below }}</strong></p>
 
           <figure class="chart-figure">
-            {{ responsive_chart(interval_bar, ficha.p10, ficha.pred, ficha.p90, observed=ficha.observed, threshold=ficha.threshold, breakeven=econ.breakeven, uid="intervalo") }}
+            {{ responsive_chart(interval_bar, ficha.p10, ficha.pred, ficha.p90, observed=ficha.observed, breakeven=econ.breakeven_credit, uid="intervalo") }}
             <figcaption>
               <span class="legend" aria-hidden="true">
                 <span class="legend__item"><span class="key key--range"></span>Rango p10 a p90</span>
                 <span class="legend__item"><span class="key key--pred"></span>Predicción</span>
                 {% if ficha.observed is not none %}<span class="legend__item"><span class="key key--observed"></span>Reportado</span>{% endif %}
-                <span class="legend__item"><span class="key key--zone"></span>Por debajo del umbral</span>
-                <span class="legend__item"><span class="key key--threshold"></span>Umbral</span>
-                <span class="legend__item"><span class="key key--breakeven"></span>Equilibrio</span>
+                <span class="legend__item"><span class="key key--breakeven"></span>Paga el crédito</span>
               </span>
-              Barra del rango p10 a p90, con la predicción, el umbral de {{ ficha.threshold | number(1) }} t/ha{% if ficha.observed is not none %}, el rendimiento reportado{% endif %} y el equilibrio total de {{ econ.breakeven | number(2) }} t/ha, en t/ha.
+              Barra del rango p10 a p90, con la predicción{% if ficha.observed is not none %}, el rendimiento reportado{% endif %} y el rendimiento que paga el crédito, {{ econ.breakeven_credit | number(2) }} t/ha, en t/ha.
             </figcaption>
           </figure>
 
@@ -164,23 +156,22 @@
               <dd class="stat__note">Con el precio de {{ econ.price | money }} por tonelada.</dd>
             </div>
             <div class="stat">
-              <dt class="stat__label">Costo total por hectárea</dt>
-              <dd class="stat__value">{{ econ.cost_total | money }}</dd>
-              <dd class="stat__note">Paquete tecnológico de FIRA, actualizado a 2025.</dd>
+              <dt class="stat__label">Crédito por hectárea</dt>
+              <dd class="stat__value">{{ econ.cost_credit | money }}</dd>
+              <dd class="stat__note">Lo financiado más sus intereses, según el paquete de FIRA actualizado a 2025.</dd>
             </div>
-            <div class="stat{% if view.margin_negative %} stat--negativo{% endif %}">
-              <dt class="stat__label">Margen esperado por hectárea</dt>
-              <dd class="stat__value">{{ view.margin_text }}</dd>
-              <dd class="stat__note">{% if view.margin_negative %}Negativo: el ingreso esperado no cubre el costo total.{% else %}El ingreso esperado cubre el costo total.{% endif %}</dd>
+            <div class="stat{% if view.after_credit_negative %} stat--negativo{% endif %}">
+              <dt class="stat__label">Queda después de pagar el crédito</dt>
+              <dd class="stat__value">{{ view.after_credit_text }}</dd>
+              <dd class="stat__note">{% if view.after_credit_negative %}Negativo: el ingreso esperado no alcanza para pagar el crédito.{% else %}Ingreso esperado menos el crédito por hectárea.{% endif %}</dd>
             </div>
           </dl>
 
-          {# Medidores de riesgo: cifra, barra de 0 a 100 % con los cortes del semáforo y badge con texto #}
+          {# Medidor de riesgo: cifra, barra de 0 a 100 % con los cortes del semáforo y badge con texto #}
           {% set meters = [
-            ("costs", "Probabilidad de no cubrir los costos totales", view.costs_text, view.costs_pct, view.costs_class, view.costs_label, "Punto de equilibrio total: " ~ (econ.breakeven | number(2)) ~ " t/ha."),
-            ("credit", "Probabilidad de no pagar el crédito", view.credit_text, view.credit_pct, view.credit_class, view.credit_label, "Punto de equilibrio del crédito: " ~ (econ.breakeven_credit | number(2)) ~ " t/ha."),
+            ("credit", "Probabilidad de no pagar el crédito", view.credit_text, view.credit_pct, view.credit_class, view.credit_label, "Rendimiento que paga el crédito: " ~ (econ.breakeven_credit | number(2)) ~ " t/ha."),
           ] %}
-          <div class="grid-2 risks">
+          <div class="risks">
             {% for key, label, text, pct, css_class, light, note in meters %}
             <div class="meter">
               <h3 class="meter__label">{{ label }}<span class="visually-hidden">:</span> <span class="meter__value">{{ text }}</span></h3>
@@ -201,16 +192,12 @@
           <details class="help-inline">
             <summary>¿Cómo se lee el semáforo?</summary>
             <div class="help-inline__body">
-              <p>Mide la probabilidad de que la cosecha no cubra el costo total o no pague el crédito, con el precio que se elija. Bajo: menos de {{ view.cut_low }}. Medio: de {{ view.cut_low }} a menos de {{ view.cut_high }}. Alto: {{ view.cut_high }} o más. Es una señal para ordenar parcelas y abrir la conversación, no una probabilidad de incumplimiento.</p>
-              <p><strong>¿Por qué tantas parcelas salen en medio o alto?</strong> No significa que la predicción sea poco confiable: la confianza se mide aparte. Viene de los costos y precios que se usan por defecto.</p>
-              <ul>
-                <li><strong>Costo total.</strong> Con el costo y el precio por defecto, el punto de equilibrio total queda arriba del rendimiento esperado en casi todas las parcelas{% if econ.breakeven > ficha.pred %}; en esta, {{ econ.breakeven | number(2) }} t/ha frente a una predicción de {{ ficha.pred | number(2) }} t/ha{% endif %}. El costo es el paquete de FIRA de 2022 actualizado con la inflación general, e incluye la renta de la tierra y gastos que el crédito no financia. El precio es el medio rural del SIAP, que mezcla grano aceptado con grano vendido como forraje y queda abajo de los contratos reportados en la prensa, de 6,800 a 7,400 $ por tonelada.</li>
-                <li><strong>Crédito.</strong> A la probabilidad se le suma la pérdida histórica de la cosecha en el municipio. Donde esa pérdida pasa de {{ view.cut_low }}, ninguna parcela puede salir en bajo, aunque rinda bien. Y donde el punto de equilibrio del crédito queda arriba del rendimiento esperado, o a menos de lo que el modelo se equivoca en promedio, sale en medio o alto.{% if econ.prob_loss >= econ.light_cuts.green_below %} En esta parcela, la pérdida histórica del municipio es de {{ view.loss_text }}, así que no puede salir en bajo.{% elif econ.breakeven_credit > ficha.pred %} En esta parcela, el punto de equilibrio del crédito es de {{ econ.breakeven_credit | number(2) }} t/ha, arriba de la predicción de {{ ficha.pred | number(2) }} t/ha.{% elif ficha.pred - econ.breakeven_credit < econ.model_error.t_ha %} En esta parcela, el punto de equilibrio del crédito es de {{ econ.breakeven_credit | number(2) }} t/ha y la predicción de {{ ficha.pred | number(2) }} t/ha: la diferencia es menor que el error típico del modelo, de {{ view.error_t_ha }} t/ha.{% endif %}</li>
-              </ul>
-              <p>Si se conoce el costo o el precio real de la parcela, se puede cambiar en <a href="#ajustar">Ajustar precio y punto de equilibrio</a> y el semáforo se recalcula. Con los valores por defecto, el semáforo sirve sobre todo para comparar parcelas entre sí.</p>
+              <p>Es la probabilidad de que la cosecha no alcance para pagar el crédito de avío (lo financiado más sus intereses), con el precio que se elija. Bajo: menos de {{ view.cut_low }}. Medio: de {{ view.cut_low }} a menos de {{ view.cut_high }}. Alto: {{ view.cut_high }} o más. Es una señal para ordenar parcelas y abrir la conversación, no una probabilidad de incumplimiento.</p>
+              <p>Junta dos cosas. La pérdida histórica de la cosecha en el municipio, porque si la cosecha se pierde no hay con qué pagar. Y la probabilidad de que el rendimiento quede por debajo del que paga el crédito, según el error del modelo.{% if econ.prob_loss >= econ.light_cuts.green_below %} En esta parcela, el municipio pierde {{ view.loss_text }} de la cosecha, así que no puede salir en bajo aunque rinda bien.{% elif econ.breakeven_credit > ficha.pred %} En esta parcela, el crédito pide {{ econ.breakeven_credit | number(2) }} t/ha, más que la predicción de {{ ficha.pred | number(2) }} t/ha, sobre todo porque el precio del municipio es bajo.{% elif ficha.pred - econ.breakeven_credit < econ.model_error.t_ha %} En esta parcela, el crédito pide {{ econ.breakeven_credit | number(2) }} t/ha y la predicción es de {{ ficha.pred | number(2) }} t/ha: la diferencia es menor que el error típico del modelo, de {{ view.error_t_ha }} t/ha.{% endif %}</p>
+              <p>Si se conoce el precio real, se puede cambiar en <a href="#ajustar">Ajustar precio y punto de equilibrio</a> y el semáforo se recalcula.</p>
             </div>
           </details>
-          <p class="loss">La probabilidad de pérdida de la cosecha es de {{ view.loss_text }}. Es la parte de la superficie sembrada que el municipio perdió en {{ view.siap_years }}. Si el cultivo se pierde, el ingreso se supone en cero, y esa parte ya está incluida en las dos probabilidades de arriba.</p>
+          <p class="loss">La probabilidad de pérdida de la cosecha es de {{ view.loss_text }}. Es la parte de la superficie sembrada que el municipio perdió en {{ view.siap_years }}. Si el cultivo se pierde, el ingreso se supone en cero, y esa parte ya está incluida en la probabilidad de arriba.</p>
 
           {# Segunda capa, plegada: ajustar el precio, el detalle con sus fuentes y el contexto del municipio.
              El ajuste se abre si la URL trae price o breakeven; el formulario vuelve a esta pestaña con #economia #}
@@ -266,6 +253,14 @@
                         <td class="num">{{ econ.income_conservative_ha | money }}</td>
                       </tr>
                       <tr>
+                        <th scope="row">Crédito por hectárea (lo financiado más intereses)</th>
+                        <td class="num">{{ econ.cost_credit | money }}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Rendimiento que paga el crédito</th>
+                        <td class="num">{{ econ.breakeven_credit | number(2) }} t/ha</td>
+                      </tr>
+                      <tr>
                         <th scope="row">Costo total por hectárea</th>
                         <td class="num">{{ econ.cost_total | money }}</td>
                       </tr>
@@ -284,6 +279,7 @@
                     </tbody>
                   </table>
                 </div>
+                <p class="muted small">El costo total incluye la renta de la tierra, la aportación del productor y gastos que el crédito no financia. Por eso el margen sobre el costo total puede salir negativo aunque el crédito se pague: el productor que siembra su propia tierra no paga renta. Es un costo económico de referencia, no lo que se le presta.</p>
                 <p class="muted small">Los costos son los del paquete tecnológico de FIRA del ciclo primavera-verano 2022 (el más reciente público) para la zona de AgroCostos del municipio, actualizados a 2025 con el índice general de precios al consumidor de INEGI. Ese índice no sigue el precio de los insumos agrícolas, así que el costo real puede ser distinto: por eso el precio y el punto de equilibrio se pueden cambiar arriba. El precio es el precio medio rural del SIAP para el municipio, promedio 2023 a 2025 ponderado por producción.</p>
               </div>
             </details>

@@ -10,7 +10,7 @@ from app.modules import municipal
 
 ROOT = Path(__file__).resolve().parents[1]
 PROPERTIES = {"CVEGEO", "estado", "municipio", "esperado", "p10", "p90", "prob_bajo_2", "confianza",
-              "siap_media", "siap_anios", "siap_frac_bajo_2", "dist_siap_km", "con_siap",
+              "siap_media", "siap_anios", "siap_frac_bajo_2", "dist_siap_km", "con_siap", "agricola_ha",
               "dentro_rango_ambiental", "dentro_dominio", "modelo", "escala", "anio_referencia"}
 
 
@@ -46,20 +46,23 @@ def test_municipal_properties(municipios):
     assert all(set(f["properties"]) == PROPERTIES for f in municipios)
 
 
-def test_municipal_esperado_null_outside_range(municipios):
+def test_municipal_todos_con_estimacion(municipios):
     props = [f["properties"] for f in municipios]
-    assert sum(p["esperado"] is not None for p in props) == 268
-    assert sum(p["esperado"] is None for p in props) == 218
-    assert all((p["esperado"] is None) == (not p["dentro_rango_ambiental"]) for p in props)
+    assert sum(p["esperado"] is not None for p in props) == 486
+    assert all(p["p10"] is not None and p["p90"] is not None and p["prob_bajo_2"] is not None for p in props)
+    # Fuera del rango ambiental es extrapolación: se conserva la bandera
+    assert sum(not p["dentro_rango_ambiental"] for p in props) == 218
 
 
 def test_municipal_confianza_values(municipios):
-    assert all(f["properties"]["confianza"] in {"alta", "media", "baja", None} for f in municipios)
+    props = [f["properties"] for f in municipios]
+    assert all(p["confianza"] in {"alta", "media", "baja"} for p in props)
+    assert all(p["confianza"] == "baja" for p in props if not p["dentro_rango_ambiental"])
 
 
 def test_municipal_interval_and_probability(municipios):
-    props = [f["properties"] for f in municipios if f["properties"]["esperado"] is not None]
-    assert all(p["p10"] <= p["esperado"] <= p["p90"] for p in props)
+    props = [f["properties"] for f in municipios]
+    assert all(0 <= p["p10"] <= p["esperado"] <= p["p90"] for p in props)
     assert all(0 <= p["prob_bajo_2"] <= 1 for p in props)
 
 
@@ -82,3 +85,18 @@ def test_municipal_missing_file(client, monkeypatch, tmp_path):
     res = client.get("/api/municipal")
     assert res.status_code == 503
     assert "error" in res.get_json()
+
+
+def test_municipal_csv(client):
+    res = client.get("/api/municipal?format=csv")
+    assert res.status_code == 200
+    assert res.mimetype == "text/csv"
+    assert "attachment" in res.headers["Content-Disposition"]
+    lines = res.get_data(as_text=True).strip().splitlines()
+    # Encabezado con las propiedades de la API, sin geometría, y una fila por municipio
+    assert set(lines[0].split(",")) == PROPERTIES
+    assert len(lines) == 487
+
+
+def test_municipal_bad_format(client):
+    assert client.get("/api/municipal?format=xml").status_code == 400

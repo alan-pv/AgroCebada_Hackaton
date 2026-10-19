@@ -770,6 +770,27 @@
   border-color: #898781;
 }
 
+/* Municipio con parcelas del reto: contorno oscuro punteado, como en el mapa */
+.legend-swatch--reto {
+  border: 2px dashed #111111;
+}
+
+/* Confianza del modelo municipal: gama de verdes, más oscuro cuanto más confianza (igual que el mapa y la leyenda) */
+.badge--conf-alta {
+  background: #0b4f2e;
+  color: #ffffff;
+}
+
+.badge--conf-media {
+  background: #2f8553;
+  color: #ffffff;
+}
+
+.badge--conf-baja {
+  background: #b4dfbf;
+  color: #12331f;
+}
+
 /* Tooltip de la parcela: mini tarjeta con ID, cifra principal y filas etiqueta–valor */
 
 .leaflet-tooltip.parcel-tip {

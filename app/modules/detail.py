@@ -398,6 +398,13 @@ def _basis_text(econ, price, breakeven):
     return text + "."
 
 
+def _after_credit(econ):
+    # Ingreso esperado por hectárea menos el crédito por hectárea; None si falta alguno
+    if econ["income_ha"] is None or econ["cost_credit"] is None:
+        return None
+    return econ["income_ha"] - econ["cost_credit"]
+
+
 def _view(ficha, econ, breakeven, price=None, adjust_open=False):
     # Textos y cuentas de la página, en el orden en que aparecen
     costs_label, costs_class = LIGHTS.get(econ["light_costs"], ("Sin semáforo", "neutro"))
@@ -427,6 +434,9 @@ def _view(ficha, econ, breakeven, price=None, adjust_open=False):
         # Margen con su signo; si es negativo la página lo dice con texto, no solo con color
         "margin_text": _money_signed(econ["margin_ha"]),
         "margin_negative": econ["margin_ha"] is not None and econ["margin_ha"] < 0,
+        # Lo que queda del ingreso esperado tras pagar el crédito, con su signo
+        "after_credit_text": _money_signed(_after_credit(econ)),
+        "after_credit_negative": _after_credit(econ) is not None and _after_credit(econ) < 0,
         "loss_text": formatting.percent(econ["prob_loss"], 1),
         "cut_low": formatting.percent(cuts["green_below"]),
         "cut_high": formatting.percent(cuts["red_from"]),

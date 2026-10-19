@@ -194,8 +194,10 @@ def test_run_script_labels_result_cells(client):
     # Cada celda de la tabla de resultados lleva su etiqueta para la tarjeta del celular
     assert 'setAttribute("data-label", label)' in js
     assert "results-table" in js
-    for label in ("Parcela", "Predicción (t/ha)", "Probabilidad bajo el umbral", "Confianza"):
+    for label in ("Parcela", "Predicción (t/ha)", "Confianza"):
         assert f'"{label}"' in js
+    # La probabilidad bajo un umbral ya no se muestra: no dice más que la predicción
+    assert "Probabilidad bajo el umbral" not in js
     # Conjunto, Régimen y Estado de la lista llevan la clase que las oculta en el celular
     assert js.count('className: "hide-sm"') == 3
 
@@ -233,9 +235,8 @@ def test_run_page_custom_controls_stay_accessible(client):
     # El selector de archivo propio: el campo nativo sigue en la página, con etiqueta en español
     assert 'id="csv-file" class="visually-hidden"' in html
     assert '<label for="csv-file"' in html and "Ningún archivo seleccionado" in html
-    # El umbral conserva su unidad en el nombre accesible y su ayuda
-    assert 'aria-describedby="threshold-help"' in html
-    assert '<span class="visually-hidden"> (t/ha)</span>' in html
+    # Ya no hay campo de umbral
+    assert 'id="threshold"' not in html
     js = client.get("/scripts/run.js").get_data(as_text=True)
     # La barra de rango se lee como imagen con sus valores en texto
     assert 'setAttribute("role", "img")' in js
@@ -254,17 +255,12 @@ def test_run_page_has_one_tab_per_path(client):
     panels = html.split('class="tabs__panel"')[1:]
     for panel, button in zip(panels, ("run-button", "new-submit", "csv-run")):
         assert f'id="{button}"' in panel
-    # Ningún texto remite a otra tarjeta: el umbral es común a las tres pestañas
+    # Ningún texto remite a otra tarjeta
     assert "tarjeta anterior" not in html
 
 
-def test_run_page_threshold_is_shared_and_results_are_outside_tabs(client):
+def test_run_page_results_are_outside_tabs(client):
     html = client.get("/ejecutar").get_data(as_text=True)
-    tabs_start = html.index('class="tabs" data-tabs')
-    # El umbral va arriba de las pestañas, con su ayuda y su aviso de error junto al campo
-    assert html.index('id="threshold"') < tabs_start
-    assert html.index('id="threshold-help"') < tabs_start
-    assert 'id="threshold-message" aria-live="polite"' in html
     # Los resultados van después de la última pestaña, fuera de ellas
     assert html.index('id="results"') > html.index('id="csv-message"')
     assert 'class="tabs__panel"' not in html[html.index('id="results"'):]
@@ -282,19 +278,19 @@ def test_run_script_results_rows_open_the_parcel_page(client):
     assert "intervalo p10–p90 de" in js
     # Al terminar, la vista se lleva a los resultados si quedaron abajo
     assert "scrollIntoView" in js
-    # El CSV de descarga conserva todas sus columnas
+    # El CSV de descarga, sin probabilidad ni umbral
     columns = js[js.index("const RESULT_COLUMNS = ["):]
     columns = re.findall(r'"(\w+)"', columns[:columns.index("];")])
-    assert columns == ["id", "state", "municipality", "set", "pred", "p10", "p90", "prob_below",
-                       "confidence", "neighbors_400m", "nearest_neighbor_m", "threshold", "model_version"]
+    assert columns == ["id", "state", "municipality", "set", "pred", "p10", "p90",
+                       "confidence", "neighbors_400m", "nearest_neighbor_m", "model_version"]
 
 
 def test_run_css_results_cards_on_phones(client):
     css = client.get("/styles/run.css").get_data(as_text=True)
     block = mobile_block(css)
-    # Cada tarjeta del celular acomoda parcela, confianza, predicción y probabilidad en una rejilla
+    # Cada tarjeta del celular acomoda parcela, confianza y predicción en una rejilla
     assert "grid-template-areas" in block
-    for area in ("parcela", "confianza", "prediccion", "probabilidad"):
+    for area in ("parcela", "confianza", "prediccion"):
         assert f"grid-area: {area}" in block
     # Botones de cada pestaña a todo el ancho y de 44 px
     assert ".run-bar__action" in block

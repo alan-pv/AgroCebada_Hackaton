@@ -45,32 +45,31 @@ def test_map_div_has_data_urls(client):
     assert client.get("/styles/map.css").status_code == 200
 
 
-def test_layer_select_has_eight_options(client):
+def test_layer_select_groups_the_two_models(client):
     html = client.get("/").get_data(as_text=True)
     select = re.search(r'<select id="layer">(.*?)</select>', html, re.S)
     assert select
-    values = re.findall(r'<option value="([^"]*)"', select.group(1))
-    assert values == ["set", "yield", "pred", "risk_costs", "risk_credit", "mun-esperado", "mun-riesgo", "mun-confianza"]
-    # Agrupadas en «Datos», «Riesgo» y «Modelo municipal»; los valores (y el hash #layer=...) no cambian
+    # Dos grupos, uno por modelo: el de parcelas (datos de FIRA) y el municipal (SIAP y clima)
     groups = re.findall(r'<optgroup label="([^"]+)">(.*?)</optgroup>', select.group(1), re.S)
     assert [(label, re.findall(r'value="([^"]*)"', body)) for label, body in groups] == [
-        ("Datos", ["set", "yield", "pred"]),
-        ("Riesgo", ["risk_costs", "risk_credit"]),
-        ("Modelo municipal", ["mun-esperado", "mun-riesgo", "mun-confianza"]),
+        ("Modelo de parcelas (datos FIRA)", ["set", "regime", "yield", "pred", "risk_credit"]),
+        ("Modelo municipal (SIAP y clima)", ["mun-esperado", "mun-confianza"]),
     ]
+    # El riesgo de no cubrir costos ya no es una capa
+    assert "risk_costs" not in html
 
 
-def test_download_group_has_two_links(client):
+def test_download_group_has_three_links(client):
     html = client.get("/").get_data(as_text=True)
     group = re.search(r'<div class="download"[^>]*>(.*?)</div>', html, re.S)
     assert group
     links = re.findall(r"<a ([^>]*)>([^<]+)</a>", group.group(1))
-    assert len(links) == 2
+    assert len(links) == 3
     # Ambos enlaces descargan el archivo y tienen texto claro
     assert all(re.search(r"\sdownload(\s|$)", attrs) for attrs, _ in links)
-    assert [text for _, text in links] == ["Predicciones (CSV)", "Economía por parcela (CSV)"]
+    assert [text for _, text in links] == ["Predicciones (CSV)", "Economía por parcela (CSV)", "Modelo municipal (CSV)"]
     hrefs = [re.search(r'href="([^"]+)"', attrs).group(1) for attrs, _ in links]
-    assert hrefs == ["/api/predictions?format=csv", "/api/economics?format=csv"]
+    assert hrefs == ["/api/predictions?format=csv", "/api/economics?format=csv", "/api/municipal?format=csv"]
 
 
 def test_toolbar_toggle_stats_and_count(client):
@@ -86,8 +85,9 @@ def test_toolbar_toggle_stats_and_count(client):
     panel = re.search(r'<div id="filters"[^>]*>(.*?)</div>', html, re.S).group(1)
     assert all(f'<select id="{name}"' in panel for name in ("layer", "state", "municipality"))
     # Cuatro indicadores con cifra y nota, que el script llena
+    # (el script cambia sus rótulos con el modelo)
     for key in ("shown", "to-predict", "pred-mean", "risk"):
-        assert f"stat-{key}" in by_id and f"stat-{key}-note" in by_id
+        assert f"stat-{key}" in by_id and f"stat-{key}-note" in by_id and f"stat-{key}-label" in by_id
     assert "Parcelas con riesgo alto de no pagar el crédito" in html
     # El contador sigue anunciando los cambios
     assert by_id["count"][1]["aria-live"] == "polite"
@@ -100,7 +100,9 @@ def test_map_js_is_javascript_without_hardcoded_api_paths(client):
     js = res.get_data(as_text=True)
     # Las rutas de la API salen de los data-*-url de la página, no de cadenas escritas en el script
     assert '"/api/' not in js and "'/api/" not in js
-    assert "risk_costs" in js and "risk_credit" in js
+    assert "risk_credit" in js and "regime" in js
+    # La vista municipal tiene su propia lista y resumen
+    assert "municipalSummaryHtml" in js and "municipalRowHtml" in js
 
 
 def test_index_paths_keep_mount_point(client):
@@ -110,6 +112,7 @@ def test_index_paths_keep_mount_point(client):
     assert all(p.startswith(("/sub/", "https://")) for p in paths)
     # Las rutas nuevas del mapa también siguen el prefijo
     assert 'data-economics-url="/sub/api/economics"' in html
+    assert 'data-municipal-url="/sub/api/municipal"' in html
     assert 'data-detail-url="/sub/parcela/__ID__"' in html
     assert 'data-detail-api-url="/sub/api/parcels/__ID__"' in html
     assert 'href="/sub/api/predictions?format=csv"' in html
@@ -175,7 +178,8 @@ def test_side_panel_structure(client):
     assert by_id["plist-title"][1]["tabindex"] == "-1"
     assert by_id["plist-items"][0] == "ol"
     sort = re.search(r'<select id="plist-sort">(.*?)</select>', html, re.S)
-    assert re.findall(r'<option value="([^"]*)"', sort.group(1)) == ["credit", "costs", "pred"]
+    # Las opciones iniciales son las del modelo de parcelas; el script pone las del municipal al cambiar de modelo
+    assert re.findall(r'<option value="([^"]*)"', sort.group(1)) == ["credit", "pred"]
     # Vista de resumen: oculta al inicio, con «Volver a la lista»
     assert "hidden" in by_id["panel-parcel"][1]
     assert by_id["psum-back"][0] == "button" and "Volver a la lista" in html
@@ -184,6 +188,8 @@ def test_side_panel_structure(client):
     assert len(closes) == 2 and all(a.get("aria-label") for a in closes)
     # La ayuda del semáforo va junto a la lista
     assert "¿Cómo se lee el semáforo?" in html
+    # Y la del modelo municipal, oculta hasta que se elige una de sus capas
+    assert "hidden" in by_id["help-municipal"][1] and "hidden" not in by_id["help-parcels"][1]
 
 
 def test_map_js_panel_uses_page_urls_and_keyboard(client):
