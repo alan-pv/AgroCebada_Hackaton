@@ -9,7 +9,7 @@
 Equipo Los Bien Dotados · Facultad de Ciencias de la Computación, BUAP · Reto AgroCebada FIRA 2026
 
 [![Aplicación en línea](https://img.shields.io/badge/aplicación-en_línea-2e7d32?style=for-the-badge)](https://agrocebada.alan-pv.com)
-[![Video de 5 minutos](https://img.shields.io/badge/video-YouTube-c4302b?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=yJ8qb2OXo2Q)
+[![Video de 5 minutos](https://img.shields.io/badge/video-YouTube-c4302b?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=4YK2Fag8Y2g)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-3776ab?style=for-the-badge&logo=python&logoColor=white)](docs/INSTALACION.md)
 [![397 pruebas con pytest](https://img.shields.io/badge/pruebas-397_con_pytest-6a737d?style=for-the-badge&logo=pytest&logoColor=white)](tests)
 
@@ -53,7 +53,7 @@ El modelo de parcelas solo sirve donde hay parcelas con rendimiento cerca. Busca
 
 ## Aplicación
 
-[![Video de presentación en YouTube](https://img.youtube.com/vi/yJ8qb2OXo2Q/maxresdefault.jpg)](https://www.youtube.com/watch?v=yJ8qb2OXo2Q)
+[![Video de presentación en YouTube](https://img.youtube.com/vi/4YK2Fag8Y2g/maxresdefault.jpg)](https://www.youtube.com/watch?v=4YK2Fag8Y2g)
 
 | Mapa de parcelas | Mapa municipal |
 |---|---|
