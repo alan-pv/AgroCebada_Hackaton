@@ -10,6 +10,7 @@ data/processed/             tablas generadas de las parcelas
 data/processed/generalizable/  tablas generadas del modelo municipal
 docs/                       documentación técnica
 docs/reportes/              reportes en PDF y texto de la plataforma
+docs/imagenes/              capturas y recorridos de la aplicación para el README
 models/                     modelo final de parcelas entrenado
 outputs/parcelas/           predicciones de la entrega, capa de crédito y valores SHAP
 outputs/generalizable/      capa municipal que muestra la app
