@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PROPERTIES = {"CVEGEO", "estado", "municipio", "esperado", "p10", "p90", "prob_bajo_2", "confianza",
               "siap_media", "siap_anios", "siap_frac_bajo_2", "dist_siap_km", "con_siap", "agricola_ha",
               "tmax_jul_ago", "tmax_media", "pendiente_tmax", "parte_media", "parte_tmax", "parte_vecinos",
-              "esperado_sin_corte",
+              "esperado_sin_corte", "dist_datos_km", "error_tipico", "elev_m",
               "dentro_rango_ambiental", "dentro_dominio", "modelo", "escala", "anio_referencia"}
 
 
@@ -33,14 +33,14 @@ def test_municipal_geojson(client):
     assert res.headers["Cache-Control"] == "public, max-age=3600"
     data = res.get_json()
     assert data["type"] == "FeatureCollection"
-    assert len(data["features"]) == 486
+    assert len(data["features"]) == 361
     # NaN no es JSON válido: debe salir como null
     assert "NaN" not in res.get_data(as_text=True)
 
 
 def test_municipal_cvegeo_unique(municipios):
     ids = [f["properties"]["CVEGEO"] for f in municipios]
-    assert len(set(ids)) == 486
+    assert len(set(ids)) == 361
     assert all(len(i) == 5 and i.isdigit() for i in ids)
 
 
@@ -50,10 +50,10 @@ def test_municipal_properties(municipios):
 
 def test_municipal_todos_con_estimacion(municipios):
     props = [f["properties"] for f in municipios]
-    assert sum(p["esperado"] is not None for p in props) == 486
+    assert sum(p["esperado"] is not None for p in props) == 361
     assert all(p["p10"] is not None and p["p90"] is not None and p["prob_bajo_2"] is not None for p in props)
     # Fuera del rango ambiental es extrapolación: se conserva la bandera
-    assert sum(not p["dentro_rango_ambiental"] for p in props) == 218
+    assert sum(not p["dentro_rango_ambiental"] for p in props) == 193
 
 
 def test_municipal_confianza_values(municipios):
@@ -97,7 +97,7 @@ def test_municipal_csv(client):
     lines = res.get_data(as_text=True).strip().splitlines()
     # Encabezado con las propiedades de la API, sin geometría, y una fila por municipio
     assert set(lines[0].split(",")) == PROPERTIES
-    assert len(lines) == 487
+    assert len(lines) == 362
 
 
 def test_municipal_bad_format(client):
@@ -120,5 +120,19 @@ def test_municipal_states(client):
     res = client.get("/api/municipal/estados")
     assert res.status_code == 200
     features = res.get_json()["features"]
-    assert sorted(f["properties"]["estado"] for f in features) == ["Hidalgo", "México", "Puebla", "Tlaxcala"]
+    assert sorted(f["properties"]["estado"] for f in features) == ["Hidalgo", "Puebla", "Tlaxcala"]
     assert all(isinstance(f["properties"]["label_lon"], float) for f in features)
+
+
+def test_municipal_only_challenge_states(municipios):
+    # La app solo muestra los estados del reto
+    assert {f["properties"]["estado"] for f in municipios} == {"Hidalgo", "Puebla", "Tlaxcala"}
+
+
+def test_municipal_typical_error(municipios):
+    # Error típico validado según la distancia a datos: menor con datos propios; sin cifra en las extrapolaciones
+    props = [f["properties"] for f in municipios]
+    assert all((p["error_tipico"] is None) == (not p["dentro_rango_ambiental"]) for p in props)
+    con = [p["error_tipico"] for p in props if p["con_siap"]]
+    otros = [p["error_tipico"] for p in props if not p["con_siap"] and p["error_tipico"] is not None]
+    assert max(con) <= min(otros)

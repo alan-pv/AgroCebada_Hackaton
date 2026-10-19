@@ -53,7 +53,7 @@ def test_layer_select_groups_the_two_models(client):
     groups = re.findall(r'<optgroup label="([^"]+)">(.*?)</optgroup>', select.group(1), re.S)
     assert [(label, re.findall(r'value="([^"]*)"', body)) for label, body in groups] == [
         ("Modelo de parcelas (datos FIRA)", ["set", "regime", "yield", "pred", "risk_credit"]),
-        ("Modelo municipal (SIAP y clima)", ["mun-esperado", "mun-confianza"]),
+        ("Modelo municipal (SIAP y clima)", ["mun-esperado", "mun-confianza", "mun-tmax", "mun-elev"]),
     ]
     # El riesgo de no cubrir costos ya no es una capa
     assert "risk_costs" not in html

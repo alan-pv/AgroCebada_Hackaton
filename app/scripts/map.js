@@ -73,10 +73,15 @@ const MUN_YIELD_SCALE = [
   [0, "#eef4fc"], [0.5, "#cde2fb"], [1, "#9ec5f4"], [1.5, "#6da7ec"], [2, "#3987e5"],
   [2.5, "#256abf"], [3, "#184f95"], [3.3, "#0d366b"],
 ];
-// Confianza: cercanía a datos del SIAP en km (0 = el municipio tiene datos propios), verdes de oscuro (cerca) a claro (lejos).
-// Las extrapolaciones toman el extremo claro
-const MUN_DISTANCE_SCALE = [[0, "#0b4f2e"], [12, "#1d6b40"], [25, "#2f8553"], [40, "#7cc192"], [60, "#e3f2e7"]];
-const MUN_DISTANCE_MAX = 60;
+// Confianza: error típico esperado en t/ha, validado según la distancia a datos del SIAP. Verde oscuro con el error menor
+// (datos propios, ±0.29) a verde claro con el mayor (±0.44, sin datos a 40 km o más); las extrapolaciones, fuera de lo
+// validado, van en el verde más claro
+const MUN_ERROR_SCALE = [[0.29, "#0b4f2e"], [0.33, "#1d6b40"], [0.37, "#3f9460"], [0.41, "#8fcaa1"], [0.45, "#e3f2e7"]];
+const MUN_ERROR_MAX = 0.45;
+// Temperatura máxima de julio y agosto (°C): rojos, del más fresco (claro) al más caliente (oscuro)
+const MUN_TMAX_SCALE = [[22.5, "#fdeee9"], [24, "#f9c9b8"], [26, "#f19378"], [28, "#de5a43"], [31, "#b42a20"], [35, "#6e1410"]];
+// Elevación media de la zona agrícola (m): cafés, de lo bajo (claro) a lo alto (oscuro)
+const MUN_ELEV_SCALE = [[0, "#f6efe6"], [800, "#e3cfb4"], [1600, "#c49a6c"], [2200, "#94673d"], [2900, "#4e3218"]];
 // Confianza del modelo: una sola gama de verdes, más oscuro cuanto más confianza; badge es la clase del mismo verde en map.css
 const MUN_CONFIDENCE_CLASSES = [
   { key: "alta", label: "Confianza alta", color: "#0b4f2e", badge: "badge--conf-alta" },
@@ -105,13 +110,18 @@ const RETO_PANE = "reto";
 const MUN_LAYERS = new Map([
   ["mun-esperado", { title: "Rendimiento esperado (t/ha)", scale: MUN_YIELD_SCALE, ticks: [0, 1, 2, 3],
                      low: "Menos rendimiento", high: "Más rendimiento" }],
-  ["mun-confianza", { title: "Confianza: cercanía a datos del SIAP", scale: MUN_DISTANCE_SCALE, ticks: [0, 20, 40, 60],
-                      low: "Datos propios", high: "60 km o más, o extrapolación", reverse: true }],
+  ["mun-confianza", { title: "Confianza: error típico esperado (t/ha)", scale: MUN_ERROR_SCALE, ticks: [0.29, 0.37, 0.45],
+                      tick: (t) => `±${formatNumber(t, 2)}`, reverse: true,
+                      low: "Más confianza", high: "Menos confianza o extrapolación" }],
+  ["mun-tmax", { title: "Temperatura máx. de julio y agosto (°C)", scale: MUN_TMAX_SCALE, ticks: [23, 26, 29, 32, 35],
+                 tick: (t) => `${t} °C`, low: "Más fresco", high: "Más caliente" }],
+  ["mun-elev", { title: "Elevación de la zona agrícola (m)", scale: MUN_ELEV_SCALE, ticks: [0, 1000, 2000, 2900],
+                 tick: (t) => formatNumber(t, 0), low: "Tierras bajas", high: "Altiplano" }],
 ]);
 // Contornos y nombres de los estados, encima de los colores de los municipios
 const STATES_PANE = "estados";
 const STATE_LABELS_PANE = "estados-nombres";
-const STATE_OUTLINE = { color: "#ffffff", weight: 2.5, opacity: 1, fill: false };
+const STATE_OUTLINE = { color: "#111111", weight: 2.5, opacity: 0.9, fill: false };
 
 // Órdenes de la lista del panel, de cada modelo. by dice cómo van ordenadas en el título de la hoja del celular
 const SORTS = {
@@ -923,20 +933,20 @@ function scaleColor(scale, value) {
   return `#${a.map((x, k) => Math.round(x + (b[k] - x) * t).toString(16).padStart(2, "0")).join("")}`;
 }
 
-// Cercanía a datos del SIAP en km, como la mide la confianza: 0 si el municipio tiene datos propios; en confianza baja,
-// al menos 25 km (aunque esté cerca, le falta agricultura de temporal); las extrapolaciones, al máximo de la escala
-function dataDistance(p) {
-  if (p.con_siap) return 0;
-  if (isExtrapolation(p)) return MUN_DISTANCE_MAX;
-  const km = typeof p.dist_siap_km === "number" ? p.dist_siap_km : MUN_DISTANCE_MAX;
-  return p.confianza === "baja" ? Math.max(km, 25) : km;
-}
-
-// Color de un municipio en la capa activa; null si no tiene estimación
+// Color de un municipio en la capa activa; null si no tiene el valor
 function municipalColor(mode, p) {
+  if (mode === "mun-tmax") return typeof p.tmax_jul_ago === "number" ? scaleColor(MUN_TMAX_SCALE, p.tmax_jul_ago) : null;
+  if (mode === "mun-elev") return typeof p.elev_m === "number" ? scaleColor(MUN_ELEV_SCALE, p.elev_m) : null;
   if (!hasEstimate(p)) return null;
   if (mode === "mun-esperado") return scaleColor(MUN_YIELD_SCALE, p.esperado);
-  return scaleColor(MUN_DISTANCE_SCALE, dataDistance(p));
+  return scaleColor(MUN_ERROR_SCALE, typeof p.error_tipico === "number" ? p.error_tipico : MUN_ERROR_MAX);
+}
+
+// Error típico esperado en texto: «±0.29 t/ha» y qué parte del estimado es; en una extrapolación, fuera de lo validado
+function errorText(p, withShare = true) {
+  if (typeof p.error_tipico !== "number") return "Sin cifra validada (extrapolación)";
+  const share = withShare && p.esperado > 0 ? ` <span class="muted">(${formatNumber((p.error_tipico / p.esperado) * 100, 0)} % del estimado)</span>` : "";
+  return `±${formatNumber(p.error_tipico, 2)} t/ha${share}`;
 }
 
 // Pide el modelo municipal la primera vez que se elige una de sus capas; si falló, se vuelve a pedir al volver a elegirla
@@ -978,7 +988,10 @@ function municipalTooltipHtml(p) {
       + `<p class="tip__caption">${p.esperado === 0 ? MUN_NOT_SUITABLE : "Rendimiento esperado (escala del SIAP)"}</p>`;
     if (p.p90 > 0) rows.push(tipRow("Intervalo p10 a p90", `${formatNumber(p.p10, 2)} a ${formatNumber(p.p90, 2)} t/ha`));
     rows.push(tipRow("Confianza", municipalConfidenceBadge(p.confianza)));
+    rows.push(tipRow("Error típico esperado", errorText(p, false)));
   }
+  if (typeof p.tmax_jul_ago === "number") rows.push(tipRow("Tmax jul-ago", `${formatNumber(p.tmax_jul_ago, 1)} °C`));
+  if (typeof p.elev_m === "number") rows.push(tipRow("Elevación", `${formatNumber(p.elev_m, 0)} m`));
   if (p.con_siap) rows.push(tipRow("Media del SIAP", `${formatNumber(p.siap_media, 2)} t/ha en ${p.siap_anios} años`));
   if (p.reto) rows.push(tipRow("Parcelas del reto", "Tiene parcelas del reto"));
   return '<div class="tip">'
@@ -1012,19 +1025,25 @@ function municipalLegendHtml(mode, selected) {
   if (counts.get(null)) rows.push(legendRow(MUN_NO_ESTIMATE.color, "Sin estimación", counts.get(null), "legend-swatch--no-data"));
   rows.push(legendRow("transparent", "Con parcelas del reto", selected.filter((f) => f.properties.reto).length, "legend-swatch--reto"));
   const year = municipalFeatures[0]?.properties.anio_referencia;
+  // Temperatura y elevación: de dónde vienen las diferencias de clima entre municipios
+  if (mode === "mun-tmax" || mode === "mun-elev") {
+    return legendHtml(title, rows, "Promedio de la zona agrícola de cada municipio. La temperatura sigue a la altura: el "
+      + "altiplano, arriba de 2,000 m, es fresco; la Huasteca, la Sierra Norte bajando al Golfo y el sur de Puebla son bajos y "
+      + "calientes. Cada municipio lleva un solo valor, por eso el cambio se ve en escalones.", "Municipios");
+  }
   const note = `Escala del SIAP${year ? `, año de referencia ${year}` : ""}. No se compara con la predicción de las parcelas.`
     + (selected.some((f) => isExtrapolation(f.properties)) ? " Los municipios con clima fuera del rango del SIAP son extrapolaciones." : "");
   return legendHtml(title, rows, note, "Municipios");
 }
 
 // Barra de degradado de una escala continua, con sus marcas y qué significa cada extremo
-function gradientHtml({ scale, ticks, low, high, reverse }) {
+function gradientHtml({ scale, ticks, tick, low, high }) {
   const min = scale[0][0];
   const max = scale[scale.length - 1][0];
   const at = (v) => ((v - min) / (max - min)) * 100;
   const stops = scale.map(([v, c]) => `${c} ${at(v)}%`).join(", ");
-  const tickText = (t, i) => (reverse ? `${t}${i === ticks.length - 1 ? "+" : ""} km` : formatNumber(t, 0));
-  const marks = ticks.map((t, i) => `<span style="left:${at(t)}%">${tickText(t, i)}</span>`).join("");
+  const tickText = tick ?? ((t) => formatNumber(t, 0));
+  const marks = ticks.map((t) => `<span style="left:${at(t)}%">${tickText(t)}</span>`).join("");
   return `<div class="legend-gradient"><div class="legend-gradient__bar" style="background:linear-gradient(to right, ${stops})"></div>`
     + `<div class="legend-gradient__ticks">${marks}</div>`
     + `<div class="legend-gradient__ends"><span>${low}</span><span>${high}</span></div></div>`;
@@ -1041,7 +1060,7 @@ function linear([d0, d1], [r0, r1]) {
 // vecinos con SIAP y el total. Lo que suma va en azul y lo que resta en rojo; el texto dice el signo, no solo el color
 function municipalBreakdownSvg(p) {
   const steps = [
-    { label: "Promedio regional", value: p.parte_media, from: 0, kind: "base" },
+    { label: "Punto de partida", value: p.parte_media, from: 0, kind: "base" },
     { label: `Temperatura (${formatNumber(p.tmax_jul_ago, 1)} °C)`, value: p.parte_tmax, from: p.parte_media },
     { label: isExtrapolation(p) ? "Vecinos con SIAP (no se usa)" : "Vecinos con SIAP", value: p.parte_vecinos,
       from: p.parte_media + p.parte_tmax },
@@ -1068,7 +1087,7 @@ function municipalBreakdownSvg(p) {
     const y = i * row;
     const color = st.kind === "base" ? "#9ec5f4" : (st.value >= 0 ? "#2a78d6" : "#d03b3b");
     body += bar(y, st.from, st.from + st.value, color, `${st.label}: ${formatNumber(st.value, 2)} t/ha`)
-      + text(y, st.label, st.value, st.kind !== "base");
+      + text(y, st.label, st.value, true);
   });
   const yt = steps.length * row + 6;
   body += `<line x1="${labelW}" x2="${W}" y1="${yt - 3}" y2="${yt - 3}" class="mchart__rule"/>`;
@@ -1078,7 +1097,11 @@ function municipalBreakdownSvg(p) {
   const h = yt + row;
   const note = total < 0
     ? `<p class="mchart__note">La suma da −${formatNumber(Math.abs(total), 2)} t/ha. Un rendimiento no puede ser negativo, así que se muestra 0.</p>` : "";
-  return `<figure class="mchart"><figcaption class="mchart__title">¿De dónde sale el número? (t/ha)</figcaption>`
+  const intro = `<p class="mchart__note mchart__intro">Todos los municipios parten del mismo número: el rendimiento promedio de los `
+    + `municipios con SIAP, ${formatNumber(p.parte_media, 2)} t/ha en 2025. La temperatura lo sube si el municipio es más fresco `
+    + `que ese promedio (${formatNumber(p.tmax_media, 1)} °C) y lo baja si es más caliente. Al final, los vecinos con SIAP corrigen `
+    + "lo que la temperatura no explica.</p>";
+  return `<figure class="mchart"><figcaption class="mchart__title">¿De dónde sale el número? (t/ha)</figcaption>${intro}`
     + `<svg viewBox="0 0 ${W} ${h}" width="100%" role="img" aria-label="Promedio regional ${formatNumber(p.parte_media, 2)}, `
     + `temperatura ${formatNumber(p.parte_tmax, 2)}, vecinos con SIAP ${formatNumber(p.parte_vecinos, 2)}, esperado ${formatNumber(p.esperado, 2)} t/ha">`
     + `${body}</svg>${note}</figure>`;
@@ -1181,7 +1204,10 @@ function municipalRowHtml(p) {
   const level = MUN_CONFIDENCE_CLASSES.find((c) => c.key === p.confianza);
   if (hasEstimate(p)) {
     value = `${formatNumber(p.esperado, 2)} <span class="plist__unit">t/ha</span>`;
-    if (level) risk = `<span class="plist__risk badge ${level.badge}">${level.label}</span>`;
+    if (level) {
+      const short = typeof p.error_tipico === "number" ? ` · ±${formatNumber(p.error_tipico, 2)}` : "";
+      risk = `<span class="plist__risk badge ${level.badge}">${capitalize(level.key)}${short}</span>`;
+    }
   }
   return `<li><button type="button" class="plist__row" data-id="${p.id}">`
     + `<span class="plist__name"><strong>${p.municipio}</strong><span class="plist__muni">${p.estado}</span></span>`
@@ -1288,6 +1314,7 @@ function municipalSummaryHtml(p) {
       : `Rendimiento esperado en ${p.anio_referencia ?? "2025"}, en la escala del SIAP`;
     if (p.p90 > 0) rows.push(summaryRow("Rango p10 a p90", `${formatNumber(p.p10, 2)} a ${formatNumber(p.p90, 2)} t/ha`));
     rows.push(summaryRow("Confianza", municipalConfidenceBadge(p.confianza)));
+    rows.push(summaryRow("Error típico esperado", errorText(p)));
     if (typeof p.tmax_jul_ago === "number") {
       const diff = p.tmax_jul_ago - p.tmax_media;
       rows.push(summaryRow("Tmax jul-ago",
@@ -1298,10 +1325,10 @@ function municipalSummaryHtml(p) {
   }
   if (p.con_siap) {
     rows.push(summaryRow("Media del SIAP", `${formatNumber(p.siap_media, 2)} t/ha en ${p.siap_anios} años`));
-    rows.push(summaryRow(`Años bajo 2 t/ha en el SIAP`, formatPercent(p.siap_frac_bajo_2)));
   } else if (typeof p.dist_siap_km === "number") {
     rows.push(summaryRow("Municipio con SIAP más cercano", `a ${formatNumber(p.dist_siap_km, 1)} km`));
   }
+  if (typeof p.elev_m === "number") rows.push(summaryRow("Elevación de la zona agrícola", `${formatNumber(p.elev_m, 0)} m`));
   if (typeof p.agricola_ha === "number") rows.push(summaryRow("Agricultura de temporal", `${formatNumber(p.agricola_ha, 0)} ha`));
   if (p.reto) rows.push(summaryRow("Parcelas del reto", "Tiene parcelas del reto"));
 

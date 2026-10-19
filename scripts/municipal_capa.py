@@ -157,6 +157,18 @@ def descomposicion_tmax(d, y):
     return media, tmax_media, pendiente
 
 
+def error_por_distancia(nombre):
+    """Curva validada del error típico (RMSE de nivel, ponderado) según la zona de exclusión, en km.
+
+    Sale de experimentos/generalizable/resultados.csv, esquema espacial con zona de exclusión. Más allá del
+    último punto el error se mantiene (la curva ya se aplana desde los 40 km)."""
+    r = pd.read_csv(EXP / "resultados.csv")
+    r = r[(r.modelo == nombre) & (r.esquema == "espacial_buffer") & (r.unidad == "nivel") & r.ponderado
+          & (r.subconjunto == "todos") & (r.datos == "completos") & (r.objetivo == "rend")]
+    curva = r.groupby("buffer_km").rmse.first().sort_index()
+    return curva.index.to_numpy(float), curva.to_numpy(float)
+
+
 def capa(nombre, escala):
     mun = pd.read_parquet(TABLAS / "municipios.parquet")
     te = mun.assign(anio=M.ANIO_REFERENCIA)
@@ -223,6 +235,13 @@ def capa(nombre, escala):
         cols = [f"esperado{suf}", f"p10{suf}", f"p90{suf}"]
         out[cols] = out[cols].clip(lower=0)
     out["confianza"] = confianza(out)
+    # Error típico esperado según la distancia a datos del SIAP (0 si el municipio tiene datos propios): la curva
+    # validada con zona de exclusión. Las extrapolaciones quedan fuera de lo validado y no llevan cifra
+    out["dist_datos_km"] = np.where(out.con_siap, 0.0, out.dist_siap_km)
+    km, rmse = error_por_distancia(nombre)
+    out["error_tipico"] = np.where(rango, np.interp(out.dist_datos_km, km, rmse), np.nan)
+    # Elevación media de la zona agrícola: explica la temperatura (r = -0.98 con la Tmax en Hidalgo, Puebla y Tlaxcala)
+    out["elev_m"] = mun["elev_m"].to_numpy()
     out["modelo"] = nombre
     out["escala"] = escala
     out["anio_referencia"] = M.ANIO_REFERENCIA

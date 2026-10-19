@@ -1290,3 +1290,12 @@
   font-size: var(--t-xs);
   color: var(--texto-suave);
 }
+
+.mchart__intro {
+  margin: 0 0 0.5rem;
+}
+
+/* Nombre del estado sobre el contorno negro: halo blanco más ancho para leerse sobre cualquier color */
+.state-label span {
+  text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 6px #fff, 0 0 8px #fff, 0 0 10px #fff;
+}
