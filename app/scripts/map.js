@@ -106,6 +106,12 @@ const MUN_NO_ESTIMATE = { color: "#e7e6e0", border: "#898781" };
 const RETO_OUTLINE = { color: "#ffe14d", weight: 3.5, dashArray: null };
 const RETO_OUTLINE_ACTIVE = { color: "#c99400", weight: 4.5, dashArray: null };
 const RETO_PANE = "reto";
+// Orden de las capas del modelo municipal, de abajo a arriba: municipios (400), contorno del reto (430), contorno de los
+// estados (440), contorno del municipio bajo el puntero (455) y nombres de los estados (460)
+const RETO_Z = 430;
+const HOVER_PANE = "municipio-puntero";
+const HOVER_Z = 455;
+const HOVER_OUTLINE = { color: "#0b0b0b", weight: 3, opacity: 1, fill: false };
 // Capas del modelo municipal: título de su leyenda y clases
 const MUN_LAYERS = new Map([
   ["mun-esperado", { title: "Rendimiento esperado (t/ha)", scale: MUN_YIELD_SCALE, ticks: [0, 1, 2, 3],
@@ -246,6 +252,8 @@ let retoLayer = null;
 // Estados (GeoJSON con su punto para el nombre) y su capa
 let statesFeatures = null;
 let statesLayer = null;
+// Contorno del municipio que tiene el puntero encima
+let hoverOutline = null;
 // Estado y municipio que se quieren mostrar cuando llegue el modelo municipal (del hash o del modelo de parcelas)
 let pendingFilters = null;
 
@@ -701,18 +709,21 @@ function bindInteractions(feature, layer, reset, tooltip) {
   layer.bindTooltip(tooltip(feature.properties), { sticky: true, className: "parcel-tip", opacity: 1 });
   layer.on({
     mouseover: () => {
+      // Un municipio se resalta con un contorno en su propio panel, encima del reto y de los estados
+      if (layersById.get(feature.properties.id)?.municipal) {
+        showHoverOutline(feature);
+        return;
+      }
       const weight = feature.properties.id === selectedId ? SELECTED_WEIGHT : 3;
       layer.setStyle({ weight, color: BORDER_HOVER, opacity: 1 });
       layer.bringToFront();
-      const outline = retoOutlineOf(feature);
-      if (outline) {
-        outline.setStyle(retoOutlineStyle(feature, true));
-        outline.bringToFront();
-      }
     },
     mouseout: () => {
+      if (layersById.get(feature.properties.id)?.municipal) {
+        hideHoverOutline();
+        return;
+      }
       reset();
-      retoOutlineOf(feature)?.setStyle(retoOutlineStyle(feature));
     },
     // Clic: elige el elemento y abre su resumen en el panel. El tooltip se cierra para no tapar el mapa
     click: () => {
@@ -722,9 +733,20 @@ function bindInteractions(feature, layer, reset, tooltip) {
   });
 }
 
-// Contorno del reto de un municipio, si lo tiene
-function retoOutlineOf(feature) {
-  return layersById.get(feature.properties.id)?.outline ?? null;
+// Contorno del municipio bajo el puntero: negro, o amarillo oscuro si tiene parcelas del reto; siempre encima de todo
+function showHoverOutline(feature) {
+  hideHoverOutline();
+  if (!map.getPane(HOVER_PANE)) {
+    map.createPane(HOVER_PANE).style.zIndex = HOVER_Z;
+    map.getPane(HOVER_PANE).style.pointerEvents = "none";
+  }
+  const style = feature.properties.reto ? { ...RETO_OUTLINE_ACTIVE, opacity: 1, fill: false } : HOVER_OUTLINE;
+  hoverOutline = L.geoJSON(feature, { pane: HOVER_PANE, interactive: false, style: () => style }).addTo(map);
+}
+
+function hideHoverOutline() {
+  if (hoverOutline) hoverOutline.remove();
+  hoverOutline = null;
 }
 
 // El elemento elegido va encima de sus vecinos
@@ -773,7 +795,7 @@ function drawMunicipal(selected) {
   }).addTo(map);
   // Contorno de los municipios con parcelas del reto, en un panel propio encima de los polígonos y sin recibir el puntero
   if (!map.getPane(RETO_PANE)) {
-    map.createPane(RETO_PANE).style.zIndex = 450;
+    map.createPane(RETO_PANE).style.zIndex = RETO_Z;
     map.getPane(RETO_PANE).style.pointerEvents = "none";
   }
   drawStates();
@@ -794,8 +816,10 @@ function drawStates() {
     map.getPane(name).style.pointerEvents = "none";
   }
   statesLayer = L.layerGroup().addTo(map);
-  L.geoJSON(statesFeatures, { pane: STATES_PANE, interactive: false, style: () => STATE_OUTLINE }).addTo(statesLayer);
-  for (const f of statesFeatures) {
+  // Con un estado elegido en el filtro, solo su contorno y su nombre
+  const states = statesFeatures.filter((f) => !stateSelect.value || f.properties.estado === stateSelect.value);
+  L.geoJSON(states, { pane: STATES_PANE, interactive: false, style: () => STATE_OUTLINE }).addTo(statesLayer);
+  for (const f of states) {
     const { estado, label_lat: lat, label_lon: lon } = f.properties;
     L.marker([lat, lon], {
       pane: STATE_LABELS_PANE, interactive: false, keyboard: false,
@@ -817,9 +841,9 @@ function markRetoMunicipalities() {
   }
 }
 
-// Contorno del reto: amarillo claro; más oscuro si el municipio está elegido o tiene el puntero encima
-function retoOutlineStyle(feature, hover = false) {
-  const base = hover || feature.properties.id === selectedId ? RETO_OUTLINE_ACTIVE : RETO_OUTLINE;
+// Contorno del reto: amarillo claro; más oscuro si el municipio está elegido (con el puntero encima lo cubre el de showHoverOutline)
+function retoOutlineStyle(feature) {
+  const base = feature.properties.id === selectedId ? RETO_OUTLINE_ACTIVE : RETO_OUTLINE;
   return { ...base, opacity: 1, fill: false };
 }
 
@@ -852,6 +876,7 @@ function updateSortOptions() {
 }
 
 function draw(fit) {
+  hideHoverOutline();
   for (const layer of [polygonsLayer, pointsLayer, municipalLayer, retoLayer, statesLayer]) {
     if (layer) layer.remove();
   }

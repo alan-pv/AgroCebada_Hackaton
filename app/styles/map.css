@@ -667,6 +667,7 @@
 
 .legend {
   min-width: 13rem;
+  max-width: 18rem;
   padding: 0.6rem 0.75rem;
   background: var(--tarjeta);
   border: 1px solid var(--borde);
@@ -756,7 +757,6 @@
 
 /* Nota bajo las filas de la leyenda (capas de riesgo) */
 .legend-note {
-  max-width: 15rem;
   margin: 0.4rem 0 0;
   padding-top: 0.4rem;
   border-top: 1px solid var(--borde);
