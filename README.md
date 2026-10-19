@@ -43,8 +43,16 @@ El modelo de parcelas solo sirve donde hay parcelas con rendimiento cerca. Busca
 | Datos | 138 parcelas de FIRA, temporada 2025 | SIAP de 2003 a 2025 en 100 municipios y Tmax de julio y agosto |
 | Entradas | Régimen del municipio y rendimiento de las vecinas a 400 m o menos | Temperatura máxima de verano más un kriging de sus errores |
 | Error | RMSE de 0.458 t/ha en validación, cercano a 0.49 esperado en las 59 | RMSE de 0.44 t/ha en municipios sin datos cerca, contra 0.57 de copiar a los vecinos |
-| Intervalo | p10 a p90, contiene el valor real en 83 % de los casos | Confianza alta, media o baja por municipio |
+| Intervalo | p10 a p90, contiene el valor real en 83 % de los casos | p10 a p90, contiene el valor real en 80 a 82 % de los casos, más una confianza alta, media o baja por municipio |
 | Sirve para | Estimar y ordenar parcelas por riesgo al cierre de la temporada | Orientar la planeación en zonas sin parcelas medidas, antes de sembrar |
+
+La confianza del modelo municipal depende de cuánta evidencia del SIAP hay en el municipio o cerca de él. El modelo solo conoce la temperatura, no sabe si en un lugar se siembra cebada, así que su número vale más donde hay historia de cebada que lo respalde. De los 361 municipios de Hidalgo, Puebla y Tlaxcala que muestra la app:
+
+- **Alta** (76 municipios). El municipio tiene historia propia de cebada de temporal en el SIAP.
+- **Media** (68). No tiene historia propia, pero tiene agricultura de temporal, cultiva al menos 100 ha y hay un municipio con SIAP a 25 km o menos.
+- **Baja** (217). El resto. Incluye los municipios más calientes que cualquiera con SIAP, donde la recta de la temperatura extrapola. Su número es solo orientativo.
+
+El criterio está en `confianza()` de [capa_municipal.py](scripts/generalizable/capa_municipal.py) y el detalle en [MUNICIPAL.md](docs/MUNICIPAL.md).
 
 | Dos formas de registrar el rendimiento | Error de 13 modelos municipales |
 |---|---|
