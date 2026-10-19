@@ -1155,3 +1155,138 @@
     font-size: var(--t-xl);
   }
 }
+
+/* Leyenda continua del modelo municipal: barra de degradado, marcas y qué significa cada extremo */
+.legend-gradient {
+  padding: 0.25rem 0 0.1rem;
+}
+
+.legend-gradient__bar {
+  height: 12px;
+  border-radius: 3px;
+  border: 1px solid rgba(61, 60, 56, 0.25);
+}
+
+.legend-gradient__ticks {
+  position: relative;
+  height: 1.1rem;
+  font-size: var(--t-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--texto-suave);
+}
+
+.legend-gradient__ticks span {
+  position: absolute;
+  top: 0.15rem;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.legend-gradient__ticks span:first-child {
+  transform: none;
+}
+
+.legend-gradient__ticks span:last-child {
+  transform: translateX(-100%);
+}
+
+.legend-gradient__ends {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: var(--t-xs);
+  color: var(--texto-suave);
+}
+
+/* Nombre de cada estado sobre los colores del modelo municipal: texto oscuro con halo blanco */
+.state-label {
+  background: none;
+  border: 0;
+}
+
+.state-label span {
+  display: inline-block;
+  transform: translate(-50%, -50%);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #1f1e1b;
+  text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 6px #fff, 0 0 6px #fff;
+}
+
+/* Gráficas del resumen de un municipio */
+.mchart {
+  margin: 1rem 0 0;
+}
+
+.mchart__title {
+  margin-bottom: 0.35rem;
+  font-size: var(--t-sm);
+  font-weight: 600;
+}
+
+.mchart svg {
+  display: block;
+  overflow: visible;
+}
+
+.mchart__label,
+.mchart__value {
+  font-size: 11px;
+  fill: var(--texto);
+}
+
+.mchart__value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.mchart__tick {
+  font-size: 10px;
+  fill: var(--texto-suave);
+}
+
+.mchart__rule {
+  stroke: var(--borde);
+}
+
+.mchart__zero {
+  stroke: var(--texto-suave);
+  stroke-width: 1;
+  opacity: 0.5;
+}
+
+.mchart__grid {
+  stroke: var(--borde);
+  stroke-width: 1;
+}
+
+.mchart__band {
+  fill: var(--superficie-suave);
+  stroke: var(--borde);
+}
+
+.mchart__dot {
+  fill: #9ec5f4;
+  opacity: 0.6;
+}
+
+.mchart__fit {
+  fill: none;
+  stroke: #184f95;
+  stroke-width: 2;
+}
+
+.mchart__me {
+  fill: #0d366b;
+  stroke: #fff;
+  stroke-width: 2;
+}
+
+.mchart__note {
+  margin: 0.35rem 0 0;
+  font-size: var(--t-xs);
+  color: var(--texto-suave);
+}

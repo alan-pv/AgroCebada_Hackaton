@@ -67,14 +67,16 @@ const CONFIDENCE_LEVELS = new Map([
   ["media", { text: "Confianza media", badge: "badge--medio" }],
   ["baja", { text: "Confianza baja", badge: "badge--alto" }],
 ]);
-// Modelo municipal: clases de color de cada capa, en orden de leyenda. Rendimiento esperado en t/ha, con cortes fijos
-const MUN_YIELD_CLASSES = [
-  { to: 1.5, label: "Menos de 1.5", color: "#d3e5f9" },
-  { to: 2.0, label: "1.5 a 2.0", color: "#9ec5f4" },
-  { to: 2.5, label: "2.0 a 2.5", color: "#6da7ec" },
-  { to: 3.0, label: "2.5 a 3.0", color: "#3987e5" },
-  { to: Infinity, label: "3.0 o más", color: "#184f95" },
+// Modelo municipal: mapas de calor. Cada escala es una sola gama, de claro (poco) a oscuro (mucho), con paradas
+// [valor, color] que se interpolan. Rendimiento esperado en t/ha: azules, de casi blanco en 0 a azul muy oscuro
+const MUN_YIELD_SCALE = [
+  [0, "#eef4fc"], [0.5, "#cde2fb"], [1, "#9ec5f4"], [1.5, "#6da7ec"], [2, "#3987e5"],
+  [2.5, "#256abf"], [3, "#184f95"], [3.3, "#0d366b"],
 ];
+// Confianza: cercanía a datos del SIAP en km (0 = el municipio tiene datos propios), verdes de oscuro (cerca) a claro (lejos).
+// Las extrapolaciones toman el extremo claro
+const MUN_DISTANCE_SCALE = [[0, "#0b4f2e"], [12, "#1d6b40"], [25, "#2f8553"], [40, "#7cc192"], [60, "#e3f2e7"]];
+const MUN_DISTANCE_MAX = 60;
 // Confianza del modelo: una sola gama de verdes, más oscuro cuanto más confianza; badge es la clase del mismo verde en map.css
 const MUN_CONFIDENCE_CLASSES = [
   { key: "alta", label: "Confianza alta", color: "#0b4f2e", badge: "badge--conf-alta" },
@@ -101,9 +103,15 @@ const RETO_OUTLINE_ACTIVE = { color: "#c99400", weight: 4.5, dashArray: null };
 const RETO_PANE = "reto";
 // Capas del modelo municipal: título de su leyenda y clases
 const MUN_LAYERS = new Map([
-  ["mun-esperado", { title: "Rendimiento esperado (t/ha)", classes: MUN_YIELD_CLASSES }],
-  ["mun-confianza", { title: "Confianza del modelo", classes: MUN_CONFIDENCE_CLASSES }],
+  ["mun-esperado", { title: "Rendimiento esperado (t/ha)", scale: MUN_YIELD_SCALE, ticks: [0, 1, 2, 3],
+                     low: "Menos rendimiento", high: "Más rendimiento" }],
+  ["mun-confianza", { title: "Confianza: cercanía a datos del SIAP", scale: MUN_DISTANCE_SCALE, ticks: [0, 20, 40, 60],
+                      low: "Datos propios", high: "60 km o más, o extrapolación", reverse: true }],
 ]);
+// Contornos y nombres de los estados, encima de los colores de los municipios
+const STATES_PANE = "estados";
+const STATE_LABELS_PANE = "estados-nombres";
+const STATE_OUTLINE = { color: "#ffffff", weight: 2.5, opacity: 1, fill: false };
 
 // Órdenes de la lista del panel, de cada modelo. by dice cómo van ordenadas en el título de la hoja del celular
 const SORTS = {
@@ -225,6 +233,9 @@ let municipalRequest = null;
 let municipalFailed = false;
 let municipalLayer = null;
 let retoLayer = null;
+// Estados (GeoJSON con su punto para el nombre) y su capa
+let statesFeatures = null;
+let statesLayer = null;
 // Estado y municipio que se quieren mostrar cuando llegue el modelo municipal (del hash o del modelo de parcelas)
 let pendingFilters = null;
 
@@ -683,7 +694,11 @@ function bindInteractions(feature, layer, reset, tooltip) {
       const weight = feature.properties.id === selectedId ? SELECTED_WEIGHT : 3;
       layer.setStyle({ weight, color: BORDER_HOVER, opacity: 1 });
       layer.bringToFront();
-      retoOutlineOf(feature)?.setStyle(retoOutlineStyle(feature, true));
+      const outline = retoOutlineOf(feature);
+      if (outline) {
+        outline.setStyle(retoOutlineStyle(feature, true));
+        outline.bringToFront();
+      }
     },
     mouseout: () => {
       reset();
@@ -751,11 +766,31 @@ function drawMunicipal(selected) {
     map.createPane(RETO_PANE).style.zIndex = 450;
     map.getPane(RETO_PANE).style.pointerEvents = "none";
   }
+  drawStates();
   retoLayer = L.layerGroup().addTo(map);
   for (const feature of selected.filter((f) => f.properties.reto)) {
     const outline = L.geoJSON(feature, { pane: RETO_PANE, interactive: false, fill: false, style: () => retoOutlineStyle(feature) });
     outline.addTo(retoLayer);
     layersById.get(feature.properties.id).outline = outline;
+  }
+}
+
+// Contorno blanco y nombre de cada estado, en paneles propios encima de los municipios y sin recibir el puntero
+function drawStates() {
+  if (!statesFeatures) return;
+  for (const [name, z] of [[STATES_PANE, 440], [STATE_LABELS_PANE, 460]]) {
+    if (map.getPane(name)) continue;
+    map.createPane(name).style.zIndex = z;
+    map.getPane(name).style.pointerEvents = "none";
+  }
+  statesLayer = L.layerGroup().addTo(map);
+  L.geoJSON(statesFeatures, { pane: STATES_PANE, interactive: false, style: () => STATE_OUTLINE }).addTo(statesLayer);
+  for (const f of statesFeatures) {
+    const { estado, label_lat: lat, label_lon: lon } = f.properties;
+    L.marker([lat, lon], {
+      pane: STATE_LABELS_PANE, interactive: false, keyboard: false,
+      icon: L.divIcon({ className: "state-label", html: `<span>${estado}</span>`, iconSize: null }),
+    }).addTo(statesLayer);
   }
 }
 
@@ -807,10 +842,11 @@ function updateSortOptions() {
 }
 
 function draw(fit) {
-  for (const layer of [polygonsLayer, pointsLayer, municipalLayer, retoLayer]) {
+  for (const layer of [polygonsLayer, pointsLayer, municipalLayer, retoLayer, statesLayer]) {
     if (layer) layer.remove();
   }
   retoLayer = null;
+  statesLayer = null;
   polygonsLayer = null;
   pointsLayer = null;
   municipalLayer = null;
@@ -856,7 +892,10 @@ function setSelected(id) {
     if (!entry) continue;
     if (entry.municipal) {
       entry.polygon.setStyle(municipalStyle(entry.feature));
-      if (entry.outline) entry.outline.setStyle(() => retoOutlineStyle(entry.feature));
+      if (entry.outline) {
+        entry.outline.setStyle(() => retoOutlineStyle(entry.feature));
+        if (pid === id) entry.outline.bringToFront();
+      }
     } else {
       entry.polygon.setStyle(featureStyle(entry.feature));
       entry.marker.setStyle(pointStyle(entry.feature));
@@ -872,19 +911,43 @@ function isExtrapolation(p) {
   return p.dentro_rango_ambiental === false;
 }
 
-// Clase de un municipio en la capa activa (rótulo y color); null si no tiene estimación
-function municipalClassOf(mode, p) {
+// Color de una escala continua en el valor dado: interpola entre las dos paradas que lo rodean
+function scaleColor(scale, value) {
+  const v = Math.min(Math.max(value, scale[0][0]), scale[scale.length - 1][0]);
+  const i = Math.max(1, scale.findIndex(([stop]) => stop >= v));
+  const [v0, c0] = scale[i - 1];
+  const [v1, c1] = scale[i];
+  const t = v1 === v0 ? 0 : (v - v0) / (v1 - v0);
+  const rgb = (hex) => [1, 3, 5].map((k) => parseInt(hex.slice(k, k + 2), 16));
+  const [a, b] = [rgb(c0), rgb(c1)];
+  return `#${a.map((x, k) => Math.round(x + (b[k] - x) * t).toString(16).padStart(2, "0")).join("")}`;
+}
+
+// Cercanía a datos del SIAP en km, como la mide la confianza: 0 si el municipio tiene datos propios; en confianza baja,
+// al menos 25 km (aunque esté cerca, le falta agricultura de temporal); las extrapolaciones, al máximo de la escala
+function dataDistance(p) {
+  if (p.con_siap) return 0;
+  if (isExtrapolation(p)) return MUN_DISTANCE_MAX;
+  const km = typeof p.dist_siap_km === "number" ? p.dist_siap_km : MUN_DISTANCE_MAX;
+  return p.confianza === "baja" ? Math.max(km, 25) : km;
+}
+
+// Color de un municipio en la capa activa; null si no tiene estimación
+function municipalColor(mode, p) {
   if (!hasEstimate(p)) return null;
-  if (mode === "mun-esperado") return MUN_YIELD_CLASSES.find((c) => p.esperado < c.to);
-  return MUN_CONFIDENCE_CLASSES.find((c) => c.key === p.confianza) ?? null;
+  if (mode === "mun-esperado") return scaleColor(MUN_YIELD_SCALE, p.esperado);
+  return scaleColor(MUN_DISTANCE_SCALE, dataDistance(p));
 }
 
 // Pide el modelo municipal la primera vez que se elige una de sus capas; si falló, se vuelve a pedir al volver a elegirla
 function requestMunicipal() {
   if (!isMunicipalMode() || municipalFeatures || municipalRequest) return;
   municipalFailed = false;
-  municipalRequest = fetchJson(mapElement.dataset.municipalUrl)
-    .then((geojson) => {
+  // Los estados son un adorno: si fallan, el mapa municipal sigue sin ellos
+  const statesRequest = fetchJson(mapElement.dataset.statesUrl).then((g) => g.features).catch(() => null);
+  municipalRequest = Promise.all([fetchJson(mapElement.dataset.municipalUrl), statesRequest])
+    .then(([geojson, states]) => {
+      statesFeatures = states;
       // Mismos nombres de ID, estado y municipio que las parcelas: así sirven los filtros, la lista y el panel
       for (const f of geojson.features) {
         const p = f.properties;
@@ -930,20 +993,21 @@ function municipalTooltipHtml(p) {
 // Color y borde de cada municipio: en gris punteado si no tiene estimación; el elegido, con borde negro grueso
 function municipalStyle(feature) {
   const p = feature.properties;
-  const cls = municipalClassOf(layerSelect.value, p);
-  let style = { weight: 0.6, color: "#ffffff", opacity: 1, fillColor: cls ? cls.color : MUN_NO_ESTIMATE.color, fillOpacity: 0.85, dashArray: null };
-  if (!cls) style = { ...style, weight: 1, color: MUN_NO_ESTIMATE.border, fillOpacity: 0.6, dashArray: "4 3" };
+  const fill = municipalColor(layerSelect.value, p);
+  let style = { weight: 0.5, color: "#ffffff", opacity: 0.8, fillColor: fill ?? MUN_NO_ESTIMATE.color, fillOpacity: 0.9, dashArray: null };
+  if (!fill) style = { ...style, weight: 1, color: MUN_NO_ESTIMATE.border, fillOpacity: 0.6, dashArray: "4 3" };
   if (p.id === selectedId) style = { ...style, weight: SELECTED_WEIGHT - 1, color: BORDER_HOVER, opacity: 1, dashArray: null };
   return style;
 }
 
 // Leyenda de la capa municipal: sus clases con el número de municipios mostrados, y la nota del modelo
 function municipalLegendHtml(mode, selected) {
-  const { title, classes } = MUN_LAYERS.get(mode);
+  const layer = MUN_LAYERS.get(mode);
+  const { title } = layer;
   if (municipalFailed) return legendHtml(title, [], "No se pudo cargar el modelo municipal.", "Municipios");
   if (!municipalFeatures) return legendHtml(title, [], "Cargando el modelo municipal…", "Municipios");
-  const counts = countBy(selected, (p) => municipalClassOf(mode, p));
-  const rows = classes.map((c) => legendRow(c.color, c.label, counts.get(c) ?? 0));
+  const counts = countBy(selected, (p) => (hasEstimate(p) ? "con" : null));
+  const rows = [gradientHtml(layer)];
   // Solo si algún municipio llega sin estimación
   if (counts.get(null)) rows.push(legendRow(MUN_NO_ESTIMATE.color, "Sin estimación", counts.get(null), "legend-swatch--no-data"));
   rows.push(legendRow("transparent", "Con parcelas del reto", selected.filter((f) => f.properties.reto).length, "legend-swatch--reto"));
@@ -951,6 +1015,117 @@ function municipalLegendHtml(mode, selected) {
   const note = `Escala del SIAP${year ? `, año de referencia ${year}` : ""}. No se compara con la predicción de las parcelas.`
     + (selected.some((f) => isExtrapolation(f.properties)) ? " Los municipios con clima fuera del rango del SIAP son extrapolaciones." : "");
   return legendHtml(title, rows, note, "Municipios");
+}
+
+// Barra de degradado de una escala continua, con sus marcas y qué significa cada extremo
+function gradientHtml({ scale, ticks, low, high, reverse }) {
+  const min = scale[0][0];
+  const max = scale[scale.length - 1][0];
+  const at = (v) => ((v - min) / (max - min)) * 100;
+  const stops = scale.map(([v, c]) => `${c} ${at(v)}%`).join(", ");
+  const tickText = (t, i) => (reverse ? `${t}${i === ticks.length - 1 ? "+" : ""} km` : formatNumber(t, 0));
+  const marks = ticks.map((t, i) => `<span style="left:${at(t)}%">${tickText(t, i)}</span>`).join("");
+  return `<div class="legend-gradient"><div class="legend-gradient__bar" style="background:linear-gradient(to right, ${stops})"></div>`
+    + `<div class="legend-gradient__ticks">${marks}</div>`
+    + `<div class="legend-gradient__ends"><span>${low}</span><span>${high}</span></div></div>`;
+}
+
+// Gráficas del resumen de un municipio (SVG en línea, con el texto en la tinta de la página)
+
+// Escala lineal de un dominio a un rango de píxeles
+function linear([d0, d1], [r0, r1]) {
+  return (v) => r0 + ((v - d0) / (d1 - d0)) * (r1 - r0);
+}
+
+// Cascada: de dónde sale el rendimiento esperado. Promedio regional, efecto de la temperatura, corrección por los
+// vecinos con SIAP y el total. Lo que suma va en azul y lo que resta en rojo; el texto dice el signo, no solo el color
+function municipalBreakdownSvg(p) {
+  const steps = [
+    { label: "Promedio regional", value: p.parte_media, from: 0, kind: "base" },
+    { label: `Temperatura (${formatNumber(p.tmax_jul_ago, 1)} °C)`, value: p.parte_tmax, from: p.parte_media },
+    { label: isExtrapolation(p) ? "Vecinos con SIAP (no se usa)" : "Vecinos con SIAP", value: p.parte_vecinos,
+      from: p.parte_media + p.parte_tmax },
+  ];
+  const total = p.esperado_sin_corte;
+  const ends = [0, total, ...steps.map((st) => st.from), ...steps.map((st) => st.from + st.value)];
+  const lo = Math.min(...ends);
+  const hi = Math.max(...ends, 0.5);
+  const W = 320;
+  const labelW = 132;
+  const row = 30;
+  const x = linear([lo, hi], [labelW + 4, W - 46]);
+  const bar = (y, a, b, color, title) => {
+    const [x0, x1] = [x(Math.min(a, b)), x(Math.max(a, b))];
+    return `<rect x="${x0}" y="${y + 7}" width="${Math.max(x1 - x0, 2)}" height="14" rx="3" fill="${color}"><title>${title}</title></rect>`;
+  };
+  const text = (y, label, value, signed) => {
+    const shown = signed ? `${value >= 0 ? "+" : "−"}${formatNumber(Math.abs(value), 2)}` : formatNumber(value, 2);
+    return `<text x="0" y="${y + 18}" class="mchart__label">${label}</text>`
+      + `<text x="${W}" y="${y + 18}" class="mchart__value" text-anchor="end">${shown}</text>`;
+  };
+  let body = "";
+  steps.forEach((st, i) => {
+    const y = i * row;
+    const color = st.kind === "base" ? "#9ec5f4" : (st.value >= 0 ? "#2a78d6" : "#d03b3b");
+    body += bar(y, st.from, st.from + st.value, color, `${st.label}: ${formatNumber(st.value, 2)} t/ha`)
+      + text(y, st.label, st.value, st.kind !== "base");
+  });
+  const yt = steps.length * row + 6;
+  body += `<line x1="${labelW}" x2="${W}" y1="${yt - 3}" y2="${yt - 3}" class="mchart__rule"/>`;
+  body += bar(yt, 0, Math.max(total, 0), "#0d366b", `Esperado: ${formatNumber(p.esperado, 2)} t/ha`)
+    + text(yt, "Esperado", p.esperado, false);
+  body += `<line x1="${x(0)}" x2="${x(0)}" y1="0" y2="${yt + row}" class="mchart__zero"/>`;
+  const h = yt + row;
+  const note = total < 0
+    ? `<p class="mchart__note">La suma da −${formatNumber(Math.abs(total), 2)} t/ha. Un rendimiento no puede ser negativo, así que se muestra 0.</p>` : "";
+  return `<figure class="mchart"><figcaption class="mchart__title">¿De dónde sale el número? (t/ha)</figcaption>`
+    + `<svg viewBox="0 0 ${W} ${h}" width="100%" role="img" aria-label="Promedio regional ${formatNumber(p.parte_media, 2)}, `
+    + `temperatura ${formatNumber(p.parte_tmax, 2)}, vecinos con SIAP ${formatNumber(p.parte_vecinos, 2)}, esperado ${formatNumber(p.esperado, 2)} t/ha">`
+    + `${body}</svg>${note}</figure>`;
+}
+
+// Dispersión: temperatura máxima de julio y agosto contra rendimiento esperado de todos los municipios, con la recta
+// del modelo, la franja de temperaturas que tienen los municipios con SIAP y el municipio elegido resaltado
+function municipalTmaxSvg(p) {
+  const all = (municipalFeatures ?? []).map((f) => f.properties).filter((q) => typeof q.tmax_jul_ago === "number");
+  const siap = all.filter((q) => q.con_siap).map((q) => q.tmax_jul_ago);
+  const t0 = Math.floor(Math.min(...all.map((q) => q.tmax_jul_ago)));
+  const t1 = Math.ceil(Math.max(...all.map((q) => q.tmax_jul_ago)));
+  const W = 320;
+  const H = 170;
+  const m = { l: 30, r: 8, t: 8, b: 30 };
+  const x = linear([t0, t1], [m.l, W - m.r]);
+  const y = linear([0, 3.5], [H - m.b, m.t]);
+  const fit = (t) => Math.max(p.parte_media + p.pendiente_tmax * (t - p.tmax_media), 0);
+  let body = "";
+  if (siap.length) {
+    const [s0, s1] = [Math.min(...siap), Math.max(...siap)];
+    body += `<rect x="${x(s0)}" y="${m.t}" width="${x(s1) - x(s0)}" height="${H - m.t - m.b}" class="mchart__band"><title>Temperaturas de los municipios con SIAP: ${formatNumber(s0, 1)} a ${formatNumber(s1, 1)} °C</title></rect>`
+      + `<text x="${x(s1) + 4}" y="${m.t + 10}" class="mchart__tick">Con SIAP</text>`;
+  }
+  for (const v of [0, 1, 2, 3]) {
+    body += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}" class="mchart__grid"/>`
+      + `<text x="${m.l - 6}" y="${y(v) + 4}" class="mchart__tick" text-anchor="end">${v}</text>`;
+  }
+  for (let t = t0; t <= t1; t += 2) {
+    body += `<text x="${x(t)}" y="${H - m.b + 14}" class="mchart__tick" text-anchor="middle">${t}</text>`;
+  }
+  body += `<text x="${(m.l + W - m.r) / 2}" y="${H - 3}" class="mchart__tick" text-anchor="middle">Temperatura máxima de julio y agosto (°C)</text>`;
+  for (const q of all) {
+    if (q.id === p.id) continue;
+    body += `<circle cx="${x(q.tmax_jul_ago)}" cy="${y(Math.min(q.esperado, 3.5))}" r="2.2" class="mchart__dot"/>`;
+  }
+  const line = [];
+  for (let t = t0; t <= t1; t += 0.25) line.push(`${x(t).toFixed(1)},${y(fit(t)).toFixed(1)}`);
+  body += `<polyline points="${line.join(" ")}" class="mchart__fit"/>`;
+  body += `<circle cx="${x(p.tmax_jul_ago)}" cy="${y(Math.min(p.esperado, 3.5))}" r="6" class="mchart__me">`
+    + `<title>${p.municipio}: ${formatNumber(p.tmax_jul_ago, 1)} °C, ${formatNumber(p.esperado, 2)} t/ha</title></circle>`;
+  return `<figure class="mchart"><figcaption class="mchart__title">Temperatura y rendimiento esperado (t/ha)</figcaption>`
+    + `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Cada punto es un municipio. ${p.municipio} tiene `
+    + `${formatNumber(p.tmax_jul_ago, 1)} °C y ${formatNumber(p.esperado, 2)} t/ha. La recta del modelo baja `
+    + `${formatNumber(Math.abs(p.pendiente_tmax), 2)} t/ha por cada grado más.">${body}</svg>`
+    + `<p class="mchart__note">Cada punto es un municipio; el grande es ${p.municipio}. La línea es el modelo: cada grado más resta `
+    + `${formatNumber(Math.abs(p.pendiente_tmax), 2)} t/ha. Fuera de la franja gris no hay municipios con SIAP y el modelo extrapola.</p></figure>`;
 }
 
 // Lista del panel
@@ -1113,6 +1288,11 @@ function municipalSummaryHtml(p) {
       : `Rendimiento esperado en ${p.anio_referencia ?? "2025"}, en la escala del SIAP`;
     if (p.p90 > 0) rows.push(summaryRow("Rango p10 a p90", `${formatNumber(p.p10, 2)} a ${formatNumber(p.p90, 2)} t/ha`));
     rows.push(summaryRow("Confianza", municipalConfidenceBadge(p.confianza)));
+    if (typeof p.tmax_jul_ago === "number") {
+      const diff = p.tmax_jul_ago - p.tmax_media;
+      rows.push(summaryRow("Tmax jul-ago",
+        `${formatNumber(p.tmax_jul_ago, 1)} °C <span class="muted">(${diff >= 0 ? "+" : "−"}${formatNumber(Math.abs(diff), 1)} del promedio)</span>`));
+    }
     // En una extrapolación el aviso ya explica la confianza baja
     reason = isExtrapolation(p) ? "" : (MUN_CONFIDENCE_REASONS[p.confianza] ?? "");
   }
@@ -1120,7 +1300,7 @@ function municipalSummaryHtml(p) {
     rows.push(summaryRow("Media del SIAP", `${formatNumber(p.siap_media, 2)} t/ha en ${p.siap_anios} años`));
     rows.push(summaryRow(`Años bajo 2 t/ha en el SIAP`, formatPercent(p.siap_frac_bajo_2)));
   } else if (typeof p.dist_siap_km === "number") {
-    rows.push(summaryRow("Municipio con SIAP más cercano", `a ${formatNumber(p.dist_siap_km, 0)} km`));
+    rows.push(summaryRow("Municipio con SIAP más cercano", `a ${formatNumber(p.dist_siap_km, 1)} km`));
   }
   if (typeof p.agricola_ha === "number") rows.push(summaryRow("Agricultura de temporal", `${formatNumber(p.agricola_ha, 0)} ha`));
   if (p.reto) rows.push(summaryRow("Parcelas del reto", "Tiene parcelas del reto"));
@@ -1133,7 +1313,12 @@ function municipalSummaryHtml(p) {
     + `<dl class="psum__rows">${rows.join("")}</dl>`
     + (reason ? `<p class="psum__reason">${reason}</p>` : "")
     + (isExtrapolation(p) ? `<p class="psum__reason">${MUN_EXTRAPOLATION_NOTE}</p>` : "")
+    + (typeof p.parte_media === "number" ? municipalBreakdownSvg(p) + municipalTmaxSvg(p) : "")
     + '<details class="help-inline"><summary>¿Qué significan estas cifras?</summary><div class="help-inline__body">'
+    + "<p>El número sale de tres partes. El promedio regional es el rendimiento medio de los municipios con SIAP, llevado a "
+    + "2025. La temperatura lo sube o lo baja según qué tan caliente es el municipio en julio y agosto frente a ese promedio. "
+    + "Los vecinos con SIAP corrigen lo que la temperatura no explica: si los municipios cercanos rinden más de lo que su "
+    + "temperatura predice, el número sube. Lejos de los datos esa corrección se acerca a cero.</p>"
     + "<p>El modelo municipal estima lo que se puede esperar en un año como 2025 en todo el municipio, con la estadística "
     + "del SIAP de 2003 a 2025 y la temperatura máxima de julio y agosto. No distingue una parcela de otra.</p>"
     + "<p>Las cifras son toneladas por hectárea cosechada del SIAP, más bajas que las de las parcelas del reto. "

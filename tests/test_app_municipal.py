@@ -11,6 +11,8 @@ from app.modules import municipal
 ROOT = Path(__file__).resolve().parents[1]
 PROPERTIES = {"CVEGEO", "estado", "municipio", "esperado", "p10", "p90", "prob_bajo_2", "confianza",
               "siap_media", "siap_anios", "siap_frac_bajo_2", "dist_siap_km", "con_siap", "agricola_ha",
+              "tmax_jul_ago", "tmax_media", "pendiente_tmax", "parte_media", "parte_tmax", "parte_vecinos",
+              "esperado_sin_corte",
               "dentro_rango_ambiental", "dentro_dominio", "modelo", "escala", "anio_referencia"}
 
 
@@ -100,3 +102,23 @@ def test_municipal_csv(client):
 
 def test_municipal_bad_format(client):
     assert client.get("/api/municipal?format=xml").status_code == 400
+
+
+def test_municipal_parts_add_up(municipios):
+    # Media regional + efecto de la Tmax + corrección por vecinos = predicción antes del corte en 0
+    for f in municipios:
+        p = f["properties"]
+        assert abs(p["parte_media"] + p["parte_tmax"] + p["parte_vecinos"] - p["esperado_sin_corte"]) < 1e-3
+        assert abs(max(p["esperado_sin_corte"], 0) - p["esperado"]) < 1e-3
+        # El efecto de la Tmax es la pendiente por la diferencia contra la Tmax media
+        assert abs(p["pendiente_tmax"] * (p["tmax_jul_ago"] - p["tmax_media"]) - p["parte_tmax"]) < 2e-3
+    # Las extrapolaciones usan solo la regresión: sin corrección por vecinos
+    assert all(f["properties"]["parte_vecinos"] == 0 for f in municipios if not f["properties"]["dentro_rango_ambiental"])
+
+
+def test_municipal_states(client):
+    res = client.get("/api/municipal/estados")
+    assert res.status_code == 200
+    features = res.get_json()["features"]
+    assert sorted(f["properties"]["estado"] for f in features) == ["Hidalgo", "México", "Puebla", "Tlaxcala"]
+    assert all(isinstance(f["properties"]["label_lon"], float) for f in features)

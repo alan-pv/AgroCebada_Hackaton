@@ -4,6 +4,8 @@
 #   GET /api/municipal   GeoJSON (FeatureCollection) de los 486 municipios con las propiedades de
 #                        PROPERTIES; los NaN salen como null. Si falta el gpkg, responde 503.
 #                        format=csv descarga las mismas propiedades sin geometría
+#   GET /api/municipal/estados  GeoJSON de los 4 estados (unión de sus municipios) con estado y el punto
+#                        donde va su nombre (label_lon, label_lat)
 #   municipal_geojson()  función pura con ese GeoJSON como dict, ya sin NaN
 import json
 from functools import cache
@@ -19,7 +21,10 @@ MUNICIPAL_GPKG = OUTPUTS / "generalizable_municipios.gpkg"
 # Columnas de la capa municipios que expone la API; el resto de la tabla no sale
 PROPERTIES = ["CVEGEO", "estado", "municipio", "esperado", "p10", "p90", "prob_bajo_2", "confianza",
               "siap_media", "siap_anios", "siap_frac_bajo_2", "dist_siap_km", "con_siap", "agricola_ha",
-              "dentro_rango_ambiental", "dentro_dominio", "modelo", "escala", "anio_referencia"]
+              "dentro_rango_ambiental", "dentro_dominio", "modelo", "escala", "anio_referencia",
+              # Partes de la predicción: media regional + efecto de la Tmax + corrección por vecinos = esperado_sin_corte
+              "tmax_jul_ago", "tmax_media", "pendiente_tmax", "parte_media", "parte_tmax", "parte_vecinos",
+              "esperado_sin_corte"]
 # 4 decimales en las coordenadas (~10 m) y en los números de las propiedades
 DECIMALS = 4
 
@@ -47,9 +52,22 @@ def municipal_json():
     return json.dumps(municipal_geojson(), allow_nan=False)
 
 
+@cache
+def states_json():
+    """GeoJSON de los estados: unión de sus municipios, con el punto interior donde va su nombre."""
+    gdf = gpd.read_file(MUNICIPAL_GPKG, layer="municipios").to_crs(4326)[["estado", "geometry"]]
+    # El búfer de cero cierra las rendijas entre municipios vecinos antes de unirlos
+    states = gdf.assign(geometry=gdf.geometry.buffer(0)).dissolve("estado").reset_index()
+    points = states.geometry.representative_point()
+    states["label_lon"], states["label_lat"] = points.x.round(DECIMALS), points.y.round(DECIMALS)
+    states["geometry"] = states.geometry.set_precision(10 ** -DECIMALS)
+    return states.to_json(drop_id=True)
+
+
 def warm_up():
-    """Carga el GeoJSON antes de aceptar peticiones; la primera visita no espera."""
+    """Carga los GeoJSON antes de aceptar peticiones; la primera visita no espera."""
     municipal_json()
+    states_json()
 
 
 @bp.get("/api/municipal")
@@ -66,5 +84,14 @@ def municipal():
         return res
     res = Response(municipal_json(), mimetype="application/geo+json")
     # Igual que /api/parcels y /api/economics: el navegador lo reutiliza una hora
+    res.headers["Cache-Control"] = "public, max-age=3600"
+    return res
+
+
+@bp.get("/api/municipal/estados")
+def states():
+    if not MUNICIPAL_GPKG.exists():
+        return jsonify(error="Falta outputs/generalizable_municipios.gpkg; el modelo municipal no está generado"), 503
+    res = Response(states_json(), mimetype="application/geo+json")
     res.headers["Cache-Control"] = "public, max-age=3600"
     return res

@@ -46,7 +46,7 @@ La app solo lee resultados ya generados. No corre el modelo.
 
 | Archivo | Contenido |
 |---|---|
-| `outputs/generalizable_municipios.parquet` | 486 municipios, todos con estimación (`esperado`, `p10`, `p90`, `prob_bajo_2`) y `confianza`, `dentro_rango_ambiental`, `dentro_dominio`, `con_siap`, `dist_siap_km` y la historia del SIAP (`siap_media`, `siap_anios`, `siap_frac_bajo_2`, `tendencia`). Las columnas `*_sembrada` ponderan por superficie sembrada |
+| `outputs/generalizable_municipios.parquet` | 486 municipios, todos con estimación (`esperado`, `p10`, `p90`, `prob_bajo_2`) y `confianza`, `dentro_rango_ambiental`, `dentro_dominio`, `con_siap`, `dist_siap_km` y la historia del SIAP (`siap_media`, `siap_anios`, `siap_frac_bajo_2`, `tendencia`). Las columnas `*_sembrada` ponderan por superficie sembrada. Las partes de la predicción también vienen ahí. `parte_media` es la media regional llevada a 2025, `parte_tmax` es `pendiente_tmax` por la diferencia entre `tmax_jul_ago` y `tmax_media`, y `parte_vecinos` es la corrección del kriging de residuos (cero en las extrapolaciones). Las tres suman `esperado_sin_corte`, y `esperado` es esa suma cortada en 0. `ancho_intervalo` es el ancho del p10 a p90 antes del corte |
 | `outputs/generalizable_municipios.gpkg` | Lo mismo con los polígonos, capa `municipios` |
 | `outputs/municipal_mapa_clases.json` | Resumen del mapa del reporte en Hidalgo, Puebla y Tlaxcala (municipios con valor, confianza y rango) |
 | `outputs/municipal_cifras.json` | Cifras del reporte municipal, para repetirlas igual en la página de metodología |

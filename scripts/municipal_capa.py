@@ -69,6 +69,8 @@ warnings.filterwarnings("ignore")
 DIST_CERCA_KM = 30.0
 DIST_DOMINIO_KM = 50.0
 DIST_CONFIANZA_MEDIA_KM = 25.0
+# Variable del modelo final: Tmax media de julio y agosto (°C)
+VAR_TMAX = "clim_tmax_jul_ago"
 COBERTURA_MINIMA = 0.75
 BUFFERS = V.BUFFERS_DECISION_KM
 OBJETIVOS = (("rend", ""), ("rend_sembrada", "_sembrada"))
@@ -142,6 +144,19 @@ def confianza(out):
     return pd.Series(c, index=out.index)
 
 
+def descomposicion_tmax(d, y):
+    """Partes de la regresión de nivel sobre la Tmax de julio y agosto, con rendimientos llevados al año
+    de referencia (como hace M.con_tendencia). Devuelve la media regional ponderada, la Tmax media
+    ponderada y la pendiente: la regresión es media + pendiente * (Tmax - tmax_media)."""
+    b = M.pendiente_comun(d, y)
+    ajust = y - b * (d.anio.to_numpy() - M.ANIO_REFERENCIA)
+    X, v, w = M._xy_nivel(d, ajust, [VAR_TMAX])
+    x, w = X[VAR_TMAX].to_numpy(), w / w.sum()
+    media, tmax_media = w @ v, w @ x
+    pendiente = (w * (x - tmax_media)) @ (v - media) / ((w * (x - tmax_media)) @ (x - tmax_media))
+    return media, tmax_media, pendiente
+
+
 def capa(nombre, escala):
     mun = pd.read_parquet(TABLAS / "municipios.parquet")
     te = mun.assign(anio=M.ANIO_REFERENCIA)
@@ -169,8 +184,22 @@ def capa(nombre, escala):
     for objetivo, suf in OBJETIVOS:
         d = M.tabla_modelado(objetivo)
         y = d.y.to_numpy()
-        pred = np.where(rango, f(d, y, te), f_base(d, y, te))
+        regresion = f_base(d, y, te)
+        pred = np.where(rango, f(d, y, te), regresion)
         out[f"esperado{suf}"] = pred
+        if not suf:
+            # Cuánto aporta cada parte a la predicción, antes del corte en 0: media regional, efecto de la
+            # Tmax (pendiente por la diferencia contra la Tmax media) y la corrección por los vecinos con SIAP
+            # (kriging de residuos; cero en las extrapolaciones, que usan solo la regresión)
+            media, tmax_media, pendiente = descomposicion_tmax(d, y)
+            out["tmax_jul_ago"] = mun[VAR_TMAX].to_numpy()
+            out["parte_media"] = media
+            out["parte_tmax"] = pendiente * (out.tmax_jul_ago - tmax_media)
+            out["parte_vecinos"] = pred - regresion
+            out["esperado_sin_corte"] = pred
+            out["tmax_media"] = tmax_media
+            out["pendiente_tmax"] = pendiente
+            assert np.allclose(media + out.parte_tmax + out.parte_vecinos, pred), "la descomposición no suma la predicción"
         for B, m in ((0, ~lejos), (50, lejos)):
             if not m.any():
                 continue
@@ -181,6 +210,8 @@ def capa(nombre, escala):
                 r = r / np.concatenate([R.desviacion_local(d, y, d) for _ in cols])
                 esc = R.desviacion_local(d, y, te[m])
             lo, hi = cuantiles_conformal(r)
+            # Ancho del intervalo p10 a p90 antes del corte en 0: mide la incertidumbre aunque la predicción sea 0
+            out.loc[m, f"ancho_intervalo{suf}"] = (hi - lo) * esc
             out.loc[m, f"p10{suf}"] = pred[m] + lo * esc
             out.loc[m, f"p90{suf}"] = pred[m] + hi * esc
             out.loc[m, f"prob_bajo_2{suf}"] = prob_bajo_umbral(pred[m], r, R.UMBRAL, esc)
