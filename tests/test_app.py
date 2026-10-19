@@ -206,37 +206,3 @@ def test_app_runs_without_heavy_dependencies():
                          capture_output=True, text=True, timeout=600)
     assert res.returncode == 0, res.stderr
     assert res.stdout.strip().endswith("ok")
-
-
-@pytest.fixture
-def fake_install(tmp_path, monkeypatch):
-    # install en una carpeta temporal y sin correr uv de verdad
-    from scripts import cli
-    (tmp_path / ".env.example").write_text("AGRCBDA_PORT=8090\n", encoding="utf-8")
-    calls = []
-    monkeypatch.setattr(cli, "ROOT", tmp_path)
-    monkeypatch.setenv("UV", "uv")
-    monkeypatch.setattr(cli.subprocess, "run", lambda cmd, cwd: calls.append((cmd, cwd)) or subprocess.CompletedProcess(cmd, 0))
-    return cli, tmp_path, calls
-
-
-def test_install_creates_env_and_syncs(fake_install):
-    cli, root, calls = fake_install
-    assert cli.main(["install"]) == 0
-    assert (root / ".env").read_text(encoding="utf-8") == "AGRCBDA_PORT=8090\n"
-    assert calls == [(["uv", "sync", "--inexact"], root)]
-
-
-def test_install_keeps_existing_env(fake_install):
-    cli, root, calls = fake_install
-    (root / ".env").write_text("AGRCBDA_PORT=9000\n", encoding="utf-8")
-    cli.main(["install"])
-    assert (root / ".env").read_text(encoding="utf-8") == "AGRCBDA_PORT=9000\n"
-    assert len(calls) == 1
-
-
-def test_install_rejects_modes(fake_install):
-    cli, _, calls = fake_install
-    with pytest.raises(SystemExit):
-        cli.main(["install", "--production"])
-    assert calls == []

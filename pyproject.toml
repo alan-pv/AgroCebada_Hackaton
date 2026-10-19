@@ -29,9 +29,6 @@ dependencies = [
 [project.optional-dependencies]
 tabpfn = ["tabpfn"]
 
-[project.scripts]
-app = "scripts.cli:main"
-
 [dependency-groups]
 dev = ["pytest"]
 

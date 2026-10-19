@@ -12,5 +12,5 @@ outputs/figuras/
 # Worktrees y configuración local de herramientas
 /.claude/
 
-# Configuración local de la app (ver .env.example)
+# Configuración local de la app (variables AGRCBDA_*)
 .env
