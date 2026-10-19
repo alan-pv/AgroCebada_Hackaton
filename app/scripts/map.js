@@ -94,9 +94,10 @@ const MUN_EXTRAPOLATION_NOTE = "Extrapolación: su clima queda fuera del rango d
 const MUN_NOT_SUITABLE = "Clima no apto para cebada de temporal según el modelo";
 // Respaldo si algún municipio llegara sin estimación: gris claro con borde punteado
 const MUN_NO_ESTIMATE = { color: "#e7e6e0", border: "#898781" };
-// Municipios con parcelas del reto: contorno oscuro punteado encima del municipio (no se dibujan las parcelas)
-const RETO_OUTLINE = { color: "#111111", weight: 2.5, dashArray: "6 3" };
-const RETO_OUTLINE_SELECTED = { color: "#ffffff", weight: 1.5, dashArray: "6 3" };
+// Municipios con parcelas del reto: contorno amarillo claro encima del municipio (no se dibujan las parcelas);
+// con el puntero encima o elegido, el amarillo se oscurece
+const RETO_OUTLINE = { color: "#ffe14d", weight: 3.5, dashArray: null };
+const RETO_OUTLINE_ACTIVE = { color: "#c99400", weight: 4.5, dashArray: null };
 const RETO_PANE = "reto";
 // Capas del modelo municipal: título de su leyenda y clases
 const MUN_LAYERS = new Map([
@@ -682,14 +683,23 @@ function bindInteractions(feature, layer, reset, tooltip) {
       const weight = feature.properties.id === selectedId ? SELECTED_WEIGHT : 3;
       layer.setStyle({ weight, color: BORDER_HOVER, opacity: 1 });
       layer.bringToFront();
+      retoOutlineOf(feature)?.setStyle(retoOutlineStyle(feature, true));
     },
-    mouseout: reset,
+    mouseout: () => {
+      reset();
+      retoOutlineOf(feature)?.setStyle(retoOutlineStyle(feature));
+    },
     // Clic: elige el elemento y abre su resumen en el panel. El tooltip se cierra para no tapar el mapa
     click: () => {
       layer.closeTooltip();
       openItem(feature.properties.id);
     },
   });
+}
+
+// Contorno del reto de un municipio, si lo tiene
+function retoOutlineOf(feature) {
+  return layersById.get(feature.properties.id)?.outline ?? null;
 }
 
 // El elemento elegido va encima de sus vecinos
@@ -762,9 +772,9 @@ function markRetoMunicipalities() {
   }
 }
 
-// Contorno del reto: negro punteado; sobre el municipio elegido (borde negro grueso) se vuelve blanco para seguir viéndose
-function retoOutlineStyle(feature) {
-  const base = feature.properties.id === selectedId ? RETO_OUTLINE_SELECTED : RETO_OUTLINE;
+// Contorno del reto: amarillo claro; más oscuro si el municipio está elegido o tiene el puntero encima
+function retoOutlineStyle(feature, hover = false) {
+  const base = hover || feature.properties.id === selectedId ? RETO_OUTLINE_ACTIVE : RETO_OUTLINE;
   return { ...base, opacity: 1, fill: false };
 }
 
@@ -1129,7 +1139,7 @@ function municipalSummaryHtml(p) {
     + "<p>Las cifras son toneladas por hectárea cosechada del SIAP, más bajas que las de las parcelas del reto. "
     + "No se comparan con la predicción de una parcela.</p>"
     + "<p>El rango p10 a p90 contiene el rendimiento real del municipio en unos 8 de cada 10 casos.</p>"
-    + "<p>Los municipios con parcelas del reto llevan un contorno punteado en el mapa; el modelo municipal no usa esas parcelas.</p>"
+    + "<p>Los municipios con parcelas del reto llevan un contorno amarillo en el mapa; el modelo municipal no usa esas parcelas.</p>"
     + "</div></details>";
 }
 

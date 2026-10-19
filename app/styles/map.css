@@ -770,9 +770,10 @@
   border-color: #898781;
 }
 
-/* Municipio con parcelas del reto: contorno oscuro punteado, como en el mapa */
+/* Municipio con parcelas del reto: contorno amarillo claro, como en el mapa */
 .legend-swatch--reto {
-  border: 2px dashed #111111;
+  border: 3px solid #ffe14d;
+  box-shadow: inset 0 0 0 1px #c99400;
 }
 
 /* Confianza del modelo municipal: gama de verdes, más oscuro cuanto más confianza (igual que el mapa y la leyenda) */
