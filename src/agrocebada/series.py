@@ -24,7 +24,7 @@ import pandas as pd
 from scipy import sparse
 from scipy.sparse.linalg import spsolve
 
-from .config import PROCESSED, REPORTE
+from .config import FIGURAS, PROCESSED
 from .io import leer_basico, leer_pro
 
 # Umbral principal de nubosidad (%). Se conservan las observaciones con nubosidad <= umbral.
@@ -277,7 +277,7 @@ def figura_ejemplo(series, ruta=None):
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    ruta = ruta or REPORTE / "figuras" / "series_ejemplo.png"
+    ruta = ruta or FIGURAS / "series_ejemplo.png"
     ruta.parent.mkdir(parents=True, exist_ok=True)
     par = pd.read_parquet(PROCESSED / "parcelas.parquet")
     ent = par[par["conjunto"] == "ENTRENAMIENTO"]

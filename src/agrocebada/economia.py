@@ -5,7 +5,7 @@
 
 No es una variable del modelo. Toma la predicción (pred, p10), el municipio y el área de cada
 parcela y los datos de `data/externos/economia_municipal.csv` (se construye con
-`scripts/capa_economica.py`) y devuelve por parcela
+`scripts/credito.py`) y devuelve por parcela
 
   precio, costo_total, costo_credito         $/t y $/ha usados (2025)
   pe_total, pe_credito                       puntos de equilibrio en t/ha

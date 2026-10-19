@@ -306,7 +306,7 @@ def test_semaforos_y_confianza_coinciden_con_la_economia(client):
 
 
 def test_probabilidades_extremas_se_dicen_con_palabras(client):
-    # Ni 0 % ni 100 %: docs/capa_economica.md pide «menos de 1 %» y «más de 99 %»
+    # Ni 0 % ni 100 %: docs/CREDITO.md pide «menos de 1 %» y «más de 99 %»
     html = client.get("/parcela/AGC_003").get_data(as_text=True)
     econ = economics.parcel_economics_data("AGC_003")
     assert econ["prob_not_cover_costs"] > 0.99

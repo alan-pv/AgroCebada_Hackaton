@@ -1,0 +1,122 @@
+INTRODUCCIÓN
+============
+
+El Reto AgroCebada FIRA 2026 pide estimar el rendimiento de grano de cebada de temporal, en toneladas por hectárea (t/ha), de 59 parcelas de Hidalgo, Puebla y Tlaxcala [1]. Estas entidades se cuentan entre las principales productoras de cebada del país [2]. FIRA busca que la estimación apoye decisiones productivas, de planeación y eventualmente financieras [3].
+
+Contamos con 197 parcelas de nueve municipios, todas del ciclo primavera-verano 2025. En 138 conocemos el rendimiento y las usamos para entrenar. Las otras 59 son las que se califican, principalmente con la raíz del error cuadrático medio (RMSE), el error absoluto medio y el coeficiente de determinación, sin ponderar por superficie [3]. Para todas hay imágenes de los satélites Sentinel-2 [4], Landsat y PlanetScope [5], lluvia [6], temperatura [7] y topografía.
+
+El rendimiento es el peso en báscula de toda la cosecha, sin ajuste por humedad ni impurezas. Lo reportó sobre todo la comercializadora que compró el grano y, en menor medida, el productor [3]. Esto importa porque los rendimientos reportados suelen traer error [8].
+
+Predecir el rendimiento con satélites es un tema muy estudiado [9, 10]. Aquí el problema cambia por dos razones. La primera es que 138 parcelas son pocas, y la diferencia entre dos modelos suele ser menor que el azar de la validación. La segunda es la forma en que se registró el rendimiento.
+
+Al revisar las etiquetas encontramos que cada municipio registra el rendimiento de una sola de dos formas (anexo técnico, Fig. 1). En cuatro municipios los valores tienen dos decimales y promedian 4.49 t/ha. Lo llamamos régimen A. En los otros cinco están redondeados y promedian 3.05 t/ha. Lo llamamos régimen B. La diferencia entre ambos, 1.4 t/ha, es casi tres veces la variación dentro de cada uno, así que conocer el régimen ya explica buena parte del rendimiento. No sabemos si el rendimiento se midió distinto o solo se anotó distinto, y ninguna de las variables ambientales que probamos explica la diferencia [11]. FIRA pidió tratar todos los registros como una sola variable, así que usamos el régimen como una característica del municipio y no como dos problemas separados.
+
+Por eso nuestro trabajo no se limita a buscar el algoritmo con menor error. Buscamos responder qué información predice de verdad el rendimiento, qué tan confiable es el error que estimamos y qué significa ese error para un productor o un analista.
+
+Entregamos dos modelos que se complementan. El primero estima las 59 parcelas. Usa el régimen del municipio y el rendimiento de las parcelas vecinas, y esperamos que su RMSE ronde 0.49 t/ha. El segundo va más allá del conjunto de datos del reto. Con estadísticas públicas del SIAP de 2003 a 2025 y datos de clima, estima el rendimiento esperado de cada municipio de Hidalgo, Puebla y Tlaxcala, incluidos los que no tienen parcelas en el reto. Así responde dónde rinde más la cebada de temporal y por qué, algo que 138 parcelas de nueve municipios no permiten ver. Ambos se acompañan de intervalos, una traducción del error a pesos y una aplicación web. El detalle de cada análisis está en nuestros reportes técnicos [11, 12, 13, 14] y el código en su repositorio [15].
+
+
+JUSTIFICACIÓN
+=============
+
+FIRA pidió que la estimación sirva para decisiones productivas, de planeación y eventualmente financieras, y que cada equipo explique qué significa su error en términos productivos [3]. Para cualquiera de esas decisiones un número solo no basta. Hace falta saber cuánto puede fallar.
+
+Las mediciones de campo son escasas y costosas, mientras que las imágenes de satélite y el clima son públicos y cubren cualquier parcela. Vale la pena saber cuánta información del rendimiento contienen realmente. Con pocas parcelas y un registro heterogéneo, también vale la pena medir el error con cuidado, porque un error subestimado haría parecer seguras decisiones que no lo son.
+
+Este trabajo aporta una estimación por parcela con un error medido de forma conservadora, su traducción a pesos y una aplicación para consultarla. El detalle de cada decisión está en los reportes técnicos del repositorio [15].
+
+
+OBJETIVOS
+=========
+
+Objetivo general. Estimar el rendimiento de cebada de temporal de las 59 parcelas del reto con el menor error posible en parcelas no vistas, medir con honestidad qué tan confiable es esa estimación y extenderla con datos públicos a toda la región.
+
+Objetivos específicos.
+1. Caracterizar las etiquetas de rendimiento y medir cómo su forma de registro limita lo que un modelo puede predecir.
+
+2. Construir el modelo con una regla de decisión fijada antes de probar ideas, y conservar solo las piezas que mejoren la validación de forma consistente.
+
+3. Estimar el error esperado incluyendo el costo de elegir entre variantes, y entregar por parcela un intervalo de predicción con cobertura verificada.
+
+4. Responder con evidencia qué índice satelital, qué variable climática y qué combinación de variables pesan más.
+
+5. Construir con datos públicos un modelo municipal que extienda la estimación a toda la región y valide qué variable climática pesa más.
+
+6. Traducir el error a pesos por hectárea y a una señal de riesgo de crédito, e indicar en qué momento del ciclo puede usarse la estimación.
+
+7. Publicar una aplicación web que ejecute el modelo y muestre predicciones, intervalos y probabilidades.
+
+
+METODOLOGÍA
+===========
+
+Seguimos siete pasos. En cada uno explicamos qué decidimos y por qué.
+1. Limpieza de los datos. Usamos una observación de satélite solo si su nubosidad era de 20 % o menos. Elegimos ese umbral porque la nubosidad casi siempre vale 0 o 100 %, y cuando vale 100 los índices vienen vacíos. Con él cada parcela conserva entre 19 y 34 imágenes de Sentinel-2 en la temporada de 2025 [13]. Quitamos los picos aislados y suavizamos cada serie, porque un salto que regresa en pocos días suele ser una nube no detectada. Dejamos fuera el índice de área foliar de Sentinel-2, porque su fórmula da valores negativos sobre suelo desnudo, algo sin sentido físico [16]. Con lo demás construimos 91 variables por parcela, como el verdor máximo de 2025, las etapas del ciclo [17], la historia de 2022 a 2024, el clima y el terreno.
+
+2. Asignación del régimen. Asignamos el régimen por el nombre del municipio. No lo hicimos por los decimales de cada parcela, porque 7 de las 87 parcelas del régimen A tienen un solo decimal y se habrían clasificado mal. En seis parcelas de municipios muy pequeños el régimen se dedujo de su propia etiqueta. Sin ellas el error cambia de 0.458 a 0.464 t/ha [13].
+
+3. Forma de evaluar. Fijamos la forma de evaluar antes de probar ideas, para no acomodarla a los resultados. Medimos el error siempre en parcelas que el modelo no vio, con validación cruzada de cinco grupos repetida 10 veces, que imita la partición de FIRA. Como parcelas cercanas se parecen y eso puede volver optimista la validación [18, 19], también evaluamos dejando fuera zonas completas. Una idea se acepta solo si mejora el error en al menos 7 de las 10 repeticiones y pasa una prueba de permutación [20]. Esa prueba revuelve las variables nuevas dentro de cada régimen y repite la validación 50 veces. Si el modelo predice igual de bien con ellas revueltas, la mejora era azar.
+
+4. Construcción del modelo. Agregamos piezas de la más simple a la más compleja, y cada pieza tuvo que ganarle a la mejor versión aceptada hasta ese momento. Empezamos con la media de cada régimen. Después agregamos el rezago espacial, que es el promedio del rendimiento de las parcelas vecinas del mismo régimen, porque parcelas cercanas comparten suelo, clima y manejo [21]. Usamos vecinas a 400 m o menos porque es el radio con menor error [13]. Luego probamos bloques de variables satelitales, climáticas y topográficas, y al final comparamos algoritmos. El elegido, por tener el menor error, es un proceso gaussiano [22], cuyos parámetros se ajustan solo con las parcelas de entrenamiento de cada grupo (anexo técnico, ecuaciones 1 y 2).
+
+5. Confiabilidad. Probar muchas variantes y quedarse con la mejor infla el resultado [23]. Para medir ese efecto repetimos toda la elección dentro de cada grupo, lo que se llama validación anidada [24]. Todo lo que usa el rendimiento, como el rezago, se recalcula en cada grupo solo con las parcelas de entrenamiento, así que ninguna parcela del grupo evaluado influye en sus predicciones. Para cada parcela calculamos un intervalo del percentil 10 al 90 con predicción conformal [25, 26], por separado en cada régimen porque sus errores son distintos (anexo técnico, ecuación 3). Una prueba automatizada verifica que cambiar las etiquetas de prueba no cambia las predicciones [27].
+
+6. Modelo municipal con datos públicos. Usamos el rendimiento de cebada de temporal del SIAP de 2003 a 2025 en 100 municipios de Hidalgo, México, Puebla y Tlaxcala [28] y la temperatura máxima (Tmax) de julio y agosto [7]. Elegimos esa variable porque el calor durante el llenado reduce el peso del grano [29]. El modelo es una regresión con la Tmax más un kriging de sus errores [30] (anexo técnico, ecuación 4). Lo validamos prediciendo zonas completas sin usar municipios a menos de 50 km [18], porque así se simula un lugar sin datos.
+
+7. Traducción a pesos. Valuamos la predicción con el precio medio rural del SIAP de 2023 a 2025 [28] y con los costos de los paquetes de AgroCostos de FIRA [31], actualizados a 2025 con la inflación.
+
+
+RESULTADOS Y DISCUSIÓN
+======================
+
+Error en validación cruzada. El modelo obtiene un RMSE de 0.458 t/ha, un error absoluto medio (MAE) de 0.312 t/ha y un coeficiente de determinación (R²) de 0.71 [13]. Solo con la media de cada régimen el RMSE es 0.489. La mejora va en la dirección correcta, aunque con 138 parcelas su intervalo de confianza del 95 % todavía incluye el cero (anexo técnico, Tabla II).
+
+Error esperado en la calificación. Al repetir toda la elección dentro de la validación el RMSE es 0.490, prácticamente el de la media por régimen. Por eso esperamos alrededor de 0.49 t/ha en las 59 parcelas, y el 0.458 es una cifra optimista. Con solo 59 parcelas el resultado también depende de cuáles toquen, y por azar podría caer entre 0.35 y 0.56 [13].
+
+Qué aportó cada pieza. El régimen es la base. Cuando la validación deja fuera zonas completas, la media por municipio sube a 0.955 t/ha y la del régimen se mantiene en 0.489, así que el régimen generaliza y el municipio no. El rezago espacial mejoró el error en 9 de 10 repeticiones y pasó la prueba de permutación (p = 0.02). Ningún bloque de variables satelitales, climáticas o topográficas pasó la regla (Fig. 2). El clima, por ejemplo, viene en celdas de unos 5 km y solo distingue zonas, algo que ya hacen el régimen y los vecinos. Entre los algoritmos comparados, el proceso gaussiano obtuvo el menor error [13].
+
+Cómo verificamos la fuga de información. Auditamos que todo lo que usa el rendimiento se calcule solo con el entrenamiento, una prueba automatizada verifica que cambiar las etiquetas de prueba no cambia sus predicciones, y con los rendimientos revueltos el RMSE no baja de 0.485, contra 0.467 con los reales [13]. Ninguna prueba descarta la fuga por completo, pero ninguna la encontró.
+
+Los intervalos cumplen. El intervalo del percentil 10 al 90 contiene el rendimiento real en 83 % de los casos, cerca de la meta de 80 % [13]. En 18 parcelas, todas del régimen B, la probabilidad de quedar bajo 2.5 t/ha, el percentil 10 de ese régimen, supera 10 %. La tabla con las 59 predicciones está en el anexo técnico.
+
+El modelo municipal funciona donde no hay datos. En municipios sin datos del SIAP a menos de 50 km obtiene un RMSE de 0.44 t/ha en promedios municipales, que no se compara con el de parcelas, contra 0.57 del kriging de vecinos, que no usa clima, y gana en las 10 repeticiones (anexo técnico, Fig. 5). Como elegimos la Tmax viendo resultados, repetimos esa elección de forma anidada y la ventaja sigue a favor, con unos 0.07 t/ha. Cada grado más de Tmax se asocia con 0.79 t/ha menos [14]. El mapa regional (Fig. 6) muestra que el oriente de Puebla y Tlaxcala, más fresco en verano, tiene el mayor rendimiento esperado.
+
+Por qué el clima no ayudó en las parcelas. En los nueve municipios del reto la Tmax solo va de 23.3 a 23.9 ^\circC [14]. A esa escala casi no varía, así que no puede distinguir una parcela de otra. A escala regional sí.
+
+Preguntas guía. Las bases plantean tres preguntas [1]. Como el modelo final no usa índices ni clima, las respondimos con un bosque aleatorio auxiliar, midiendo cuánto sube su error al revolver cada variable (anexo técnico, Fig. 4). Primero, el índice satelital más importante. Sin el régimen es el NDVI, porque su historia identifica la zona, y con régimen y vecinos es el índice de sequía NDDI [32], aunque apenas aporta 0.004 t/ha [13]. Segundo, la variable climática de mayor peso. En las parcelas ninguna aporta una vez conocido el régimen, y a escala regional es la Tmax de julio y agosto. Tercero, la mejor combinación, que es régimen más rezago espacial.
+
+Qué significa el error para un productor. Con el precio del SIAP, un error de 0.49 t/ha equivale a unos 2,700 pesos por hectárea en promedio por parcela, entre 2,100 y 3,500 según el municipio. Es de 7 a 13 % del costo de producción y de 14 a 47 % del crédito por hectárea [15]. Sirve para ordenar parcelas por riesgo, pero no para decidir sola sobre una parcela.
+
+Aplicación. En https://agrocebada.alan-pv.com se consulta el mapa de parcelas, la predicción con su intervalo y la probabilidad de quedar bajo un umbral que elige el usuario. La aplicación ejecuta el modelo en vivo.
+
+
+USO DE LA CIENCIA DE DATOS EN LA INCLUSIÓN FINANCIERA DEL SECTOR AGRO
+=====================================================================
+
+Del rendimiento de la zona al de la parcela. Los paquetes tecnológicos de AgroCostos, que FIRA sugirió consultar [3], suponen un rendimiento esperado por zona [31]. Nuestra capa de crédito usa en su lugar la predicción de cada parcela con su incertidumbre. Con ella calcula la probabilidad de no cubrir el crédito o el costo de producción (anexo técnico, ecuación 5). Si la cosecha se pierde el ingreso es cero, así que la probabilidad también incluye la pérdida histórica del municipio. Un semáforo la resume en verde, amarillo o rojo, con cortes que evitan dar por segura una parcela riesgosa. Con el crédito, 23 parcelas salen en verde, 30 en amarillo y 6 en rojo [15]. Con el costo total casi todas salen en rojo, porque el paquete incluye la aportación del productor y los gastos que el crédito no financia.
+
+A quién sirve. La comercializadora puede decidir dónde visitar primero, el analista ordenar parcelas por riesgo y el productor ver cuánto necesita cosechar para pagar.
+
+Planeación regional. El mapa municipal indica dónde es más probable un buen rendimiento, aun sin parcelas registradas. Puede orientar la planeación de crédito hacia zonas nuevas, como guía preliminar porque se valida con promedios municipales y no con parcelas.
+
+Qué no hace. La probabilidad describe un año parecido a 2025 y no incluye sequías, heladas ni cambios de precio. Por eso no es una probabilidad de incumplimiento ni sirve para fijar el precio de un seguro [33].
+
+Cuándo se puede usar. El modelo usa el rendimiento de parcelas vecinas de la misma temporada, que solo existe después de su cosecha. Es una estimación de cierre de temporada. Para usarlo antes de cosechar harían falta rendimientos de ciclos anteriores. El modelo municipal sí sirve antes de sembrar, porque usa el clima promedio.
+
+
+CONCLUSIONES
+============
+
+Construimos un modelo sencillo para estimar el rendimiento de 59 parcelas de cebada de temporal. Usa dos datos, el régimen de registro del municipio y el rendimiento de las parcelas vecinas, combinados con un proceso gaussiano. Esperamos un RMSE cercano a 0.49 t/ha en las 59 parcelas, casi igual al de la media por régimen.
+
+Cada pieza entró porque mejoró la validación de forma consistente con una regla fijada de antemano [13]. Las variables satelitales y climáticas no aportaron una vez conocidos el régimen y los vecinos.
+
+Nuestros resultados sugieren que el límite de este reto está más en las etiquetas que en el algoritmo. El modelo mejora poco a la media por régimen, y el redondeo y la fuente mixta del rendimiento pueden agregar un ruido que no pudimos medir. Conocer la fuente de cada registro, la fecha de siembra o tener cortes de cosecha medidos permitiría comprobarlo, y podría ayudar más que un modelo más complejo.
+
+El modelo municipal es nuestra principal aportación más allá del conjunto de datos del reto. Con datos públicos estima el rendimiento esperado de toda la región y muestra que el calor de verano es la variable climática clave. También explica por qué el clima no ayudó en las parcelas, porque en los nueve municipios del reto casi no varía.
+
+Sobre las preguntas guía, el NDVI y la lluvia pesan solo cuando falta el régimen, porque indican la zona. Con el régimen y los vecinos, el NDDI es el índice que más aporta, pero su efecto es muy pequeño. A escala regional la variable climática de mayor peso es la Tmax de julio y agosto. La mejor combinación es régimen más rezago espacial.
+
+Para un productor, el error equivale a unos 2,700 pesos por hectárea en promedio por parcela. La estimación sirve para ordenar parcelas y orientar la revisión de un crédito, junto con el juicio del analista.
+
+Como trabajo futuro proponemos validar con el rendimiento real de las 59 parcelas cuando FIRA lo publique, sumar más temporadas para estimar antes de la cosecha y probar la capa de crédito con datos reales.
