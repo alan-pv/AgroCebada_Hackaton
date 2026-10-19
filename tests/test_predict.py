@@ -123,8 +123,9 @@ def test_csv_de_entrega_para_fira(datos):
     crudo = ruta.read_bytes()
     assert not crudo.startswith(b"\xef\xbb\xbf")  # sin BOM
     d = pd.read_csv(ruta)
-    assert list(d.columns) == ["ID_POLIGONO", "RENDIMIENTO_T_HA"]
+    assert list(d.columns) == ["ID_POLIGONO", "AREA_HA", "RENDIMIENTO_T_HA", "CONJUNTO"]
     assert len(d) == 59 and set(d["ID_POLIGONO"]) == set(datos[2].index)
+    assert (d["CONJUNTO"] == "PREDICCION").all() and d["AREA_HA"].gt(0).all()
     assert d["RENDIMIENTO_T_HA"].between(2.0, 5.6).all()
 
 

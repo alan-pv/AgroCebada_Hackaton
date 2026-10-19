@@ -24,7 +24,7 @@ El modelo es una estimación de cierre de temporada. Usa el rendimiento de las p
 | Archivo | Contenido |
 |---|---|
 | `models/modelo_final.joblib` | Modelo entrenado con las 138 parcelas |
-| `outputs/parcelas/los_bien_dotados_prediccion.csv` | CSV oficial para FIRA, 59 filas con `ID_POLIGONO` y `RENDIMIENTO_T_HA` |
+| `outputs/parcelas/los_bien_dotados_prediccion.csv` | CSV oficial para FIRA, 59 filas con `ID_POLIGONO`, `AREA_HA`, `RENDIMIENTO_T_HA` y `CONJUNTO` |
 | `outputs/parcelas/predicciones_finales.csv` | Las 59 con p10, p90 y probabilidad bajo el umbral |
 | `outputs/parcelas/predicciones.parquet` | Las 197 parcelas con todas las columnas, la tabla que lee la app |
 | `outputs/parcelas/controles_entrega.csv` | Resultado de los controles de la entrega |

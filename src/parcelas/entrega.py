@@ -4,7 +4,7 @@
 
 Escribe
   outputs/parcelas/predicciones_finales.csv        las 59 con p10, p90 y probabilidad bajo el umbral
-  outputs/parcelas/{NOMBRE_EQUIPO}_prediccion.csv  el CSV para FIRA (ID_POLIGONO, RENDIMIENTO_T_HA)
+  outputs/parcelas/{NOMBRE_EQUIPO}_prediccion.csv  el CSV para FIRA (ID_POLIGONO, AREA_HA, RENDIMIENTO_T_HA, CONJUNTO)
   outputs/parcelas/predicciones.parquet            las 197 parcelas, para la app
   outputs/parcelas/controles_entrega.csv           resultado de los controles
   analisis/parcelas/margen_azar.csv                variación esperada del RMSE sobre 59 parcelas
@@ -22,6 +22,7 @@ import pandas as pd
 from . import controles
 from .cv import N_REP
 from .config import ANALISIS_PARCELAS, FIGURAS, NOMBRE_EQUIPO, OUTPUTS_PARCELAS, PROCESSED, SEED
+from .io import leer_etiquetas
 from .predict import cargar_modelo, predict
 from .train_final import cargar_datos
 
@@ -48,6 +49,13 @@ def archivos_de_entrega(t):
                         "prob_bajo_umbral": e["prob_bajo_umbral"].round(3).to_numpy(),
                         "regimen": e["regimen"].to_numpy()})
     return out.reset_index(drop=True)
+
+
+def csv_fira(e):
+    """Las 59 con las columnas del archivo de FIRA. AREA_HA y CONJUNTO se copian del original."""
+    et = leer_etiquetas().drop(columns="RENDIMIENTO_T_HA")
+    out = e[["ID_POLIGONO", "RENDIMIENTO_T_HA"]].merge(et, on="ID_POLIGONO", how="left", validate="1:1")
+    return out[["ID_POLIGONO", "AREA_HA", "RENDIMIENTO_T_HA", "CONJUNTO"]]
 
 
 def margen_azar(n_prediccion_por_regimen, semilla=SEED):
@@ -156,7 +164,7 @@ def main():
     cols = ["ID_POLIGONO", "RENDIMIENTO_T_HA", "p10", "p90", "prob_bajo_umbral"]
     e[cols].to_csv(OUTPUTS_PARCELAS / "predicciones_finales.csv", index=False, encoding="utf-8",
                    lineterminator="\n")
-    e[cols[:2]].to_csv(OUTPUTS_PARCELAS / f"{NOMBRE_EQUIPO}_prediccion.csv", index=False,
+    csv_fira(e).to_csv(OUTPUTS_PARCELAS / f"{NOMBRE_EQUIPO}_prediccion.csv", index=False,
                        encoding="utf-8", lineterminator="\n")
     t.to_parquet(OUTPUTS_PARCELAS / "predicciones.parquet", index=False)
     cuenta = e["regimen"].value_counts().sort_index().to_dict()

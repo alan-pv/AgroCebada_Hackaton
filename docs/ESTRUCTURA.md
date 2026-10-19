@@ -30,7 +30,7 @@ Los dos modelos comparten `src/parcelas/config.py`, con las rutas del proyecto y
 
 | Archivo | Contenido | Lo genera |
 |---|---|---|
-| `outputs/parcelas/los_bien_dotados_prediccion.csv` | CSV oficial para FIRA, 59 filas con `ID_POLIGONO` y `RENDIMIENTO_T_HA` | `parcelas.predict` |
+| `outputs/parcelas/los_bien_dotados_prediccion.csv` | CSV oficial para FIRA, 59 filas con `ID_POLIGONO`, `AREA_HA`, `RENDIMIENTO_T_HA` y `CONJUNTO` | `parcelas.predict` |
 | `outputs/parcelas/predicciones_finales.csv` | Las 59 con p10, p90 y probabilidad bajo el umbral | `parcelas.predict` |
 | `outputs/parcelas/predicciones.parquet` | Las 197 parcelas con todas las columnas, la tabla que lee la app | `parcelas.predict` |
 | `outputs/parcelas/controles_entrega.csv` | Resultado de los controles de la entrega | `parcelas.predict` |
