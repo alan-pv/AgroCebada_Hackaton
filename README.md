@@ -107,9 +107,9 @@ La aplicación está publicada en https://agrocebada.alan-pv.com y no hace falta
 
 | Ruta | Qué muestra |
 |---|---|
-| `/` | Mapa de las parcelas por conjunto, rendimiento, predicción o riesgo, con la lista de las 59 ordenada por riesgo |
+| `/` | Mapa de las parcelas por conjunto, rendimiento, predicción o riesgo, con la lista de las 59 ordenada por riesgo, y capas del modelo municipal con rendimiento esperado, probabilidad de rendimiento bajo y confianza |
 | `/parcela/<id>` | Ficha de la parcela con su intervalo, confianza, economía, desglose del modelo y serie de NDVI |
 | `/ejecutar` | Corre el modelo en vivo sobre parcelas del conjunto o parcelas nuevas por coordenadas o CSV |
 | `/metodologia` | Validación, cobertura, confianza, margen de azar e importancia de las variables |
-| `/api/parcels`, `/api/predictions`, `/api/economics`, `/api/methodology` | Los mismos datos en JSON, y en CSV con `format=csv` donde aplica |
+| `/api/parcels`, `/api/predictions`, `/api/economics`, `/api/methodology`, `/api/municipal` | Los mismos datos en JSON, y en CSV con `format=csv` donde aplica |
 | `POST /api/predict` y `POST /api/predict/new` | Predicción en vivo de parcelas del conjunto o nuevas |
