@@ -15,7 +15,7 @@ Equipo Los Bien Dotados · Facultad de Ciencias de la Computación, BUAP · Reto
 
 </div>
 
-Predecimos el rendimiento de cebada de temporal (t/ha) de 59 parcelas de Puebla, Hidalgo y Tlaxcala a partir de 138 parcelas con rendimiento conocido. El modelo usa el régimen de registro de cada municipio y el rendimiento de las parcelas vecinas, con un RMSE esperado de 0.458 t/ha (0.490 en el peor caso) y un rango de rendimiento probable por parcela. Un segundo modelo, entrenado con datos públicos del SIAP y la temperatura de verano, estima el rendimiento esperado de los municipios del altiplano de Hidalgo, Puebla y Tlaxcala, incluso donde no hay parcelas medidas, con un RMSE de 0.44 t/ha donde no hay datos cerca, un rango probable y una confianza alta, media o baja por municipio. Una capa de crédito traduce la predicción de cada parcela a pesos y a riesgo de no pagar el crédito.
+Predecimos el rendimiento de cebada de temporal (t/ha) de 59 parcelas de Puebla, Hidalgo y Tlaxcala a partir de 138 parcelas con rendimiento conocido. El modelo usa el régimen de registro de cada municipio y el rendimiento de las parcelas vecinas, con un RMSE esperado de 0.458 t/ha y un rango de rendimiento probable por parcela. Un segundo modelo, entrenado con datos públicos del SIAP y la temperatura de verano, estima el rendimiento esperado de los municipios del altiplano de Hidalgo, Puebla y Tlaxcala, incluso donde no hay parcelas medidas, con un RMSE de 0.44 t/ha donde no hay datos cerca, un rango probable y una confianza alta, media o baja por municipio. Una capa de crédito traduce la predicción de cada parcela a pesos y a riesgo de no pagar el crédito.
 
 ![Recorrido por las capas del mapa municipal](docs/imagenes/recorrido_capas.gif)
 
